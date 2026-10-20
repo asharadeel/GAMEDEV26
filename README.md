@@ -7,6 +7,7 @@ All project content lives in `Assets/`:
 - `Audio/` - music and sound effects (empty for now)
 - `Data/` - game data assets (ScriptableObjects)
   - `Consumables/Food/` - `Beans`
+  - `Mobs/` - mob profiles (`MobLevel1`, `MobLevel2`, `MobLevel3`)
   - `Consumables/Drinks/` - `WaterBottle`, `Soda`
   - `Weapons/Shooters/` - `EM Raygun`
     - `Lazers/` - `Lazer`, `UV Lazer`, `Gamme Lazer` (ammo/upgrades for the EM Raygun)
@@ -14,20 +15,24 @@ All project content lives in `Assets/`:
   - `Weapons/Specials/` - `Rocket`, `Grenade`
 - `Fonts/` - Arial, used by all UI text
 - `Images/` - 2D images (`pointer.png` - aim arrow, `circleborder.png` - door ring and prompt)
+- `Materials/Palette/` - ready-to-use materials: `Colours` (23 flat colours), `Metals`, `Glow` (emissive), `Glass` (see-through), `Surfaces` (wood, stone, brick, ice, lava...)
 - `Materials/` - materials for scene objects. `Level/` has the level materials (Floor, Grass, Path, SpawnPad, TreeTrunk, TreeLeaves, Door, HexFloor, HexWall). Others: (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
 - `Models/` - 3D models and prefabs (`Lazer`, `UV Lazer`, `Gamme Lazer`)
+  - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
+    - `Spawners/` - `MobSpawner` prefab
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes
 - `Scripts/` - all C# code
   - `Generic/` - small reusable scripts that can go on any object
   - `Items/` - item base class, consumables, item database
+  - `Mobs/` - mob profiles, mobs, spawners
   - `Player/` - player profile, survival stats, combat, inventory
   - `Save/` - saving and loading to JSON, the shared player profile
   - `UI/` - buttons, menus and the player HUD
   - `Weapons/` - weapon types and projectiles
   - `World/` - things in the level the player interacts with (doors)
 - `Textures/` - textures used by materials (empty for now)
-- `UI/` - UI assets such as sprites and prefabs (empty for now)
+- `UI/` - UI prefabs (`MobHealthBar` - health bar shown above mobs)
 
 # Build Settings
 - Unity version: 2023.1.22f1
@@ -55,6 +60,7 @@ Scene 1 Plains
 Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
 - `Garden` (front/south): grass, trees, bushes, `SpawnPad` with `PlayerSpawn`, path to the building
 - `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
+- `MobSpawners`: 3 across the middle of the maze, 3 in the end room
 - `HexRoom` (east of the map, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 
 Scene 1 Plains UI (`Canvas > PlayerUI`):
@@ -71,6 +77,8 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 | Shift | Sprint (uses stamina) |
 | Space | Jump |
 | Mouse | Aim (360 degrees) |
+| Right Click + drag | Rotate camera (360 degrees) |
+| Scroll | Zoom in / out |
 | Left Click / X | Attack with selected weapon |
 | 1 / 2 / 3 | Select shooter / melee / special |
 | Q | Cycle weapons |
@@ -85,9 +93,10 @@ All scripts are in `Assets/Scripts/`.
 
 ## Scripts/
 - `PlayerController.cs` - goes on the Player
-  - WASD moves the player using its Rigidbody, so walls block it
+  - WASD moves the player using its Rigidbody, so walls block it. Movement follows the camera's rotation (W is always up the screen)
   - Space jumps (only when on the ground), Shift sprints while there's stamina
   - Move speed comes from the player profile, `Sprint Multiplier` and `Jump Force` are set here
+  - Right click + drag spins the camera (`Rotate Speed`), scroll zooms Orthographic Size between `Min Zoom` (8) and `Max Zoom` (20) in steps of `Zoom Step` (1), starting at `Start Zoom` (10)
   - `Camera Settings` controls the camera (Camera, Pitch, Yaw, Roll, Distance, Orthographic Size). The camera follows the player and always uses these values, change them here not on the camera
 - `DayNight.cs` - goes on GameController
   - Rotates the Directional Light (sun) for a day/night cycle and fades it out at night
@@ -106,6 +115,7 @@ All scripts are in `Assets/Scripts/`.
   - Values have getters/setters that keep them in range (e.g. stamina can't go below 0 or above max)
   - To add a new stat: add a private `[SerializeField]` field and a public property
 - `PlayerStats.cs` - goes on the Player
+  - `TakeDamage(amount)` - mobs and enemy shots call this to lower health
   - Hunger and thirst each drop by 1 every 5 seconds (`Hunger Drop Every`, `Thirst Drop Every`)
   - While hunger or thirst is at 25 or below (`Low Level`), health drops by 1 every 8 seconds (`Health Drop Every`)
   - Stamina drains while sprinting and refills otherwise
@@ -131,9 +141,11 @@ All weapons are assets (see Weapons and Items below).
 - `LazerData.cs` - a bullet/upgrade for a gun: `damage`, `fireRate` (shots/sec), `speed`, `distance` (50), `size`, `rotationOffset`
 - `MeleeData.cs` - slot 2: `damage`, `fireRate`, hits everything within `radius` in front of the player
 - `SpecialData.cs` - slot 3, fires a projectile that explodes: `damage`, `fireRate`, `speed`, `radius`, `distance` (50), `size`, `rotationOffset`
-- `Projectile.cs` - added to each shot automatically when fired
+- `Damage.cs` - shared helpers: `Damage.Hit` (one target) and `Damage.HitArea` (everything in a radius, each mob once)
+- `Projectile.cs` - `Projectile.Spawn(...)` fires a model as a shot (used by the player and shooter mobs)
+  - Player shots hit everything except the player. Enemy shots hit only the player and pass through mobs
   - Flies straight, disappears on hit or after travelling its `distance`
-  - Calls `TakeDamage(float)` on whatever it hits (for enemies later), specials hit everything in their radius
+  - Calls `TakeDamage(float)` on whatever it hits (mobs lose health), specials hit everything in their radius
 
 ## Scripts/Items/
 - `ItemData.cs` - base for every item: `id` (used in the save), `displayName`, `tokenCost` (100), `levelRequired` (1)
@@ -159,6 +171,27 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `OpenElemOnClick.cs` - turns ON every object in its `Elements` list
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
+
+## Scripts/Mobs/
+- `MobData.cs` - a mob profile asset: `id`, `displayName`, `model`, `type` (Follow / Shooter), `health`, `attackDamage`, plus Follow settings (`moveSpeed`, `chaseRange`, `attackRange`, `attackCooldown`) and Shooter settings (`shootRange`, `fireRate`, `projectileModel`, `projectileSpeed`, `projectileSize`). Create > Game > Mob
+- `Mob.cs` - base for every mob: health, health bar, dies at 0, helpers for finding the player
+  - `FollowMob.cs` - wanders until the player is within `chaseRange`, then chases and hits them every `attackCooldown` seconds. Has a Rigidbody so walls block it
+  - `ShooterMob.cs` - stays still, faces the player within `shootRange` and shoots `projectileModel` at them
+  - The spawner adds FollowMob or ShooterMob based on the profile's `type`
+- `MobHealthBar.cs` - on the `UI/MobHealthBar` prefab: slider + health number (e.g. `75 / 100`) above each mob, faces the camera
+- Each mob prefab has a Box Collider on its root covering the whole model, so hits always land
+- `MobSpawner.cs` - goes on a spawner (`Models/Mobs/Spawners/MobSpawner` prefab)
+  - `Spawns` - rows of mob + amount, weakest first
+  - Row 0 starts straight away and spawns every 5s, each next row starts 30s later and spawns 4s slower (row 1: after 30s every 9s, row 2: after 60s every 13s)
+  - `Spawn Radius` - random spread, mobs are placed so they stand on the floor
+  - `Health Bar Prefab` - put above each mob it spawns
+  - Shows a red circle in the Scene view
+
+| Mob | Type | Health | Attack Damage | Speed | Per spawner |
+|---|---|---|---|---|---|
+| Mob Level 1 | Follow | 100 | 10 / hit | 3.5 | 20 |
+| Mob Level 2 | Follow | 125 | 15 / hit | 2.5 | 10 |
+| Mob Level 3 | Shooter | 200 | 22 / shot | stays still | 5 |
 
 ## Scripts/World/
 - `DoorInteract.cs` - goes on a door

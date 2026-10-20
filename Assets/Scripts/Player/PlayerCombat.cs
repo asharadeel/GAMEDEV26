@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.3
+// Version:     1.5
 // Written by:  Ashar
 // Description: Aiming, weapon slots and attacking.
 // ============================================================
@@ -108,36 +108,15 @@ public class PlayerCombat : MonoBehaviour
 
     void Fire(GameObject model, float size, Vector3 rotationOffset, float speed, float damage, float distance, float radius)
     {
-        if (model == null)
-            return;
-
         Vector3 spawnPos = transform.position + aimDirection * (PlayerRadius() + 0.3f); // just outside the player
-        Quaternion rotation = Quaternion.LookRotation(aimDirection) * Quaternion.Euler(rotationOffset);
-
-        GameObject obj = Instantiate(model, spawnPos, rotation);
-        obj.transform.localScale *= size;
-
-        // Triggers + kinematic rigidbody so it detects hits without being pushed around
-        foreach (Collider c in obj.GetComponentsInChildren<Collider>())
-            c.isTrigger = true;
-
-        Rigidbody rb = obj.GetComponent<Rigidbody>();
-        if (rb == null)
-            rb = obj.AddComponent<Rigidbody>();
-        rb.isKinematic = true;
-
-        obj.AddComponent<Projectile>().Launch(aimDirection, speed, damage, distance, radius);
+        Projectile.Spawn(model, spawnPos, aimDirection, size, rotationOffset, speed, damage, distance, radius, false);
     }
 
     void Swing(MeleeData melee)
     {
         Vector3 centre = transform.position + aimDirection * (PlayerRadius() + melee.radius * 0.5f);
 
-        foreach (Collider hit in Physics.OverlapSphere(centre, melee.radius))
-        {
-            if (!hit.CompareTag("Player"))
-                hit.SendMessage("TakeDamage", melee.damage, SendMessageOptions.DontRequireReceiver);
-        }
+        Damage.HitArea(centre, melee.radius, melee.damage);
 
         // Flash the model briefly if it has one (punch has none)
         if (melee.model != null)

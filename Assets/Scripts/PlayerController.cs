@@ -1,8 +1,10 @@
 // ============================================================
 // Title:       PlayerController
-// Version:     1.2
+// Version:     1.4
 // Written by:  Ashar
 // Description: WASD movement, jump, sprint and the follow camera.
+//              Hold right click + drag to spin the camera 360,
+//              scroll to zoom. WASD moves relative to the camera.
 // ============================================================
 
 using UnityEngine;
@@ -20,7 +22,14 @@ public class PlayerController : MonoBehaviour
         public float yaw = 25f;      // turn left/right
         public float roll = 0f;
         public float distance = 50f; // how far back from the player
-        public float orthographicSize = 8f; // zoom
+        public float orthographicSize = 10f; // current zoom (bigger = see more)
+
+        [Header("Controls")]
+        public float rotateSpeed = 4f;       // degrees per mouse movement while right click is held
+        public float zoomStep = 1f;          // size change per scroll notch
+        public float minZoom = 8f;           // most zoomed in
+        public float maxZoom = 20f;          // most zoomed out
+        public float startZoom = 10f;        // zoom when the game starts
     }
 
     [Header("Movement")]
@@ -41,6 +50,9 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<Collider>();
         stats = GetComponent<PlayerStats>();
         rb.freezeRotation = true; // stop the ball tipping/spinning from collisions
+
+        CameraSettings c = cameraSettings;
+        c.orthographicSize = Mathf.Clamp(c.startZoom, c.minZoom, c.maxZoom);
     }
 
     void Update()
@@ -49,11 +61,28 @@ public class PlayerController : MonoBehaviour
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
 
-        input = new Vector3(x, 0f, z).normalized;
+        // Turn the input to match the camera, so W always moves "up" the screen
+        input = Quaternion.Euler(0f, cameraSettings.yaw, 0f) * new Vector3(x, 0f, z).normalized;
         sprintHeld = Input.GetKey(KeyCode.LeftShift);
 
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
             rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+
+        CameraInput();
+    }
+
+    void CameraInput()
+    {
+        CameraSettings c = cameraSettings;
+
+        // Right click + drag left/right spins the camera all the way round
+        if (Input.GetMouseButton(1))
+            c.yaw = Mathf.Repeat(c.yaw + Input.GetAxis("Mouse X") * c.rotateSpeed, 360f);
+
+        // Scroll up zooms in, scroll down zooms out
+        float scroll = Input.mouseScrollDelta.y;
+        if (scroll != 0f)
+            c.orthographicSize = Mathf.Clamp(c.orthographicSize - scroll * c.zoomStep, c.minZoom, c.maxZoom);
     }
 
     void FixedUpdate()

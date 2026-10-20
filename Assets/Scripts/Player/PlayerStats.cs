@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerStats
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
@@ -79,6 +79,12 @@ public class PlayerStats : MonoBehaviour
 
         timer -= interval;
         return true;
+    }
+
+    // Called by mobs and enemy projectiles (via Damage.Hit / SendMessage)
+    public void TakeDamage(float amount)
+    {
+        profile.Health -= amount;
     }
 
     public void Consume(ConsumableData item)

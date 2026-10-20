@@ -2741,7 +2741,12 @@ MonoBehaviour:
     yaw: 10
     roll: 0
     distance: 50
-    orthographicSize: 8
+    orthographicSize: 10
+    rotateSpeed: 4
+    zoomStep: 1
+    minZoom: 8
+    maxZoom: 20
+    startZoom: 10
 --- !u!54 &1453573883
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -21763,6 +21768,415 @@ MonoBehaviour:
   promptButton: {fileID: 1755273707}
   radiusRing: {fileID: 1566318755}
   promptHeight: 3
+--- !u!1001 &422060375
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 521436760}
+    m_Modifications:
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -12.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000001, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_Name
+      value: MobSpawner (Maze Left)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+--- !u!4 &1687785789 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+  m_PrefabInstance: {fileID: 422060375}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &750017695
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 521436760}
+    m_Modifications:
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -12.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000001, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_Name
+      value: MobSpawner (Maze Middle)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+--- !u!4 &1906554300 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+  m_PrefabInstance: {fileID: 750017695}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &271076286
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 521436760}
+    m_Modifications:
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -12.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000001, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_Name
+      value: MobSpawner (Maze Right)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+--- !u!4 &1704464396 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+  m_PrefabInstance: {fileID: 271076286}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &494641577
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 521436760}
+    m_Modifications:
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 37.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000001, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_Name
+      value: MobSpawner (End Room Left)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+--- !u!4 &748406059 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+  m_PrefabInstance: {fileID: 494641577}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &290072251
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 521436760}
+    m_Modifications:
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 37.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000001, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_Name
+      value: MobSpawner (End Room Middle)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+--- !u!4 &855106651 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+  m_PrefabInstance: {fileID: 290072251}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2067056494
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 521436760}
+    m_Modifications:
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 37.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100000000000000001, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+      propertyPath: m_Name
+      value: MobSpawner (End Room Right)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+--- !u!4 &1650188145 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4100000000000000002, guid: e42521a52e754b6f82197ec7588316af, type: 3}
+  m_PrefabInstance: {fileID: 2067056494}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &294003352
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 521436760}
+  m_Layer: 0
+  m_Name: MobSpawners
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &521436760
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294003352}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1687785789}
+  - {fileID: 1906554300}
+  - {fileID: 1704464396}
+  - {fileID: 748406059}
+  - {fileID: 855106651}
+  - {fileID: 1650188145}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -21779,3 +22193,4 @@ SceneRoots:
   - {fileID: 1478733528}
   - {fileID: 643544936}
   - {fileID: 179348128}
+  - {fileID: 521436760}

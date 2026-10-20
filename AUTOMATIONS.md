@@ -10,6 +10,7 @@ Example: *"Add a food called Canned Peaches that restores 35 hunger and 10 thirs
 
 Sections:
 - [Adding Items](#adding-items)
+- [Adding Mobs](#adding-mobs)
 
 ---
 
@@ -202,3 +203,63 @@ Current models:
 - [ ] Lazer: added to the gun's `Lazers` list
 - [ ] README table updated
 - [ ] Tell the user: no scene changes needed, and new items don't need the save deleted. Changing an existing item's `id` does break saves
+
+---
+
+# Adding Mobs
+
+A mob is a profile asset (`MobData`) in `Assets/Data/Mobs/` pointing at a model prefab in `Assets/Models/Mobs/`. Spawners hold a list of profiles + amounts.
+
+## Rules
+- **File name / `m_Name`:** `MobLevel<N>` or the mob's name, e.g. `MobLevel4`
+- **`id`:** lowercase with underscores, unique, e.g. `mob_level_4`
+- **`displayName`:** e.g. `Mob Level 4`
+- **`health`, `attackDamage`:** as given. If not given, ask
+- **`type`:** `0` = Follow (chases the player), `1` = Shooter (stays still and shoots). Shooters need a `projectileModel`
+- **`model`:** the mob prefab in `Assets/Models/Mobs/` (see *Model references* in Adding Items for how to write the reference)
+- Mobs don't need a collider on the root, colliders on child shapes are fine (damage reaches the root)
+
+## By hand
+1. Right-click `Assets/Data/Mobs` > **Create > Game > Mob**, fill in the fields
+2. To spawn it: select a spawner (prefab `Models/Mobs/Spawners/MobSpawner` changes every spawner, or a single one in the scene), add a row to `Spawns` with the mob and amount
+3. Keep `Spawns` in order weakest to strongest (row order decides when they start)
+4. Update the mob table in `README.md`
+
+## As files (Claude)
+`.meta`: same as items (NativeFormatImporter, mainObjectFileID 11400000). `.asset` header: same as items with `<SCRIPT_GUID>` = `MobData` guid (`5546605e9e7b4fcaa7c5323071295c28`, check `Assets/Scripts/Mobs/MobData.cs.meta`). Fields:
+```yaml
+  id: mob_level_1
+  displayName: Mob Level 1
+  model: <MODEL_REF>
+  type: 0
+  health: 100
+  attackDamage: 10
+  moveSpeed: 3
+  chaseRange: 25
+  attackRange: 0.5
+  attackCooldown: 1
+  shootRange: 20
+  fireRate: 0.5
+  projectileModel: {fileID: 0}
+  projectileSpeed: 15
+  projectileSize: 1
+```
+To add it to every spawner, add a row under `spawns:` in `Assets/Models/Mobs/Spawners/MobSpawner.prefab`:
+```yaml
+  - mob: {fileID: 11400000, guid: <NEW_MOB_GUID>, type: 2}
+    amount: 10
+```
+
+Current mob models:
+
+| Prefab | Reference |
+|---|---|
+| `MobLvl1` | `{fileID: 303960829140282040, guid: 103f86cdfa661f14b9aa90b9484ba25f, type: 3}` |
+| `MovLvl2` | `{fileID: 5796215148282423660, guid: aacc9e99494f6c140be570fb3760c544, type: 3}` |
+| `MobLvl3` | `{fileID: 1583457316732566423, guid: 6ec1316160ffde7469230f34cca34869, type: 3}` |
+
+## Checklist
+- [ ] `.asset` and `.meta` in `Assets/Data/Mobs/`, `id` unique
+- [ ] Model reference guid exists in a `.prefab.meta`
+- [ ] Added to the spawner(s) in weakest-to-strongest order if it should spawn
+- [ ] README mob table updated
