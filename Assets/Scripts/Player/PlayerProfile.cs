@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
 // Description: Everything about the player that gets saved:
 //              stats, tokens, owned items and current inventory.
@@ -27,18 +27,15 @@ public class CurrentInventory
 public class PlayerProfile
 {
     public const int MaxInventorySlots = 7; // keys 4-9 and 0
+    public const float MaxStat = 100f;      // health, stamina, hunger, thirst all go 0-100
 
     [SerializeField] private int level = 1;
     [SerializeField] private int tokens = 0;
 
     [SerializeField] private float speed = 5f;
-    [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float health = 100f;
-    [SerializeField] private float maxStamina = 100f;
     [SerializeField] private float stamina = 100f;
-    [SerializeField] private float maxHunger = 100f;
     [SerializeField] private float hunger = 100f;   // 100 = full, 0 = starving
-    [SerializeField] private float maxThirst = 100f;
     [SerializeField] private float thirst = 100f;   // 100 = full, 0 = dehydrated
 
     // Everything bought (items ticked "unlocked" in their asset don't need to be here)
@@ -69,60 +66,36 @@ public class PlayerProfile
         set { speed = Mathf.Max(0f, value); }
     }
 
-    public float MaxHealth
-    {
-        get { return maxHealth; }
-        set { maxHealth = Mathf.Max(1f, value); Health = health; }
-    }
-
     public float Health
     {
         get { return health; }
-        set { health = Mathf.Clamp(value, 0f, maxHealth); }
-    }
-
-    public float MaxStamina
-    {
-        get { return maxStamina; }
-        set { maxStamina = Mathf.Max(1f, value); Stamina = stamina; }
+        set { health = Mathf.Clamp(value, 0f, MaxStat); }
     }
 
     public float Stamina
     {
         get { return stamina; }
-        set { stamina = Mathf.Clamp(value, 0f, maxStamina); }
-    }
-
-    public float MaxHunger
-    {
-        get { return maxHunger; }
-        set { maxHunger = Mathf.Max(1f, value); Hunger = hunger; }
+        set { stamina = Mathf.Clamp(value, 0f, MaxStat); }
     }
 
     public float Hunger
     {
         get { return hunger; }
-        set { hunger = Mathf.Clamp(value, 0f, maxHunger); }
-    }
-
-    public float MaxThirst
-    {
-        get { return maxThirst; }
-        set { maxThirst = Mathf.Max(1f, value); Thirst = thirst; }
+        set { hunger = Mathf.Clamp(value, 0f, MaxStat); }
     }
 
     public float Thirst
     {
         get { return thirst; }
-        set { thirst = Mathf.Clamp(value, 0f, maxThirst); }
+        set { thirst = Mathf.Clamp(value, 0f, MaxStat); }
     }
 
     public void RefillAll()
     {
-        health = maxHealth;
-        stamina = maxStamina;
-        hunger = maxHunger;
-        thirst = maxThirst;
+        health = MaxStat;
+        stamina = MaxStat;
+        hunger = MaxStat;
+        thirst = MaxStat;
     }
 
     // ---- Owned items ----

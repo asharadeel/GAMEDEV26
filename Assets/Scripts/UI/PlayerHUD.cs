@@ -46,10 +46,10 @@ public class PlayerHUD : MonoBehaviour
 
         PlayerProfile p = ProfileManager.Profile;
 
-        SetBar(healthSlider, p.Health, p.MaxHealth);
-        SetBar(staminaSlider, p.Stamina, p.MaxStamina);
-        SetBar(hungerSlider, p.Hunger, p.MaxHunger);
-        SetBar(thirstSlider, p.Thirst, p.MaxThirst);
+        SetBar(healthSlider, p.Health, PlayerProfile.MaxStat);
+        SetBar(staminaSlider, p.Stamina, PlayerProfile.MaxStat);
+        SetBar(hungerSlider, p.Hunger, PlayerProfile.MaxStat);
+        SetBar(thirstSlider, p.Thirst, PlayerProfile.MaxStat);
     }
 
     public void SetVisible(bool visible)

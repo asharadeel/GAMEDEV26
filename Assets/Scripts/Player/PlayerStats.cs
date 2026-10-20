@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerStats
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
@@ -8,16 +8,23 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Goes on the Player. Runs survival: hunger/thirst drain, damage when empty,
-// stamina refill when not sprinting, death.
+// Goes on the Player. All stats go 0-100.
+// Hunger and thirst drop by 1 every few seconds. While either is at or below
+// the low level, health drops by 1 every few seconds. Sprinting drains stamina,
+// not sprinting refills it. Health 0 = death.
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Survival (per second)")]
-    public float hungerDrain = 0.5f;
-    public float thirstDrain = 0.8f;
-    public float starveDamage = 2f;   // health lost while hunger is 0 (and again while thirst is 0)
-    public float staminaRegen = 15f;
+    [Header("Hunger / Thirst")]
+    public float hungerDropEvery = 5f;   // seconds per -1 hunger
+    public float thirstDropEvery = 5f;   // seconds per -1 thirst
+    public float lowLevel = 25f;         // at or below this, health starts dropping
+
+    [Header("Health")]
+    public float healthDropEvery = 8f;   // seconds per -1 health while hungry/thirsty
+
+    [Header("Stamina (per second)")]
     public float sprintCost = 20f;
+    public float staminaRegen = 15f;
 
     [Header("Live profile (read/edit while playing)")]
     [SerializeField] private PlayerProfile profile;
@@ -29,6 +36,10 @@ public class PlayerStats : MonoBehaviour
 
     public bool IsSprinting { get; set; }
 
+    private float hungerTimer;
+    private float thirstTimer;
+    private float healthTimer;
+
     void Awake()
     {
         // Same object as ProfileManager.Profile, shown here so you can watch it in the Inspector
@@ -39,13 +50,16 @@ public class PlayerStats : MonoBehaviour
     {
         float dt = Time.deltaTime;
 
-        profile.Hunger -= hungerDrain * dt;
-        profile.Thirst -= thirstDrain * dt;
+        if (Tick(ref hungerTimer, hungerDropEvery))
+            profile.Hunger -= 1f;
+        if (Tick(ref thirstTimer, thirstDropEvery))
+            profile.Thirst -= 1f;
 
-        if (profile.Hunger <= 0f)
-            profile.Health -= starveDamage * dt;
-        if (profile.Thirst <= 0f)
-            profile.Health -= starveDamage * dt;
+        bool low = profile.Hunger <= lowLevel || profile.Thirst <= lowLevel;
+        if (!low)
+            healthTimer = 0f; // restart the countdown once fed/watered again
+        else if (Tick(ref healthTimer, healthDropEvery))
+            profile.Health -= 1f;
 
         if (IsSprinting)
             profile.Stamina -= sprintCost * dt;
@@ -54,6 +68,17 @@ public class PlayerStats : MonoBehaviour
 
         if (profile.Health <= 0f)
             Die();
+    }
+
+    // Adds time to a timer. True (and resets) each time it passes the interval.
+    bool Tick(ref float timer, float interval)
+    {
+        timer += Time.deltaTime;
+        if (timer < interval)
+            return false;
+
+        timer -= interval;
+        return true;
     }
 
     public void Consume(ConsumableData item)

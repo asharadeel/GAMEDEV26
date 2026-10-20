@@ -91,7 +91,7 @@ All scripts are in `Assets/Scripts/`.
 
 ## Scripts/Player/
 - `PlayerProfile.cs` - the player's saved data (not a component)
-  - Level, Tokens, Speed, Health, Stamina, Hunger, Thirst (each with a max)
+  - Level, Tokens, Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, special and the food/drink slots. Only owned items can be equipped
   - Selected weapon
@@ -99,7 +99,8 @@ All scripts are in `Assets/Scripts/`.
   - Values have getters/setters that keep them in range (e.g. stamina can't go below 0 or above max)
   - To add a new stat: add a private `[SerializeField]` field and a public property
 - `PlayerStats.cs` - goes on the Player
-  - Hunger and thirst drain over time, health drops while either is at 0
+  - Hunger and thirst each drop by 1 every 5 seconds (`Hunger Drop Every`, `Thirst Drop Every`)
+  - While hunger or thirst is at 25 or below (`Low Level`), health drops by 1 every 8 seconds (`Health Drop Every`)
   - Stamina drains while sprinting and refills otherwise
   - At 0 health: stats refill and the scene restarts
   - Drain/regen rates are set in the Inspector, live profile values are shown under `Profile` while playing
