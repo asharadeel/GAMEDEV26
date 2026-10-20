@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       MobData
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
 // Description: Profile for a mob type: its stats, its model and how
 //              it behaves (Follow = chases the player, Shooter =
@@ -21,6 +21,7 @@ public class MobData : ScriptableObject
     [Header("Mob")]
     public string id = "";
     public string displayName = "";
+    public string shortName = "";       // used in the Mobs Left tracker, e.g. "Lvl 1"
     public GameObject model;             // prefab that gets spawned
     public MobType type = MobType.Follow;
 

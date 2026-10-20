@@ -64,6 +64,7 @@ Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
 - `HexRoom` (east of the map, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 
 Scene 1 Plains UI (`Canvas > PlayerUI`):
+- Top centre: Mobs Left tracker (Lvl 1 x n, Lvl 2 x m, Lvl 3 x p)
 - Top right: Controls button, opens a panel listing all controls
 - Left: Objectives list (edit it on `PlayerHUD`)
 - Bottom: Health, Stamina, Hunger, Thirst bars across the full width
@@ -170,6 +171,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `ExitGame.cs` - closes the game (stops Play mode in the editor)
 - `OpenElemOnClick.cs` - turns ON every object in its `Elements` list
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
+- `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
 ## Scripts/Mobs/
@@ -184,6 +186,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
   - `Spawns` - rows of mob + amount, weakest first
   - Row 0 starts straight away and spawns every 5s, each next row starts 30s later and spawns 4s slower (row 1: after 30s every 9s, row 2: after 60s every 13s)
   - `Spawn Radius` - random spread, mobs are placed so they stand on the floor
+  - `Activation Radius` (20) - nothing spawns until the player is this close, timings start from then (yellow circle in the Scene view)
   - `Health Bar Prefab` - put above each mob it spawns
   - Shows a red circle in the Scene view
 

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: mob_level_3
   displayName: Mob Level 3
+  shortName: Lvl 3
   model: {fileID: 1583457316732566423, guid: 6ec1316160ffde7469230f34cca34869, type: 3}
   type: 1
   health: 200

@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       Mob
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
 // Description: Base for every mob. Holds health, shows the health
 //              bar, dies at 0, and has helpers for finding the
@@ -13,6 +13,8 @@ public class Mob : MonoBehaviour
 {
     public MobData data;
     public float health;
+
+    public System.Action onDied;        // the spawner uses this to count kills
 
     protected Transform player;
     protected float myRadius;            // half the mob's width
@@ -57,6 +59,11 @@ public class Mob : MonoBehaviour
         health -= amount;
         UpdateBar();
 
+        if (health <= 0f && onDied != null)
+        {
+            onDied();
+            onDied = null;                   // only count once
+        }
         if (health <= 0f)
             Destroy(gameObject);
     }
