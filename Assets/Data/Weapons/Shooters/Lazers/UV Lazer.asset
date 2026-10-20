@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f28944de6bf424395872a89e061d793, type: 3}
+  m_Name: UV Lazer
+  m_EditorClassIdentifier: 
+  id: uv_lazer
+  displayName: UV Lazer
+  tokenCost: 100
+  levelRequired: 1
+  unlocked: 0
+  model: {fileID: 8510083626483001670, guid: 977bc1223176b5e4ab2669aa23499ed6, type: 3}
+  damage: 4
+  fireRate: 10
+  speed: 28
+  distance: 50
+  size: 1
+  rotationOffset: {x: 90, y: 0, z: 0}

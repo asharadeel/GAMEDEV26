@@ -1,3 +1,10 @@
+// ============================================================
+// Title:       CloseElemOnClick
+// Version:     1.0
+// Written by:  Ashar
+// Description: Button: turns off every object in the list.
+// ============================================================
+
 using UnityEngine;
 using UnityEngine.UI;
 

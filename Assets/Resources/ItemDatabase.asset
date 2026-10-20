@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47bc2f5c68a04b0fb02f05f545156615, type: 3}
+  m_Name: ItemDatabase
+  m_EditorClassIdentifier: 
+  shooters:
+  - {fileID: 11400000, guid: 46a9c8b816ce406a9cfbdae02f0d24a5, type: 2}
+  lazers:
+  - {fileID: 11400000, guid: 56d9c0b5354e4824b84ed502a8addc40, type: 2}
+  - {fileID: 11400000, guid: c6dc6cc659ce490f8661ad000ebe844f, type: 2}
+  - {fileID: 11400000, guid: ec66294999914629916bc77022c55a36, type: 2}
+  melee:
+  - {fileID: 11400000, guid: 0c1581bfad8145ff96b101bd33d78f78, type: 2}
+  - {fileID: 11400000, guid: 9367d96b515b43d5864fa247365a4632, type: 2}
+  - {fileID: 11400000, guid: cea0b17a85fd4fef85d3b5dffcbe115e, type: 2}
+  specials:
+  - {fileID: 11400000, guid: 0722a9f87d874930b9ba86f9b87042dc, type: 2}
+  - {fileID: 11400000, guid: 32e78a5943c14ac295b38ac0e5cc01fb, type: 2}
+  food:
+  - {fileID: 11400000, guid: c9e943e753964369907b977fe0b6a7ae, type: 2}
+  drinks:
+  - {fileID: 11400000, guid: 89e82d5412c0430d975f415afc01a9f1, type: 2}
+  - {fileID: 11400000, guid: de439d0c03f64a1baf3dd14110596cbe, type: 2}

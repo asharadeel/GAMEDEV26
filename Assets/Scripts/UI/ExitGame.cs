@@ -1,3 +1,10 @@
+// ============================================================
+// Title:       ExitGame
+// Version:     1.0
+// Written by:  Ashar
+// Description: Button: closes the game.
+// ============================================================
+
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -1,3 +1,10 @@
+// ============================================================
+// Title:       OpenElemOnClick
+// Version:     1.0
+// Written by:  Ashar
+// Description: Button: turns on every object in the list.
+// ============================================================
+
 using UnityEngine;
 using UnityEngine.UI;
 

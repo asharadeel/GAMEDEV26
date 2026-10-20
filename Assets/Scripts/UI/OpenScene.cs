@@ -1,3 +1,10 @@
+// ============================================================
+// Title:       OpenScene
+// Version:     1.0
+// Written by:  Ashar
+// Description: Button: loads the chosen scene.
+// ============================================================
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;

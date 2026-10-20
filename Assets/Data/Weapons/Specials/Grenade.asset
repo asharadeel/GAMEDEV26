@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5095c45212fe4b23842e7543c3e0ac5f, type: 3}
+  m_Name: Grenade
+  m_EditorClassIdentifier: 
+  id: grenade
+  displayName: Grenade
+  tokenCost: 100
+  levelRequired: 1
+  unlocked: 0
+  damage: 35
+  fireRate: 0.8
+  model: {fileID: 2087813676588361287, guid: f6c8bc097e049b747ac26be915eacddc, type: 3}
+  speed: 8
+  radius: 5
+  distance: 50
+  size: 1.2
+  rotationOffset: {x: 90, y: 0, z: 0}

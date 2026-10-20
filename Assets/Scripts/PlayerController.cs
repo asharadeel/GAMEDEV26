@@ -1,6 +1,14 @@
+// ============================================================
+// Title:       PlayerController
+// Version:     1.2
+// Written by:  Ashar
+// Description: WASD movement, jump, sprint and the follow camera.
+// ============================================================
+
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
     [System.Serializable]
@@ -15,16 +23,23 @@ public class PlayerController : MonoBehaviour
         public float orthographicSize = 8f; // zoom
     }
 
-    public float speed = 5f;
+    [Header("Movement")]
+    public float sprintMultiplier = 1.6f;
+    public float jumpForce = 5f;
 
     public CameraSettings cameraSettings = new CameraSettings();
 
     private Rigidbody rb;
+    private Collider col;
+    private PlayerStats stats;
     private Vector3 input;
+    private bool sprintHeld;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
+        stats = GetComponent<PlayerStats>();
         rb.freezeRotation = true; // stop the ball tipping/spinning from collisions
     }
 
@@ -35,12 +50,30 @@ public class PlayerController : MonoBehaviour
         float z = Input.GetAxisRaw("Vertical");
 
         input = new Vector3(x, 0f, z).normalized;
+        sprintHeld = Input.GetKey(KeyCode.LeftShift);
+
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
     }
 
     void FixedUpdate()
     {
         // Move through physics so walls block us. Keep y so gravity still works.
+        float speed = stats.Profile.Speed; // speed lives in the saved profile
+
+        // Sprint only while moving and there's stamina left (PlayerStats drains it)
+        stats.IsSprinting = sprintHeld && input != Vector3.zero && stats.Profile.Stamina > 0f;
+        if (stats.IsSprinting)
+            speed *= sprintMultiplier;
+
         rb.velocity = new Vector3(input.x * speed, rb.velocity.y, input.z * speed);
+    }
+
+    bool IsGrounded()
+    {
+        // Short ray down from the centre, just past the bottom of the collider
+        float distance = col.bounds.extents.y + 0.1f;
+        return Physics.Raycast(transform.position, Vector3.down, distance, ~0, QueryTriggerInteraction.Ignore);
     }
 
     void LateUpdate()

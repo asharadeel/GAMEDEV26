@@ -1,3 +1,10 @@
+// ============================================================
+// Title:       DayNight
+// Version:     1.0
+// Written by:  Ashar
+// Description: Day/night cycle: rotates and fades the sun.
+// ============================================================
+
 using UnityEngine;
 
 public class DayNight : MonoBehaviour
