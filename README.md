@@ -13,8 +13,8 @@ All project content lives in `Assets/`:
   - `Weapons/Melee/` - `Punch`, `Kick`, `Bat`
   - `Weapons/Specials/` - `Rocket`, `Grenade`
 - `Fonts/` - Arial, used by all UI text
-- `Images/` - 2D images (`pointer.png` - aim arrow)
-- `Materials/` - materials for scene objects (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
+- `Images/` - 2D images (`pointer.png` - aim arrow, `circleborder.png` - door ring and prompt)
+- `Materials/` - materials for scene objects. `Level/` has the level materials (Floor, Grass, Path, SpawnPad, TreeTrunk, TreeLeaves, Door, HexFloor, HexWall). Others: (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
 - `Models/` - 3D models and prefabs (`Lazer`, `UV Lazer`, `Gamme Lazer`)
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes
@@ -25,6 +25,7 @@ All project content lives in `Assets/`:
   - `Save/` - saving and loading to JSON, the shared player profile
   - `UI/` - buttons, menus and the player HUD
   - `Weapons/` - weapon types and projectiles
+  - `World/` - things in the level the player interacts with (doors)
 - `Textures/` - textures used by materials (empty for now)
 - `UI/` - UI assets such as sprites and prefabs (empty for now)
 
@@ -51,6 +52,11 @@ Main Menu:
 Scene 1 Plains
 - A basic plains scene has been made with a player (sphere object), a basic structure of walls to give it a building look, and walls around the map. Baseplate is 200x200. super basic map with colliders and movment script
 
+Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
+- `Garden` (front/south): grass, trees, bushes, `SpawnPad` with `PlayerSpawn`, path to the building
+- `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
+- `HexRoom` (east of the map, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
+
 Scene 1 Plains UI (`Canvas > PlayerUI`):
 - Top right: Controls button, opens a panel listing all controls
 - Left: Objectives list (edit it on `PlayerHUD`)
@@ -70,6 +76,7 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 | Q | Cycle weapons |
 | 4-9, 0 | Eat / drink from that inventory slot |
 | I | Open / close inventory |
+| E / Click prompt | Use a door when in range |
 | H | Hide / show the player UI |
 | Esc | Menu |
 
@@ -152,6 +159,13 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `OpenElemOnClick.cs` - turns ON every object in its `Elements` list
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
+
+## Scripts/World/
+- `DoorInteract.cs` - goes on a door
+  - When the player is within `Radius` of `Interact Point`: shows the on-screen `Prompt` (circle with "E" / "Click") above the door
+  - Press `Key` (E) or click the prompt to move the player to `Destination`
+  - `Radius Ring` - circle on the floor showing the radius, visible within `Show Ring Within`
+  - The end-room door sends the player to `HexRoom/DoorSpawn`
 
 ## Scripts/Generic/
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled

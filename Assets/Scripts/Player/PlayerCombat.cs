@@ -1,11 +1,12 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
 // Description: Aiming, weapon slots and attacking.
 // ============================================================
 
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 // Goes on the Player. Three weapon slots: 1 shooter, 2 melee, 3 special.
 // 1/2/3 pick a slot, Q cycles. Left click or X attacks with the selected weapon.
@@ -43,7 +44,9 @@ public class PlayerCombat : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) stats.Profile.SelectedWeapon = 2;
         if (Input.GetKeyDown(KeyCode.Q)) stats.Profile.SelectedWeapon = (stats.Profile.SelectedWeapon + 1) % 3;
 
-        if (Input.GetMouseButton(0) || Input.GetKey(attackKey))
+        // Clicking on UI (buttons, door prompt) shouldn't also shoot
+        bool clickOnUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        if ((Input.GetMouseButton(0) && !clickOnUI) || Input.GetKey(attackKey))
             Attack();
     }
 
