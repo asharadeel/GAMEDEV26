@@ -1569,7 +1569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1d636f4f910f6e40975153f46c20ac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Main Menu
+  sceneName: Hub
 --- !u!222 &1138072792
 CanvasRenderer:
   m_ObjectHideFlags: 0
