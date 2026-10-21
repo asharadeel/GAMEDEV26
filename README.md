@@ -36,21 +36,33 @@ All project content lives in `Assets/`:
 
 # Build Settings
 - Unity version: 2023.1.22f1
-- Open **File > Build Settings**
-- Scenes in build (order matters, index 0 loads first):
-  - 0: `Main Menu`
-  - 1: `Scene 1 Plains`
+- Scenes:
+  - 0: `Hub` game starts here
+  - 1: `Main Menu` old menu
+  - 2: `Scene 1 Plains`
 - Any new scene must be added here or it can't be loaded by name
-- Pick the platform (Windows), click **Build**, choose an output folder
+- Pick the platform (Windows), click **Build** choose an output folder
 - Run the `.exe` from that folder
 - Note: the Exit button only closes the app in a build, in the editor it just stops Play mode
 
 # Scenes 
+- Hub (main menu)
 - Main Menu Scene 
 - Scene 1: Plains
 
 Scene Descriptions:
 
+Hub:
+- The main menu, a round cave you walk around in
+- Player starts in the middle
+- Back wall: intro text written on the wall
+- Left portal: Level 1
+- Right portal: Level 2 locked
+- Left side: Shop, right side: Settings. Stand on the ring and it opens the thing you are standing o
+- `IntroMenu`, `ShopMenu` and `SettingsMenu` are under `Canvas` and are empty
+- The Plains Esc menu `ReturnToMenu` button now loads the Hub
+
+(old got rid of it)
 Main Menu:
 - Starter UI for entering game, just main menu
 
@@ -197,6 +209,13 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 | Mob Level 3 | Shooter | 200 | 22 / shot | stays still | 5 |
 
 ## Scripts/World/
+- `MenuZone.cs` - goes on a spot in the hub (shop, settings, intro wall)
+  - When the player walks within `Radius` the `Menu` opens, walking away closes it
+  - `Radius Ring` - circle on the floor, visible within `Show Ring Within`
+- `HubPortal.cs` - goes on a portal with a trigger collider
+  - Walking in loads `Scene Name` (must be in Build Settings)
+  - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead
+- `WallHider.cs` - goes on `CaveWalls` in the hub. Hides the walls between the camera and the player so they don't block the view (they still have colliders and shadows)
 - `DoorInteract.cs` - goes on a door
   - When the player is within `Radius` of `Interact Point`: shows the on-screen `Prompt` (circle with "E" / "Click") above the door
   - Press `Key` (E) or click the prompt to move the player to `Destination`
@@ -204,7 +223,11 @@ Button scripts go on a Button and hook into its click automatically (no need to 
   - The end-room door sends the player to `HexRoom/DoorSpawn`
 
 ## Scripts/Generic/
+- `FaceCamera.cs` - keeps a label turned towards the camera (used for the names above the portals, shop and settings)
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled
+
+## Scripts/Editor/
+- `HubBuilder.cs` - adds **Tools > Build Hub**. Builds the hub scene out of basic shapes, saves it as `Assets/Scenes/Hub.unity` and puts it first in Build Settings. Editor only, not part of the game
 
 # Save Data
 - Saved as JSON in Unity's persistent data folder, not in `Assets/` (Assets is read-only in a build)
