@@ -28,3 +28,10 @@ MonoBehaviour:
   projectileModel: {fileID: 2087813676588361287, guid: f6c8bc097e049b747ac26be915eacddc, type: 3}
   projectileSpeed: 15
   projectileSize: 1
+  drops:
+  - item: {fileID: 11400000, guid: c9e943e753964369907b977fe0b6a7ae, type: 2}
+    chance: 0.55
+  - item: {fileID: 11400000, guid: 89e82d5412c0430d975f415afc01a9f1, type: 2}
+    chance: 0.45
+  - item: {fileID: 11400000, guid: de439d0c03f64a1baf3dd14110596cbe, type: 2}
+    chance: 0.35

@@ -1,10 +1,12 @@
 // ============================================================
 // Title:       Mob
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
+// Updated by:  Davud Jabiyev (v1.4: drops loot on death)
 // Description: Base for every mob. Holds health, shows the health
-//              bar, dies at 0, and has helpers for finding the
-//              player. FollowMob and ShooterMob build on this.
+//              bar, dies at 0 (dropping its loot), and has helpers
+//              for finding the player. FollowMob and ShooterMob
+//              build on this.
 // ============================================================
 
 using UnityEngine;
@@ -65,7 +67,13 @@ public class Mob : MonoBehaviour
             onDied = null;                   // only count once
         }
         if (health <= 0f)
+        {
+            // Drop loot where the mob's feet were
+            Vector3 feet = transform.position;
+            feet.y = ModelBounds().min.y;
+            LootDropper.Drop(data, feet);
             Destroy(gameObject);
+        }
     }
 
     // ---- Helpers for FollowMob / ShooterMob ----
