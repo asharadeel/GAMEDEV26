@@ -1,10 +1,11 @@
 // ============================================================
 // Title:       Pickup
-// Version:     1.0
+// Version:     1.1
 // Written by:  Davud Jabiyev
 // Description: A consumable lying in the world. The player picks it
 //              up by walking over it. If the inventory is full it
-//              stays on the ground. Createable with
+//              stays on the ground. Coloured by type, shows a message
+//              when picked up. Createable with
 //              Pickup.Spawn(position, item).
 // ============================================================
 
@@ -25,6 +26,17 @@ public class Pickup : MonoBehaviour
 
         // Make the collider a trigger so the player can walk through it
         cube.GetComponent<Collider>().isTrigger = true;
+
+        // Set a colour
+        // blue for drinks, orange for food, white for else
+        Renderer rend = cube.GetComponent<Renderer>();
+        if (item.thirst > 0) {
+            rend.material.color = Color.blue;
+        } else if (item.hunger > 0) {
+            rend.material.color = new Color(1f, 0.5f, 0f);
+        } else {
+            rend.material.color = Color.white;
+        }
 
         // Attach this script to cube and set item to give
         Pickup pickup = cube.AddComponent<Pickup>();
@@ -47,6 +59,9 @@ public class Pickup : MonoBehaviour
         // If inventory is full, don't pick up
         bool added = ProfileManager.Profile.AddToInventory(item.id);
         if (added) {
+            // Show message
+            FloatingText.Show(transform.position, "+ " + item.displayName);
+
             Destroy(gameObject);
         }
     }
