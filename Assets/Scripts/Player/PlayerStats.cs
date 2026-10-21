@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       PlayerStats
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
+// Updated by:  Davud Jabiyev (v1.4: counts eating and drinking for achievements)
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
 
@@ -93,6 +94,13 @@ public class PlayerStats : MonoBehaviour
         profile.Thirst += item.thirst;
         profile.Stamina += item.stamina;
         profile.Health += item.health;
+
+        // Count it for achievements
+        AchievementManager.Add(AchievementStat.ItemsConsumed, 1);
+        if (item.thirst > 0)
+            AchievementManager.Add(AchievementStat.DrinksConsumed, 1);
+        if (item.hunger > 0)
+            AchievementManager.Add(AchievementStat.FoodEaten, 1);
     }
 
     void Die()

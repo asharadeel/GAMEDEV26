@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       Pickup
-// Version:     1.2
+// Version:     1.3
 // Written by:  Davud Jabiyev
+// Updated by:  Davud Jabiyev (v1.3: counts pickups for achievements)
 // Description: A consumable lying in the world. The player picks it
 //              up by walking over it. If the inventory is full it
 //              stays on the ground. Coloured by type, spins and bobs
@@ -85,7 +86,10 @@ public class Pickup : MonoBehaviour
             // Show message
             FloatingText.Show(transform.position, "+ " + item.displayName);
 
+            AchievementManager.Add(AchievementStat.ItemsPickedUp, 1);
             Destroy(gameObject);
+        } else {
+            AchievementManager.Add(AchievementStat.DropsMissed, 1);
         }
     }
 }

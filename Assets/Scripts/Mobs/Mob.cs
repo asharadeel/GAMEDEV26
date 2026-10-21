@@ -1,8 +1,8 @@
 // ============================================================
 // Title:       Mob
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
-// Updated by:  Davud Jabiyev (v1.4: drops loot on death)
+// Updated by:  Davud Jabiyev (v1.4: drops loot on death, v1.5: counts kills for achievements)
 // Description: Base for every mob. Holds health, shows the health
 //              bar, dies at 0 (dropping its loot), and has helpers
 //              for finding the player. FollowMob and ShooterMob
@@ -72,6 +72,7 @@ public class Mob : MonoBehaviour
             Vector3 feet = transform.position;
             feet.y = ModelBounds().min.y;
             LootDropper.Drop(data, feet);
+            AchievementManager.Add(AchievementStat.MobsKilled, 1);
             Destroy(gameObject);
         }
     }
