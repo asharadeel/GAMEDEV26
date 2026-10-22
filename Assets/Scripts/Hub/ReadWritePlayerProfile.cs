@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       ReadWritePlayerProfile
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
 // Description: For the Library in the Hub. Reads the saved player
 //              profile and achievements and writes them out as text
@@ -45,11 +45,12 @@ public class ReadWritePlayerProfile : MonoBehaviour
             bodyText.text = loaded ? BuildText() : notLoadedBody;
     }
 
-    // TODO: return the player's name once profiles have one (profile select is coming).
-    // Until then there's no name, so the "Profile not loaded" message shows.
+    // Empty if no profile was picked on the Main Menu, so the "Profile not loaded" message shows
     string GetPlayerName()
     {
-        return "";
+        if (!ProfileManager.HasProfile)
+            return "";
+        return ProfileManager.Profile.PlayerName;
     }
 
     string BuildText()

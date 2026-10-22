@@ -1,12 +1,15 @@
 // ============================================================
 // Title:       AchievementManager
-// Version:     1.0
+// Version:     1.1
 // Written by:  Davud Jabiyev
+// Updated by:  Ashar (v1.1: one save per profile)
 // Description: Keeps a counter for each AchievementStat and unlocks
 //              achievements when their goal is reached. Other scripts
 //              just call AchievementManager.Add(stat, 1) when
 //              something happens (mob killed, item picked up...).
-//              Progress is saved to achievements.json (SaveSystem).
+//              Progress is saved per profile (achievements_1.json
+//              to achievements_3.json, or achievements.json when no
+//              profile was picked), see ProfileManager.
 //              OnUnlocked event is called for ui updates.
 // ============================================================
 
@@ -33,8 +36,8 @@ public static class AchievementManager
     private static List<string> unlocked = new List<string>();
 
     // Saving
-    private const string SaveFile = "achievements";
     private static bool loaded = false;
+    private static bool hookedQuit = false;
 
     // Event that other scripts (e.g. ui) can listen to
     public static event System.Action<AchievementData> OnUnlocked;
@@ -82,11 +85,14 @@ public static class AchievementManager
         // Set loaded
         loaded = true;
 
-        // Save when the game closes
-        Application.quitting += Save;
+        // Save when the game closes (only hook it once)
+        if (!hookedQuit) {
+            Application.quitting += Save;
+            hookedQuit = true;
+        }
 
-        // Load from file, with fallback new AchievementSave()
-        AchievementSave data = SaveSystem.Load(SaveFile, new AchievementSave());
+        // Load the current profile's file, with fallback new AchievementSave()
+        AchievementSave data = SaveSystem.Load(FileName(ProfileManager.CurrentSlot), new AchievementSave());
 
         // Copy loaded counts back into the dictionary
         for (int i = 0; i < data.counts.Length; i++) {
@@ -110,7 +116,32 @@ public static class AchievementManager
         }
         data.unlocked = unlocked;
 
-        SaveSystem.Save(SaveFile, data);
+        SaveSystem.Save(FileName(ProfileManager.CurrentSlot), data);
+    }
+
+    // achievements_1, achievements_2, achievements_3 (or achievements with no profile)
+    public static string FileName(int slot)
+    {
+        if (slot == ProfileManager.NoSlot) {
+            return "achievements";
+        }
+        return "achievements_" + (slot + 1);
+    }
+
+    // Called by ProfileManager when the profile changes: forget the old
+    // progress and load the new profile's (doesn't save, ProfileManager does that first)
+    public static void Reload()
+    {
+        counters.Clear();
+        unlocked = new List<string>();
+        loaded = false;
+        Load();
+    }
+
+    // Deletes a profile's achievements file
+    public static void DeleteSave(int slot)
+    {
+        SaveSystem.Delete(FileName(slot));
     }
 
     // This is called to increment stat

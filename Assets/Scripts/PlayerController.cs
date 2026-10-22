@@ -1,10 +1,11 @@
 // ============================================================
 // Title:       PlayerController
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
 // Description: WASD movement, jump, sprint and the follow camera.
 //              Hold right click + drag to spin the camera 360,
 //              scroll to zoom. WASD moves relative to the camera.
+//              The ball takes the profile's colour.
 // ============================================================
 
 using UnityEngine;
@@ -53,6 +54,11 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<Collider>();
         stats = GetComponent<PlayerStats>();
         rb.freezeRotation = true; // stop the ball tipping/spinning from collisions
+
+        // Ball colour from the profile picked on the Main Menu (left as is when testing a scene directly)
+        Renderer ball = GetComponent<Renderer>();
+        if (ProfileManager.HasProfile && ball != null)
+            ball.material.color = ProfileManager.Profile.BallColour;
 
         CameraSettings c = cameraSettings;
         c.orthographicSize = Mathf.Clamp(c.startZoom, c.minZoom, c.maxZoom);

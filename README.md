@@ -75,7 +75,12 @@ Hub:
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:
-- Starter UI for entering game, just main menu
+- Play, Tutorial (greyed out for now, opens `Tutorial/Frame` later) and Exit
+- Play opens `ProfileSelect` (a `GeneralTextWindow`): 3 profile cards on the left, `NewProfile` window on the right
+  - Empty card: opens New Profile - name, optional passkey (toggle, 3-30 characters), ball colour
+  - Filled card (name + creation date): plays and loads the Hub. If it has a passkey, `PasskeyPopup` asks for it first ("Username: ...")
+  - Edit on a card: `EditPopup` (change name and ball colour). Delete: `DeletePopup` to confirm, then `PasskeyPopup` too if it has a passkey
+  - All run by `ProfileSelectUI` on the `ProfileSelect` container
 
 Scene 1 Plains
 - A basic plains scene has been made with a player (sphere object), a basic structure of walls to give it a building look, and walls around the map. Baseplate is 200x200. super basic map with colliders and movment script
@@ -123,6 +128,7 @@ All scripts are in `Assets/Scripts/`.
   - WASD moves the player using its Rigidbody, so walls block it. Movement follows the camera's rotation (W is always up the screen)
   - Space jumps (only when on the ground), Shift sprints while there's stamina
   - Move speed comes from the player profile, `Sprint Multiplier` and `Jump Force` are set here
+  - The ball takes the profile's colour (only when a profile was picked on the Main Menu)
   - `uiEnabled` (static) - true while a menu with `OverlayUI` is open, all movement and camera controls stop
   - Right click + drag spins the camera (`Rotate Speed`), scroll zooms Orthographic Size between `Min Zoom` (8) and `Max Zoom` (20) in steps of `Zoom Step` (1), starting at `Start Zoom` (10)
   - `Camera Settings` controls the camera (Camera, Pitch, Yaw, Roll, Distance, Orthographic Size). The camera follows the player and always uses these values, change them here not on the camera
@@ -135,6 +141,7 @@ All scripts are in `Assets/Scripts/`.
 
 ## Scripts/Player/
 - `PlayerProfile.cs` - the player's saved data (not a component)
+  - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
   - Level, Tokens, Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, special and the food/drink slots. Only owned items can be equipped
@@ -185,10 +192,12 @@ All weapons are assets (see Weapons and Items below).
 
 ## Scripts/Save/
 - `SaveSystem.cs` - saves/loads any `[System.Serializable]` class as JSON
-  - `SaveSystem.Save("name", data)`, `SaveSystem.Load("name", fallback)`, `SaveSystem.Delete("name")`
-- `ProfileManager.cs` - the one player profile, usable from any script in any scene
+  - `SaveSystem.Save("name", data)`, `SaveSystem.Load("name", fallback)`, `SaveSystem.Exists("name")`, `SaveSystem.Delete("name")`
+- `ProfileManager.cs` - the current player profile, usable from any script in any scene
   - `ProfileManager.Profile.Tokens += 50;`
-  - Loads `profile.json` the first time it's used, saves when the game closes or the scene changes
+  - 3 slots (`profile_1.json` to `profile_3.json`). The Main Menu picks one with `LoadSlot`. Playing a scene directly (testing) uses the old `profile.json` instead, `HasProfile` is false then
+  - `CreateProfile`, `EditProfile` (name + colour), `DeleteSlot` (also deletes its achievements), `PeekSlot` (read a slot without switching)
+  - Loads the profile the first time it's used, saves when the game closes or the scene changes
   - `TryBuyWeapon`, `TryBuyConsumable`, `TryBuyInventorySlot` (check tokens/level/space)
   - `Equip` (puts an owned item in the current inventory), `Owns`, `CanAfford`
   - `GetOwned<T>()` - every owned item of a type, e.g. `GetOwned<LazerData>()` for a pick-your-lazer menu
@@ -201,6 +210,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
 - `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
 - `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
+- `ProfileSelectUI.cs` - on the Main Menu's `ProfileSelect` container. Runs the profile cards, New Profile window and the Passkey/Delete/Edit pop-ups (see Main Menu above). `Play Scene` is where a picked profile goes (Hub)
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
 ## Scripts/Mobs/
@@ -247,7 +257,7 @@ Loot (each rolled separately when the mob dies):
   - Tracked stats (`AchievementStat`): MobsKilled, ItemsPickedUp, ItemsConsumed, DrinksConsumed, FoodEaten, DropsMissed
 - `AchievementManager.cs` - holds every achievement and a counter per stat
   - Other scripts call `AchievementManager.Add(stat, 1)` when something happens, achievements unlock when their goal is reached
-  - `OnUnlocked` event for UI, progress saved to `achievements.json`
+  - `OnUnlocked` event for UI, progress saved per profile (`achievements_1.json` to `achievements_3.json`, `achievements.json` when testing a scene directly)
 - `AchievementPanel.cs` - on `Canvas/AchievementUI`. J opens a list of all achievements, e.g. `[ ] Slayer - Kill 10 mobs (7/10)`, `[x]` when unlocked
 - `AchievementPopup.cs` - on `Canvas/AchievementUI`. Shows "Achievement unlocked: X" at the top for `Show Time` (3s)
 
@@ -264,7 +274,7 @@ Loot (each rolled separately when the mob dies):
 - `ReadWritePlayerProfile.cs` - for the Library. Writes the saved profile out as text: level, tokens, health/stamina/hunger/thirst, equipped gear, owned weapons, inventory, and every achievement with progress (e.g. `[ ] Slayer - Kill 10 mobs (7/10)`)
   - Put it on the Library's Frame (e.g. a `GeneralTextWindow`), drag `Content/Title1` into `Title Text` and `Content/Context` into `Body Text`
   - Refreshes every time the Library opens
-  - Title = player name, body = stats. Profiles don't have a name yet, so for now it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/" (fill in `GetPlayerName()` when names exist)
+  - Title = player name, body = stats. If no profile was picked on the Main Menu (e.g. testing the Hub directly) it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/"
 
 ## Scripts/World/
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
@@ -291,11 +301,13 @@ Loot (each rolled separately when the mob dies):
 # Save Data
 - Saved as JSON in Unity's persistent data folder, not in `Assets/` (Assets is read-only in a build)
 - Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\GAMEDEV26\`
-  - `profile.json` - player profile (stats, tokens, owned items, current inventory)
-  - `achievements.json` - achievement progress and unlocks
+  - `profile_1.json` to `profile_3.json` - the 3 player profiles (name, passkey, ball colour, created, stats, tokens, owned items, current inventory)
+  - `achievements_1.json` to `achievements_3.json` - each profile's achievement progress and unlocks
+  - `profile.json` / `achievements.json` - used when a scene is played without picking a profile (testing)
+  - The passkey is stored as plain text, it only stops someone clicking into the wrong profile
 - Same location in the editor and in builds
 - The save only stores item ids, so item stats/models can be changed without breaking saves
-- To reset, delete the file or right-click **Player Stats > Delete Save** (do this after changing profile fields)
+- To reset, delete the file or right-click **Player Stats > Delete Save** (resets progress, keeps the name, passkey and colour). Delete a whole profile from the Main Menu
 
 # Weapons and Items
 - Every item is an asset in `Assets/Data/`
