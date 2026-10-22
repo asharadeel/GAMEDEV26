@@ -45,6 +45,7 @@ All project content lives in `Assets/`:
   - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
   - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
   - `ShopItemCard` - one shop item (Name, Buy, Upgrade, Refund, Equip + `ShopItemCard`). Place one per item by hand in a shop section and drag the item asset into `Item`
+  - `ConsumableCard` - one food/drink in the shop (Name, Buy, Refund, Quantity + `ConsumableCard`). Place one per item by hand and drag the item asset into `Item`
   - `GeneralTileWindow` - paged window: Title bar, boxes under `Frames` (`Step (1)`-`Step (4)`, each a Title + Content), Prev/Next and Close. `TilePager` shows one box at a time. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
   - The window backgrounds (each prefab's root) are RawImages
   - Editing a copy in a scene only changes that copy (an override). Opening and editing the prefab itself, or **Overrides > Apply**, changes every copy. Unpacked copies never get prefab updates
@@ -75,7 +76,7 @@ Hub:
 - Right portal: Level 2 locked
 - Left side: Shop, right side: Library. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `StoreUI`, `LibraryMenu` are under `Canvas`
-- `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). `Weapons` has a `ShopItemCard` for the EM Raygun
+- `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). Tabs in order: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Specials (Rocket, Grenade) as `ShopItemCard`s, Food (Beans), Drinks (Water Bottle, Soda) as `ConsumableCard`s. The Shooters tab's frame is still called `Weapons`, each in the section's `Items` grid
 - `BuyPopup`, `UpgradePopup`, `RefundPopup`: the shop's pop-ups (GeneralPopUpWindow), run by `ShopPopups` on `StoreUI`
 - `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
 - `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
@@ -151,7 +152,7 @@ All scripts are in `Assets/Scripts/`.
 ## Scripts/Player/
 - `PlayerProfile.cs` - the player's saved data (not a component)
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
-  - Level, Tokens, Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
+  - Level, Tokens (new profiles start with 150), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, special and the food/drink slots. Only owned items can be equipped
   - Selected weapon
@@ -223,7 +224,8 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
 - `ProfileSelectUI.cs` - on the Main Menu's `ProfileSelect` container. Runs the profile cards, New Profile window and the Passkey/Delete/Edit pop-ups (see Main Menu above). `Play Scene` is where a picked profile goes (Hub)
 - `ShopItemCard.cs` - on the `ShopItemCard` prefab. Drag a weapon asset into `Item`. Shows "<name>" and "Level <n>", plus Buy (not owned) or Equip + Upgrade + Refund (owned). Upgrade is hidden at level 3, Refund is hidden for starting items and greyed out while equipped
-- `ShopPopups.cs` - on the Hub's `StoreUI` container. Runs the shared `BuyPopup` ("Buy <item>", button "Buy: <cost>"), `UpgradePopup` ("Upgrade to level <n>", button "Cost: <cost>") and `RefundPopup` ("Refund <item>: <refund>"). Shows the player's tokens, or why it didn't work
+- `ConsumableCard.cs` - on the `ConsumableCard` prefab. Drag a food/drink asset into `Item`. Shows its name, Buy, Refund and "Amount owned: <n>" (how many are in the inventory slots). Buying puts one in the first free slot. Refund sells one back for half its price (rounded up), greyed out when you have none
+- `ShopPopups.cs` - on the Hub's `StoreUI` container. Runs the shared `BuyPopup` ("Buy <item>", button "Buy: <cost>"), `UpgradePopup` ("Upgrade to level <n>", button "Cost: <cost>") and `RefundPopup` ("Refund <item>: <refund>"). Shows the player's tokens, or why it didn't work. Buying food/drink keeps the pop-up open so you can buy several
 - `CurrencyChangeButton.cs` - on a Button: `Mode` Add / Subtract and `Amount` of tokens. Subtract doesn't go through without enough tokens
 - `TabSelector.cs` - a row of buttons that each open their own frame. `Tabs` = list of `Button` + `Frame`. Clicking a button shows its frame and hides the rest, the open tab's button is greyed out. Opens on the first tab each time the window opens. On the Hub's `StoreUI/GeneralSelectorUI` (5 buttons under `SectionSelector`, 5 frames under `Sections`)
 - `TilePager.cs` - shows one box (page) at a time instead of a scroll view. `Pages` = list of `Order` + `Content` (the box/Frame), shown lowest order first. `Left Button` / `Right Button` flip pages and are greyed out when there's no page that way. Optional `Page Label` shows e.g. "2 / 5". Goes back to page 1 each time the window opens. Already set up on the `Assets/UI/GeneralTileWindow` prefab (4 steps)

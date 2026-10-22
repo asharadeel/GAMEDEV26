@@ -60,7 +60,7 @@ Canvas
    - Fill in the boxes on the scene copy, not in the prefab
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 8b. **Prefab copies:** change a window's text/boxes on its scene copy (overrides). Don't **Unpack** a General window (an unpacked copy never gets prefab fixes) and don't **Apply** a scene copy's overrides to the prefab (that would put e.g. the tutorial's 8 steps into every tile window). Only edit the prefab itself for changes every window should get
-8c. **Shop items:** each item in the shop is a copy of `Assets/UI/ShopItemCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Upgrade/Refund pop-ups are shared (`ShopPopups` on the shop's container), don't add pop-ups per card
+8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Upgrade/Refund pop-ups are shared (`ShopPopups` on the shop's container), don't add pop-ups per card
 9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
 ## Adding a new menu (in the Editor)

@@ -1,9 +1,10 @@
 // ============================================================
 // Title:       ShopPopups
-// Version:     1.0
+// Version:     1.2
 // Written by:  Ashar
 // Description: The shop's Buy, Upgrade and Refund pop-ups, shared
-//              by every ShopItemCard. Each pop-up is a
+//              by every ShopItemCard (weapons) and ConsumableCard
+//              (food/drink: Buy and Refund). Each pop-up is a
 //              GeneralPopUpWindow copy:
 //              Buy:     "Buy <item>",               button "Buy: <cost>"
 //              Upgrade: "Upgrade to level <n>",     button "Cost: <cost>"
@@ -34,7 +35,8 @@ public class ShopPopups : MonoBehaviour
     public ShopPopup upgrade;
     public ShopPopup refund;
 
-    private ShopItemCard card;   // the card that opened the pop-up
+    private ShopItemCard card;           // the weapon card that opened the pop-up
+    private ConsumableCard consumable;   // or the food/drink card
 
     void Awake()
     {
@@ -49,7 +51,15 @@ public class ShopPopups : MonoBehaviour
     public void OpenBuy(ShopItemCard from)
     {
         card = from;
+        consumable = null;
         Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.tokenCost);
+    }
+
+    public void OpenBuy(ConsumableCard from)
+    {
+        consumable = from;
+        card = null;
+        Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.tokenCost);
     }
 
     public void OpenUpgrade(ShopItemCard from)
@@ -59,9 +69,17 @@ public class ShopPopups : MonoBehaviour
         Open(upgrade, "Upgrade to level " + next, "Cost: " + card.item.UpgradeCost(next));
     }
 
+    public void OpenRefund(ConsumableCard from)
+    {
+        consumable = from;
+        card = null;
+        Open(refund, "Refund " + consumable.item.displayName + ": " + consumable.item.RefundValue, "Refund");
+    }
+
     public void OpenRefund(ShopItemCard from)
     {
         card = from;
+        consumable = null;
         Open(refund, "Refund " + card.item.displayName + ": " + card.item.RefundValue, "Refund");
     }
 
@@ -77,15 +95,32 @@ public class ShopPopups : MonoBehaviour
 
     void Buy()
     {
-        WeaponData item = card.item;
+        ItemData item = consumable != null ? (ItemData)consumable.item : card.item;
         if (ProfileManager.Profile.Level < item.levelRequired)
         {
             buy.message.text = "Needs player level " + item.levelRequired;
             return;
         }
-        if (!ProfileManager.TryBuyWeapon(item))
+        if (ProfileManager.Profile.Tokens < item.tokenCost)
         {
             buy.message.text = "Not enough tokens";
+            return;
+        }
+
+        bool bought = consumable != null
+            ? ProfileManager.TryBuyConsumable(consumable.item)
+            : ProfileManager.TryBuyWeapon(card.item);
+        if (!bought)
+        {
+            buy.message.text = consumable != null ? "Inventory full" : "Already owned";
+            return;
+        }
+
+        // Food/drink: stay open to buy more, just update the count
+        if (consumable != null)
+        {
+            buy.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+            ConsumableCard.RefreshAll();
             return;
         }
         Done(buy);
@@ -103,6 +138,22 @@ public class ShopPopups : MonoBehaviour
 
     void Refund()
     {
+        // Food/drink: sell one back, stay open until there's none left
+        if (consumable != null)
+        {
+            if (!ProfileManager.TryRefundConsumable(consumable.item))
+            {
+                refund.message.text = "You don't have any";
+                return;
+            }
+            ConsumableCard.RefreshAll();
+            if (ProfileManager.Profile.CountInInventory(consumable.item.id) == 0)
+                Done(refund);
+            else
+                refund.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+            return;
+        }
+
         if (!ProfileManager.TryRefund(card.item))
         {
             refund.message.text = "Can't refund an equipped item";
@@ -115,5 +166,6 @@ public class ShopPopups : MonoBehaviour
     {
         popup.window.SetActive(false);
         ShopItemCard.RefreshAll();
+        ConsumableCard.RefreshAll();
     }
 }

@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       ConsumableData
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
 // Description: Food or drink that restores stats when used.
+//              Refunds for half its price.
 // ============================================================
 
 using UnityEngine;
@@ -17,4 +18,10 @@ public class ConsumableData : ItemData
     public float thirst = 0f;
     public float stamina = 0f;
     public float health = 0f;
+
+    // Half the price, rounded up
+    public int RefundValue
+    {
+        get { return Mathf.CeilToInt(tokenCost / 2f); }
+    }
 }

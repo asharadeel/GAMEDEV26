@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       ProfileManager
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Description: The current player profile (one of 3 save slots),
 //              plus create/edit/delete for the slots and buy/equip/
@@ -254,6 +254,16 @@ public static class ProfileManager
             return false; // no free slot
 
         Profile.Tokens -= item.tokenCost;
+        return true;
+    }
+
+    // Sells one back for half its price
+    public static bool TryRefundConsumable(ConsumableData item)
+    {
+        if (item == null || !Profile.RemoveFromInventory(item.id))
+            return false;
+
+        Profile.Tokens += item.RefundValue;
         return true;
     }
 

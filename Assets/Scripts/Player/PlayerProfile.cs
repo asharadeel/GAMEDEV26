@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.6
+// Version:     1.8
 // Written by:  Ashar
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
@@ -47,7 +47,7 @@ public class PlayerProfile
     [SerializeField] private string createdAt = "";   // e.g. "22/10/2026 14:05"
 
     [SerializeField] private int level = 1;
-    [SerializeField] private int tokens = 0;
+    [SerializeField] private int tokens = 150;   // starting tokens for a new profile
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 100f;
@@ -285,6 +285,32 @@ public class PlayerProfile
         while (slots.Count <= index)
             slots.Add("");
         slots[index] = itemId;
+    }
+
+    // How many of an item are in the usable slots
+    public int CountInInventory(string itemId)
+    {
+        int count = 0;
+        for (int i = 0; i < inventorySlots; i++)
+        {
+            if (GetSlot(i) == itemId)
+                count++;
+        }
+        return count;
+    }
+
+    // Takes one of the item out (the last slot it's in). False if there's none
+    public bool RemoveFromInventory(string itemId)
+    {
+        for (int i = inventorySlots - 1; i >= 0; i--)
+        {
+            if (GetSlot(i) == itemId)
+            {
+                SetSlot(i, "");
+                return true;
+            }
+        }
+        return false;
     }
 
     // Puts the item in the first empty usable slot. False if full.
