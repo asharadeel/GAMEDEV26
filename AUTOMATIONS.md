@@ -39,6 +39,7 @@ Canvas
    - Leave it **switched on in the editor**. If it should start hidden, add `InactiveOnStart` to it. Don't untick it in the editor: `InactiveOnStart` only runs the first time it's enabled, so a frame that starts unticked hides itself again the first time it's opened
    - If the player shouldn't be controllable while it's open (menus, popups, text windows), add `OverlayUI` to the Frame. While any OverlayUI is showing, `PlayerController.uiEnabled` is true and movement, jumping, attacks, eating and camera rotate/zoom are off (so scrolling a menu doesn't zoom the camera). `GeneralTextWindow` already has it
    - A full-screen background (dim overlay) can go on the Frame itself (e.g. Scene 1's `EscMenu/Frame` has a RawImage)
+   - Backgrounds on Frames and panels use **RawImage**, not Image (it can take any texture later). Only use Image where a sliced sprite is needed (scroll view, scrollbar, rounded buttons)
 3. **Content** inside the Frame can be laid out however the menu needs (centred panel, buttons anchored to edges...). Keep it switched on, the Frame handles visibility
 4. Always-visible HUD elements (health bars, Mobs Left tracker) don't need a Frame. They go inside `PlayerUI`, which is itself a stretched container
 5. UI text: legacy Text, font `Assets/Fonts/arial/ARIAL.TTF`, Best Fit on (except text inside a scroll view, see below)
@@ -77,7 +78,7 @@ Canvas
 | Scene | Follows the policy | Not yet |
 |---|---|---|
 | Scene 1 Plains | `EscMenu` (no OverlayUI yet, Ashar is working on it), `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
-| Main Menu | `Tutorial` (empty), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
+| Main Menu | `Tutorial` (GeneralTileWindow, 8 steps), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
 | Hub | `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `SettingsMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
 `Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.

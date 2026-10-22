@@ -75,7 +75,8 @@ Hub:
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:
-- Play, Tutorial (greyed out for now, opens `Tutorial/Frame` later) and Exit
+- Play, Tutorial and Exit
+- Tutorial opens `Tutorial` (a `GeneralTileWindow`): 8 short steps flipped with Prev/Next - movement, camera, shooting, objective, boss, inventory, eating/drinking, the Hub. Steps 5-8 are added on the scene copy only, the prefab keeps 4
 - Play opens `ProfileSelect` (a `GeneralTextWindow`): 3 profile cards on the left, `NewProfile` window on the right
   - Empty card: opens New Profile - name, optional passkey (toggle, 3-30 characters), ball colour
   - Filled card (name + creation date): plays and loads the Hub. If it has a passkey, `PasskeyPopup` asks for it first ("Username: ...")
