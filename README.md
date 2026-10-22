@@ -23,6 +23,7 @@ All project content lives in `Assets/`:
   - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
+  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
     - `Spawners/` - `MobSpawner` prefab
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes (`Hub`, `Main Menu`, `Scene 1 Plains`)
@@ -96,12 +97,13 @@ Main Menu:
 Scene 1 Plains
 - A basic plains scene has been made with a player (sphere object), a basic structure of walls to give it a building look, and walls around the map. Baseplate is 200x200. super basic map with colliders and movment script
 
-Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
-- `Garden` (front/south): grass, trees, bushes, `SpawnPad` with `PlayerSpawn`, path to the building
+Scene 1 Plains layout (200x200 grey floor):
+- `Map-Walls`: 18 `WallBlocks` pairs around the edge (tall/short alternating, inner face on the map edge, 25 deep). `WallHider` hides the ones on the camera's side so they don't block the view (they still collide and cast shadows)
+- `Garden` (front/south): grass, `SpawnPad` with `PlayerSpawn`, path to the building. `Trees` and `Bushes` are all copies of the `Models/Scene1` prefabs, in the garden and scattered all around the building
 - `HelperArea` (west of the spawn pad): 16x16 square with 4 low wooden walls and a doorway facing the spawn, `HelperSpot` in the middle. Empty for now, for helper stuff later
 - `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
-- `HexRoom` (east of the map, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
+- `HexRoom` (`BossArea`, east of the map past the walls, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 - `HexRoom/BossArena`: the boss fight (added with **Tools > Build Boss Room**, running it again replaces it)
   - `Boss` (Plains Guardian) in the middle, wakes up when the player walks into the room
   - 6 purple `Pillar`s on the corners, joined to the boss by a beam. While any pillar stands the boss only takes 20% damage. Break all 6 (shoot or hit them) and the boss turns orange and takes full damage for 12 seconds, then the pillars grow back
