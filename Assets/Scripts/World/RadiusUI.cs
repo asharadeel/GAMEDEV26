@@ -4,7 +4,7 @@
 // Written by:  cthullu96 (as MenuZone)
 // Updated by:  Ashar (v2.0: renamed to RadiusUI, made reusable as the
 //              Models/ShowUIonApproach prefab, ring always flat and sized.
-//              v2.1: marker sphere showing where to go)
+//              v2.1: flat marker disc showing where to go)
 // Description: Shows a UI when the player walks close and hides it
 //              when they walk away. A ring on the floor shows the
 //              radius once the player is near.
@@ -24,7 +24,7 @@ public class RadiusUI : MonoBehaviour
     public float radius = 3f;           // how close the player has to be to open it
     public float showRingWithin = 8f;   // the floor ring appears when the player is this close
     public GameObject radiusRing;       // circle on the floor (1 unit wide sprite)
-    public GameObject marker;           // sphere in the middle (half the ring's width) showing where to go
+    public GameObject marker;           // flat disc in the middle (half the ring's width) showing where to go
 
     private Transform player;
     private bool wasInside;
@@ -87,20 +87,21 @@ public class RadiusUI : MonoBehaviour
                                       1f);
     }
 
-    // Sphere sitting on the floor in the middle of the zone, as wide as the radius
-    // (half the ring's width). No collider, so it never blocks the player.
+    // Flat blue disc on the floor in the middle of the zone, half the ring's width,
+    // marking where to go. No collider, so it never blocks the player.
     void SetUpMarker()
     {
         if (marker == null)
             return;
 
+        const float thickness = 0.03f;   // Unity's cylinder is 2 units tall, so scale y = thickness / 2
         Transform m = marker.transform;
+        m.rotation = Quaternion.identity;
         Vector3 parentScale = m.parent != null ? m.parent.lossyScale : Vector3.one;
-        float size = radius;
-        m.localScale = new Vector3(size / Mathf.Max(parentScale.x, 0.0001f),
-                                   size / Mathf.Max(parentScale.y, 0.0001f),
-                                   size / Mathf.Max(parentScale.z, 0.0001f));
-        m.position = new Vector3(transform.position.x, transform.position.y + size / 2f, transform.position.z);
+        m.localScale = new Vector3(radius / Mathf.Max(parentScale.x, 0.0001f),
+                                   (thickness / 2f) / Mathf.Max(parentScale.y, 0.0001f),
+                                   radius / Mathf.Max(parentScale.z, 0.0001f));
+        m.position = transform.position + Vector3.up * (thickness / 2f);   // sits on the floor, just under the ring
     }
 
     // Shows the radius in the Scene view

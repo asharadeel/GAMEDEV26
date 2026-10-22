@@ -18,7 +18,7 @@ All project content lives in `Assets/`:
 - `Materials/Palette/` - ready-to-use materials: `Colours` (23 flat colours), `Metals`, `Glow` (emissive), `Glass` (see-through), `Surfaces` (wood, stone, brick, ice, lava...)
 - `Materials/` - materials for scene objects. `Level/` has the level materials (Floor, Grass, Path, SpawnPad, TreeTrunk, TreeLeaves, Door, HexFloor, HexWall). Others: (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
 - `Models/` - 3D models and prefabs
-  - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring on the floor
+  - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
     - `Spawners/` - `MobSpawner` prefab
@@ -263,7 +263,7 @@ Loot (each rolled separately when the mob dies):
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
   - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
-  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + its ring). In the Hub, the Shop, IntroWall and Settings signs each have one
+  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall and Settings signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
   - Walking in loads `Scene Name` (must be in Build Settings)
   - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead
