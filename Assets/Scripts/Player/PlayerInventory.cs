@@ -1,8 +1,10 @@
 // ============================================================
 // Title:       PlayerInventory
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Updated by:  Ali (v1.4: 3rd label shows the Q / E abilities)
+//              cthullu96 (v1.5: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: 10-slot inventory, I to open, 4-9/0 to eat/drink.
 // ============================================================
 
@@ -16,17 +18,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : MonoBehaviour
 {
-    public KeyCode toggleKey = KeyCode.I;
     public GameObject inventoryPanel;
 
     // One label per slot, in order 1,2,3,4,5,6,7,8,9,0
     public Text[] slotLabels = new Text[10];
-
-    private static readonly KeyCode[] ItemKeys =
-    {
-        KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7,
-        KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Alpha0
-    };
 
     private PlayerStats stats;
 
@@ -37,12 +32,12 @@ public class PlayerInventory : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(toggleKey) && inventoryPanel != null)
+        if (GameInput.Inventory.WasPressedThisFrame() && inventoryPanel != null)
             inventoryPanel.SetActive(!inventoryPanel.activeSelf);
 
-        for (int i = 0; i < ItemKeys.Length && !PlayerController.uiEnabled; i++)
+        for (int i = 0; i < GameInput.UseSlot.Length && !PlayerController.uiEnabled; i++)
         {
-            if (Input.GetKeyDown(ItemKeys[i]))
+            if (GameInput.UseSlot[i].WasPressedThisFrame())
                 UseSlot(i);
         }
 
@@ -75,9 +70,9 @@ public class PlayerInventory : MonoBehaviour
         SetLabel(1, "2", NameOf(db.Get<MeleeData>(p.EquippedMelee)), p.SelectedWeapon == 1);
         SetLabel(2, "Q / E", NameOf(db.Get<AbilityData>(p.GetAbility(0))) + " / " + NameOf(db.Get<AbilityData>(p.GetAbility(1))), false);
 
-        for (int i = 0; i < ItemKeys.Length; i++)
+        for (int i = 0; i < GameInput.UseSlot.Length; i++)
         {
-            string key = i == ItemKeys.Length - 1 ? "0" : (i + 4).ToString();
+            string key = i == GameInput.UseSlot.Length - 1 ? "0" : (i + 4).ToString();
             SetLabel(i + 3, key, NameOf(db.Get<ConsumableData>(p.GetSlot(i))), false);
         }
     }

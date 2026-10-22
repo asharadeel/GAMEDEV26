@@ -1,7 +1,9 @@
 // ============================================================
 // Title:       PlayerAbilities
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ali
+// Updated by:  cthullu96 (v1.1: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: Uses the abilities equipped on Q and E (picked in
 //              the Hub's Inventory), each with its own cooldown.
 //              Stats come from the ability plus its unlocked skill
@@ -17,9 +19,6 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerCombat))]
 public class PlayerAbilities : MonoBehaviour
 {
-    public KeyCode qKey = KeyCode.Q;
-    public KeyCode eKey = KeyCode.E;
-
     [Header("Fire")]
     public float fireballSpeed = 18f;
     public float fireballDistance = 30f;
@@ -40,9 +39,9 @@ public class PlayerAbilities : MonoBehaviour
         if (PlayerController.uiEnabled)
             return;
 
-        if (Input.GetKeyDown(qKey))
+        if (GameInput.AbilityQ.WasPressedThisFrame())
             Use(0);
-        if (Input.GetKeyDown(eKey) && !DoorInteract.PlayerNearDoor)
+        if (GameInput.AbilityE.WasPressedThisFrame() && !DoorInteract.PlayerNearDoor)
             Use(1);
     }
 

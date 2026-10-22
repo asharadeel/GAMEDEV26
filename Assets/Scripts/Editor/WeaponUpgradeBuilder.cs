@@ -16,7 +16,6 @@ public static class WeaponUpgradeBuilder
 {
     const string HubPath = "Assets/Scenes/Hub.unity";
     const string PlainsPath = "Assets/Scenes/Scene 1 Plains.unity";
-    const string FontPath = "Assets/Fonts/arial/ARIAL.TTF";
 
     static readonly string[] BarNames = WeaponUpgradeUI.BarNames;
 
@@ -218,7 +217,7 @@ public static class WeaponUpgradeBuilder
         GameObject obj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
         obj.transform.SetParent(parent, false);
         Text t = obj.GetComponent<Text>();
-        t.font = AssetDatabase.LoadAssetAtPath<Font>(FontPath);
+        t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");   // unity's built in arial, the brief allows built in assets only
         t.text = text;
         t.fontSize = size;
         t.resizeTextForBestFit = true;

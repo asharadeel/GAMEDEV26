@@ -43,7 +43,7 @@ Canvas
    - Backgrounds on Frames and panels use **RawImage**, not Image (it can take any texture later). Only use Image where a sliced sprite is needed (scroll view, scrollbar, rounded buttons)
 3. **Content** inside the Frame can be laid out however the menu needs (centred panel, buttons anchored to edges...). Keep it switched on, the Frame handles visibility
 4. Always-visible HUD elements (health bars, Mobs Left tracker) don't need a Frame. They go inside `PlayerUI`, which is itself a stretched container
-5. UI text: legacy Text, font `Assets/Fonts/arial/ARIAL.TTF`, Best Fit on (except text inside a scroll view, see below)
+5. UI text: legacy Text, Unity's built-in font (LegacyRuntime), Best Fit on (except text inside a scroll view, see below)
 6. **Text windows** (intro, help, story, guides): use the `Assets/UI/GeneralTextWindow` prefab as the menu's Frame (it's stretched and has `InactiveOnStart` on its root)
    - Change the window's text on the copy in the scene (prefab overrides), not in the prefab, so the prefab stays a blank template
    - `Title/Label` = window title, `Content/Title1` = heading, `Content/Context` = body (rich text: `<b>bold</b>`)
@@ -85,7 +85,6 @@ Canvas
 | Main Menu | `Tutorial` (GeneralTileWindow, 8 steps), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
 | Hub | `StoreUI` (`GeneralSelectorUI` + `TabSelector`, `ShopPopups` on the container), `BuyPopup`, `RefundPopup`, `UpgradePopup` (GeneralPopUpWindow, + `WeaponUpgradeUI` on the container), `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `InventoryMenu` (GeneralSelectorUI copy, 3 tabs with `InventoryCard` grids), `SkillTreeMenu` (GeneralPopUpWindow full screen + `SkillTreeUI` on the container, nodes drawn from the ability assets), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
-`Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
 ---
 

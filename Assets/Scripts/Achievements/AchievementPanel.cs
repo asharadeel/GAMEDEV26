@@ -1,7 +1,9 @@
 // ============================================================
 // Title:       AchievementPanel
-// Version:     1.0
+// Version:     1.1
 // Written by:  Davud Jabiyev
+// Updated by:  cthullu96 (v1.1: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: A list of all achievements. J opens and closes it.
 //              Each row shows [x] when unlocked and the progress,
 //              e.g. "[ ] Slayer - Kill 10 mobs (7/10)".
@@ -12,7 +14,6 @@ using UnityEngine.UI;
 
 public class AchievementPanel : MonoBehaviour
 {
-    public KeyCode toggleKey = KeyCode.J;
     public GameObject panel;             // the UI panel to show / hide
     public Text[] rows;                  // UI Text instances, one per achievement, in order
     
@@ -32,7 +33,7 @@ public class AchievementPanel : MonoBehaviour
     void Update()
     {
         // Open / Close toggle panel with the key
-        if (Input.GetKeyDown(toggleKey) && panel != null) {
+        if (GameInput.Achievements.WasPressedThisFrame() && panel != null) {
             panel.SetActive(!panel.activeSelf);
         }
 

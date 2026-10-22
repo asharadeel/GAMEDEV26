@@ -9,6 +9,7 @@ using UnityEngine.UI;
 // it puts everything in the hex room and adds the portal piece pop up to the canvas
 // running it again replaces the old boss arena
 // save the scene after (ctrl + s)
+// ai use: written with claude (anthropic), owner: cthullu96
 public static class BossRoomBuilder
 {
     const float pillarDistance = 28f;   // how far the pillars are from the middle
@@ -220,9 +221,7 @@ public static class BossRoomBuilder
         ring.transform.SetParent(pad.transform, false);
         ring.transform.localPosition = new Vector3(0f, 0.05f, 0f);
         ring.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-        SpriteRenderer sr = ring.AddComponent<SpriteRenderer>();
-        sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/circleborder.png");
-        sr.color = Color.yellow;
+        RingLine.Add(ring, Color.yellow);
 
         // same door script the maze end room uses
         DoorInteract door = pad.AddComponent<DoorInteract>();
@@ -247,7 +246,7 @@ public static class BossRoomBuilder
         textObj.GetComponent<RectTransform>().sizeDelta = new Vector2(600f, 200f);
         Text text = textObj.AddComponent<Text>();
         text.text = "PROTOTYPE SKIP\n<size=40>press E to go to the boss</size>";
-        text.font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/arial/ARIAL.TTF");
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         text.fontSize = 60;
         text.fontStyle = FontStyle.Bold;
         text.alignment = TextAnchor.MiddleCenter;
@@ -262,9 +261,7 @@ public static class BossRoomBuilder
         GameObject ring = new GameObject("SlamWarning");
         ring.transform.SetParent(parent, false);
         ring.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-        SpriteRenderer sr = ring.AddComponent<SpriteRenderer>();
-        sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/circleborder.png");
-        sr.color = new Color(1f, 0.2f, 0.2f);
+        RingLine.Add(ring, new Color(1f, 0.2f, 0.2f), 0.4f);
         ring.SetActive(false);
         return ring;
     }

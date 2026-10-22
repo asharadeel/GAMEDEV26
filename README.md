@@ -5,8 +5,6 @@ This is an AI-written document, kept up to date as the project changes so we can
 # Folder Structure
 All project content lives in `Assets/`:
 
-- `Animations/` - animation clips and controllers (empty for now)
-- `Audio/` - music and sound effects (empty for now)
 - `Data/` - game data assets (ScriptableObjects)
   - `Consumables/Food/` - `Beans`
   - `Mobs/` - mob profiles (`MobLevel1`, `MobLevel2`, `MobLevel3`)
@@ -16,8 +14,7 @@ All project content lives in `Assets/`:
   - `Weapons/Melee/` - `Punch`, `Kick`, `Bat`
   - `Weapons/Specials/` - `Rocket`, `Grenade` (not in the game any more: abilities replaced specials, kept in case they come back)
   - `Abilities/` - `Fire`, `Ice`, `Lightning` (each holds its skill tree branch)
-- `Fonts/` - Arial, used by all UI text
-- `Images/` - 2D images (`pointer.png` - aim arrow, `circleborder.png` - door ring and prompt)
+- No font or image files: all UI text uses Unity's built-in font (LegacyRuntime, which is Arial), floor rings are drawn with a LineRenderer, the aim arrow and door prompt use Unity's built-in UI sprites (the brief allows Unity basic assets only)
 - `Materials/Palette/` - ready-to-use materials: `Colours` (23 flat colours), `Metals`, `Glow` (emissive), `Glass` (see-through), `Surfaces` (wood, stone, brick, ice, lava...)
 - `Materials/` - materials for scene objects. `Level/` has the level materials (Floor, Grass, Path, SpawnPad, TreeTrunk, TreeLeaves, Door, HexFloor, HexWall). Others: (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
 - `Models/` - 3D models and prefabs
@@ -42,7 +39,6 @@ All project content lives in `Assets/`:
   - `UI/` - buttons, menus and the player HUD
   - `Weapons/` - weapon types and projectiles
   - `World/` - things in the level the player interacts with (doors, hub portals and menu zones)
-- `Textures/` - textures used by materials (empty for now)
 - `UI/` - UI prefabs
   - `MobHealthBar` - health bar shown above mobs
   - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
@@ -59,8 +55,8 @@ All project content lives in `Assets/`:
 # Build Settings
 - Unity version: 2023.1.22f1
 - Scenes:
-  - 0: `Hub` game starts here (should probably become `Main Menu`, so a profile is picked first)
-  - 1: `Main Menu` title screen, profile select and tutorial
+  - 0: `Main Menu` game starts here: title screen, profile select and tutorial
+  - 1: `Hub` (Main Menu's Play loads it after a profile is picked)
   - 2: `Scene 1 Plains`
 - Any new scene must be added here or it can't be loaded by name
 - Pick the platform (Windows), click **Build** choose an output folder
@@ -129,6 +125,8 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 - Achievements (`Canvas > AchievementUI`): `AchievementsPanel` in the centre (press J), `AchievementBanner` at the top centre when one unlocks
 
 # Controls
+All controls use the Input System package and are set up in one place, `Scripts/Input/GameInput.cs` (keyboard + mouse, and a gamepad works for moving, jumping, attacking, abilities and the main buttons). To change a key, change its binding there.
+
 | Key | Action |
 |---|---|
 | WASD | Move |
@@ -150,6 +148,9 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 
 # Scripts
 All scripts are in `Assets/Scripts/`.
+
+## Scripts/Input/
+- `GameInput.cs` - every control in the game as an Input System action (Move, Sprint, Jump, Attack, RotateCamera, Look, Zoom, Weapon1-2, Reload, AbilityQ, AbilityE, UseSlot 4-0, Interact, Inventory, Achievements, HideUI, Menu). Scripts read them directly, e.g. `GameInput.Jump.WasPressedThisFrame()`. Written with Claude (Anthropic), owner cthullu96
 
 ## Scripts/
 - `PlayerController.cs` - goes on the Player
@@ -257,7 +258,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `CurrencyChangeButton.cs` - on a Button: `Mode` Add / Subtract and `Amount` of coins. Subtract doesn't go through without enough coins
 - `TabSelector.cs` - a row of buttons that each open their own frame. `Tabs` = list of `Button` + `Frame`. Clicking a button shows its frame and hides the rest, the open tab's button is greyed out. Opens on the first tab each time the window opens. On the Hub's `StoreUI/GeneralSelectorUI` (5 buttons under `SectionSelector`, 5 frames under `Sections`)
 - `TilePager.cs` - shows one box (page) at a time instead of a scroll view. `Pages` = list of `Order` + `Content` (the box/Frame), shown lowest order first. `Left Button` / `Right Button` flip pages and are greyed out when there's no page that way. Optional `Page Label` shows e.g. "2 / 5". Goes back to page 1 each time the window opens. Already set up on the `Assets/UI/GeneralTileWindow` prefab (4 steps)
-- `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync, shows the shooter's ammo in `Ammo Text` (Scene 1: `PlayerUI/Frame/AmmoCounter`, bottom right, blank when another weapon is selected) and the Q / E cooldowns in `Ability Text` (`PlayerUI/Frame/AbilityCooldowns`, above the ammo) and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
+- `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync, shows the shooter's ammo in `Ammo Text` (Scene 1: `PlayerUI/Frame/AmmoCounter`, bottom right, blank when another weapon is selected) and the Q / E cooldowns in `Ability Text` (`PlayerUI/Frame/AbilityCooldowns`, above the ammo) and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`GameInput.HideUI`)
 
 ## Scripts/Abilities/
 - `AbilityData.cs` - an ability (Create > Game > Ability): `type` (Fire / Ice / Lightning), `colour`, `model`, base `damage`, `radius`, `cooldown`, `extra` (Ice: slow seconds, Lightning: chains) and the skill tree `nodes`
@@ -346,7 +347,7 @@ Loot (each rolled separately when the mob dies):
 - `WallHider.cs` - goes on `CaveWalls` in the hub. Hides the walls between the camera and the player so they don't block the view (they still have colliders and shadows)
 - `DoorInteract.cs` - goes on a door. `DoorInteract.PlayerNearDoor` is true while the player can use one (then E opens the door, not the E ability)
   - When the player is within `Radius` of `Interact Point`: shows the on-screen `Prompt` (circle with "E" / "Click") above the door
-  - Press `Key` (E) or click the prompt to move the player to `Destination`
+  - Press E (`GameInput.Interact`) or click the prompt to move the player to `Destination`
   - `Radius Ring` - circle on the floor showing the radius, visible within `Show Ring Within`
   - The end-room door sends the player to `HexRoom/DoorSpawn`
 
@@ -355,11 +356,11 @@ Loot (each rolled separately when the mob dies):
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled
 
 ## Scripts/Editor/
+- `RingLine.cs` - draws a flat 1-unit circle with a LineRenderer, used for the radius rings (`RadiusUI`, `DoorInteract`, boss slam warning). Written with Claude (Anthropic), owner cthullu96
 - `ReloadChangedScenes.cs` - reloads the open scene when its file changes on disk (a `git pull`, or edited outside Unity), including after a recompile or leaving Play mode, when Unity would otherwise keep showing its own old copy. Asks first if the scene has unsaved changes. Nothing to set up. Editor only
 - `WeaponUpgradeBuilder.cs` - adds **Tools > Build Weapon Upgrades**. Opens the Hub, sets the shop title to "Shop" and builds `UpgradePopup` (removing the old one), then opens Scene 1 Plains and adds `AmmoCounter` (wired into `PlayerHUD`). Saves both. Running it again replaces them. Editor only
 - `PortalSlotBuilder.cs` - adds **Tools > Add Portal Slots**. With the Hub open, puts a square slot on each portal's inner pillar (Level 1 purple, Level 2 dark grey), adds `PortalSlot` to `Level2Portal` and the `PlacePiecePrompt` pop-up (`GeneralPopUpWindow`). Editor only
 - `BossRoomBuilder.cs` - adds **Tools > Build Boss Room**. With Scene 1 Plains open, builds the boss, pillars, portal piece, `PortalPieceMenu` and the `PrototypeSkip` pad, and makes `Data/Mobs/Boss.asset` and `Models/Boss/Boulder.prefab` if they don't exist yet. Editor only
-- `HubBuilder.cs` - adds **Tools > Build Hub**. Builds the hub scene out of basic shapes, saves it as `Assets/Scenes/Hub.unity` and puts it first in Build Settings. Editor only, not part of the game
 
 # Save Data
 - Saved as JSON in Unity's persistent data folder, not in `Assets/` (Assets is read-only in a build)
