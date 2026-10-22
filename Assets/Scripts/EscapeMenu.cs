@@ -1,7 +1,9 @@
 // ============================================================
 // Title:       EscapeMenu
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.1: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: Esc toggles the menu on and off.
 // ============================================================
 
@@ -16,7 +18,7 @@ public class EscapeMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && menu != null)
+        if (GameInput.Menu.WasPressedThisFrame() && menu != null)
         {
             menu.SetActive(!menu.activeSelf);
         }

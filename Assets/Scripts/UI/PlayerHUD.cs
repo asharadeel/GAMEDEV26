@@ -1,7 +1,9 @@
 // ============================================================
 // Title:       PlayerHUD
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.2: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: Keeps the health/stamina/hunger/thirst bars and objectives up to date.
 //              H hides/shows the whole player UI.
 // ============================================================
@@ -18,9 +20,6 @@ public class PlayerHUD : MonoBehaviour
     public Slider staminaSlider;
     public Slider hungerSlider;
     public Slider thirstSlider;
-
-    [Header("Hide UI")]
-    public KeyCode hideKey = KeyCode.H;
 
     [Header("Objectives")]
     public Text objectivesText;
@@ -41,7 +40,7 @@ public class PlayerHUD : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(hideKey))
+        if (GameInput.HideUI.WasPressedThisFrame())
             SetVisible(group.alpha < 1f);
 
         PlayerProfile p = ProfileManager.Profile;

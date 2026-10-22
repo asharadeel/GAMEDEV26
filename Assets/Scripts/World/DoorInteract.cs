@@ -1,7 +1,9 @@
 // ============================================================
 // Title:       DoorInteract
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.1: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: A door the player can use when close. Shows a ring
 //              on the floor for the radius and an "E / Click"
 //              prompt on screen. Press E or click the prompt to be
@@ -20,7 +22,6 @@ public class DoorInteract : MonoBehaviour
     public Transform interactPoint;      // centre of the radius (defaults to this object)
     public float radius = 4f;            // close enough to use the door
     public float showRingWithin = 10f;   // ring appears when this close
-    public KeyCode key = KeyCode.E;
 
     [Header("Visuals")]
     public GameObject prompt;            // on-screen "E / Click" UI
@@ -70,7 +71,7 @@ public class DoorInteract : MonoBehaviour
         if (prompt != null && cam != null)
             prompt.transform.position = cam.WorldToScreenPoint(interactPoint.position + Vector3.up * promptHeight);
 
-        if (Input.GetKeyDown(key))
+        if (GameInput.Interact.WasPressedThisFrame())
             Enter();
     }
 

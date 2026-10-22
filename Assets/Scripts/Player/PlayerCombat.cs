@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.8
+// Version:     1.9
 // Written by:  Ashar
-// Updated by:  cthullu96 (v1.7: capsule fist shows while punch is selected)
+// Updated by:  cthullu96 (v1.7: capsule fist shows while punch is selected, v1.9: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: Aiming, weapon slots and attacking. Each weapon
 //              uses the stats of its current upgrade level.
 // ============================================================
@@ -17,7 +18,6 @@ using UnityEngine.EventSystems;
 public class PlayerCombat : MonoBehaviour
 {
     public Camera cam;
-    public KeyCode attackKey = KeyCode.X;
 
     [Header("Aim Arrow")]
     public Transform aimArrow;          // optional sprite that circles the player, pointing at the mouse
@@ -53,14 +53,14 @@ public class PlayerCombat : MonoBehaviour
         if (PlayerController.uiEnabled)
             return;
 
-        if (Input.GetKeyDown(KeyCode.Alpha1)) stats.Profile.SelectedWeapon = 0;
-        if (Input.GetKeyDown(KeyCode.Alpha2)) stats.Profile.SelectedWeapon = 1;
-        if (Input.GetKeyDown(KeyCode.Alpha3)) stats.Profile.SelectedWeapon = 2;
-        if (Input.GetKeyDown(KeyCode.Q)) stats.Profile.SelectedWeapon = (stats.Profile.SelectedWeapon + 1) % 3;
+        if (GameInput.Weapon1.WasPressedThisFrame()) stats.Profile.SelectedWeapon = 0;
+        if (GameInput.Weapon2.WasPressedThisFrame()) stats.Profile.SelectedWeapon = 1;
+        if (GameInput.Weapon3.WasPressedThisFrame()) stats.Profile.SelectedWeapon = 2;
+        if (GameInput.CycleWeapon.WasPressedThisFrame()) stats.Profile.SelectedWeapon = (stats.Profile.SelectedWeapon + 1) % 3;
 
         // Clicking on UI (buttons, door prompt) shouldn't also shoot
         bool clickOnUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-        if ((Input.GetMouseButton(0) && !clickOnUI) || Input.GetKey(attackKey))
+        if (GameInput.Attack.IsPressed() && !clickOnUI)
             Attack();
     }
 
@@ -185,7 +185,7 @@ public class PlayerCombat : MonoBehaviour
     // Where the mouse points on a flat plane at the player's height
     Vector3 GetAimDirection()
     {
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(GameInput.PointerPosition);
         Plane ground = new Plane(Vector3.up, transform.position);
 
         if (ground.Raycast(ray, out float distance))
