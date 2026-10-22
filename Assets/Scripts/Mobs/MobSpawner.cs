@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       MobSpawner
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.4: max alive at once so the maze doesn't fill up)
 // Description: Spawns mobs around this point. Each row in Spawns
 //              is a mob + how many to spawn, weakest first.
 //              Row 0 starts straight away, every 5s.
@@ -9,6 +10,7 @@
 //              (row 1: after 30s, every 9s. row 2: after 60s, every 13s...)
 //              Nothing spawns until the player is within Activation Radius.
 //              Remaining(mob) = how many of that mob are still to be killed.
+//              max alive = most mobs from this spawner alive at once.
 // ============================================================
 
 using System.Collections;
@@ -37,10 +39,12 @@ public class MobSpawner : MonoBehaviour
     [Header("Area")]
     public float spawnRadius = 1.5f;     // random spread around the spawner
     public float activationRadius = 20f; // starts spawning when the player is this close
+    public int maxAlive = 4;             // waits to spawn more until one of these dies
 
     private Transform player;
     private bool started;
     private int[] remaining;             // per row: still to be killed (not spawned yet + alive)
+    private int alive;                   // mobs from this spawner alive right now
 
     void Awake()
     {
@@ -107,6 +111,10 @@ public class MobSpawner : MonoBehaviour
 
         for (int n = 0; n < entry.amount; n++)
         {
+            // too many already out, wait for one to die
+            while (alive >= maxAlive)
+                yield return null;
+
             Spawn(entry.mob, row);
             yield return new WaitForSeconds(interval);
         }
@@ -124,7 +132,8 @@ public class MobSpawner : MonoBehaviour
         // The profile's type decides which kind of mob it becomes
         Mob m = mobData.type == MobType.Shooter ? mob.AddComponent<ShooterMob>() : (Mob)mob.AddComponent<FollowMob>();
         m.Init(mobData, healthBarPrefab);
-        m.onDied = () => remaining[row]--;
+        alive++;
+        m.onDied = () => { remaining[row]--; alive--; };
     }
 
     // Moves the mob up/down so the bottom of its model sits at groundY

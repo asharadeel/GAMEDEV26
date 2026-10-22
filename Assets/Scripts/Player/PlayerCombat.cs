@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.7
+// Version:     1.8
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.7: capsule fist shows while punch is selected)
 // Description: Aiming, weapon slots and attacking. Each weapon
 //              uses the stats of its current upgrade level.
 // ============================================================
@@ -24,7 +25,12 @@ public class PlayerCombat : MonoBehaviour
     public float arrowHeight = -0.45f;  // up/down from the player's centre (negative = near the floor)
     public float arrowSpin = 0f;        // extra turn if the image doesn't point up
 
+    [Header("Punch")]
+    public Color fistColour = new Color(0.85f, 0.7f, 0.55f);
+
     private PlayerStats stats;
+    private GameObject fist;            // capsule in front of the player while punch is selected
+    private float punchTime = -10f;
     private Vector3 aimDirection = Vector3.forward;
     private float nextAttackTime;
 
@@ -33,12 +39,15 @@ public class PlayerCombat : MonoBehaviour
         stats = GetComponent<PlayerStats>();
         if (cam == null)
             cam = Camera.main;
+
+        MakeFist();
     }
 
     void Update()
     {
         aimDirection = GetAimDirection();
         UpdateArrow();
+        UpdateFist();
 
         // No switching or attacking while a menu is open
         if (PlayerController.uiEnabled)
@@ -115,6 +124,8 @@ public class PlayerCombat : MonoBehaviour
 
         Damage.HitArea(centre, melee.radius, melee.damage);
 
+        punchTime = Time.time;   // makes the fist jab forward
+
         // Flash the model briefly if it has one (punch has none)
         if (melee.model != null)
             Destroy(Instantiate(melee.model, centre, Quaternion.LookRotation(aimDirection)), 0.15f);
@@ -125,6 +136,39 @@ public class PlayerCombat : MonoBehaviour
     {
         Collider col = GetComponent<Collider>();
         return col != null ? col.bounds.extents.x : 0.5f;
+    }
+
+    // a capsule so you can see punch is the selected weapon
+    void MakeFist()
+    {
+        fist = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        fist.name = "Fist";
+        Destroy(fist.GetComponent<Collider>());
+        fist.GetComponent<Renderer>().material.color = fistColour;
+        fist.transform.SetParent(transform, false);
+
+        // same size whatever the player's scale is
+        float s = transform.lossyScale.x;
+        fist.transform.localScale = new Vector3(0.35f, 0.4f, 0.35f) / s;
+        fist.SetActive(false);
+    }
+
+    // only shows while the melee slot is picked and the melee is punch
+    void UpdateFist()
+    {
+        if (fist == null || stats == null)
+            return;
+
+        PlayerProfile p = stats.Profile;
+        bool show = p.SelectedWeapon == 1 && p.EquippedMelee == "punch";
+        fist.SetActive(show);
+        if (!show)
+            return;
+
+        // sits just in front of the player pointing where they aim, jabs out for a moment when punching
+        float jab = Time.time - punchTime < 0.12f ? 0.6f : 0f;
+        fist.transform.position = transform.position + aimDirection * (PlayerRadius() + 0.3f + jab);
+        fist.transform.rotation = Quaternion.LookRotation(aimDirection) * Quaternion.Euler(90f, 0f, 0f);
     }
 
     void UpdateArrow()

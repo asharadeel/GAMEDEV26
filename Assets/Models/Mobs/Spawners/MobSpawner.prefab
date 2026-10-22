@@ -46,13 +46,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawns:
   - mob: {fileID: 11400000, guid: bde723b5ec42463da9086eacc1ca098c, type: 2}
-    amount: 20
+    amount: 8
   - mob: {fileID: 11400000, guid: b5d2ab46e2db4d47b1876afc271e89f3, type: 2}
-    amount: 10
+    amount: 4
   - mob: {fileID: 11400000, guid: 6c655a0db94f44a29060abf315a25d83, type: 2}
-    amount: 5
+    amount: 2
   healthBarPrefab: {fileID: 1255808012, guid: 28992143d0a44908a04490044c5b1993, type: 3}
   firstInterval: 5
   delayPerRow: 30
   intervalPerRow: 4
   spawnRadius: 1.5
+  maxAlive: 4
