@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: grenade
   displayName: Grenade
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: {fileID: 2087813676588361287, guid: f6c8bc097e049b747ac26be915eacddc, type: 3}

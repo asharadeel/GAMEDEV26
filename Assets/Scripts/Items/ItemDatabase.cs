@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       ItemDatabase
-// Version:     2.0
+// Version:     2.1
 // Written by:  Ashar
+// Updated by:  Ali (v2.1: abilities)
 // Description: The list of every item in the game, split by type.
 //              The save file only stores item ids ("lazer",
 //              "beans"...), so the game uses this to turn an id
@@ -20,7 +21,10 @@ public class ItemDatabase : ScriptableObject
     public List<ShooterData> shooters = new List<ShooterData>();
     public List<LazerData> lazers = new List<LazerData>();
     public List<MeleeData> melee = new List<MeleeData>();
-    public List<SpecialData> specials = new List<SpecialData>();
+    public List<SpecialData> specials = new List<SpecialData>();   // empty since abilities replaced specials
+
+    [Header("Abilities")]
+    public List<AbilityData> abilities = new List<AbilityData>();
 
     [Header("Consumables")]
     public List<ConsumableData> food = new List<ConsumableData>();
@@ -48,6 +52,7 @@ public class ItemDatabase : ScriptableObject
         all.AddRange(specials);
         all.AddRange(food);
         all.AddRange(drinks);
+        all.AddRange(abilities);
         return all;
     }
 

@@ -14,13 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: lazer
   displayName: Lazer
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 1
   model: {fileID: 2087813676588361287, guid: f6c8bc097e049b747ac26be915eacddc, type: 3}
-  damage: 10
-  fireRate: 4
-  speed: 20
   distance: 50
   size: 1
+  pierce: 0
   rotationOffset: {x: 90, y: 0, z: 0}

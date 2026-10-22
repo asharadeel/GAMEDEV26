@@ -22,11 +22,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0c1581bfad8145ff96b101bd33d78f78, type: 2}
   - {fileID: 11400000, guid: 9367d96b515b43d5864fa247365a4632, type: 2}
   - {fileID: 11400000, guid: cea0b17a85fd4fef85d3b5dffcbe115e, type: 2}
-  specials:
-  - {fileID: 11400000, guid: 0722a9f87d874930b9ba86f9b87042dc, type: 2}
-  - {fileID: 11400000, guid: 32e78a5943c14ac295b38ac0e5cc01fb, type: 2}
+  specials: []
   food:
   - {fileID: 11400000, guid: c9e943e753964369907b977fe0b6a7ae, type: 2}
   drinks:
   - {fileID: 11400000, guid: 89e82d5412c0430d975f415afc01a9f1, type: 2}
   - {fileID: 11400000, guid: de439d0c03f64a1baf3dd14110596cbe, type: 2}
+  abilities:
+  - {fileID: 11400000, guid: 73465a408c5ee086182163037f058744, type: 2}
+  - {fileID: 11400000, guid: 41a81490706ca8fc02cb40cd2b05600a, type: 2}
+  - {fileID: 11400000, guid: 621e1360907f6085a8f5fe2337ddb564, type: 2}

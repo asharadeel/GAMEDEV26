@@ -14,13 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: uv_lazer
   displayName: UV Lazer
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: {fileID: 8510083626483001670, guid: 977bc1223176b5e4ab2669aa23499ed6, type: 3}
-  damage: 4
-  fireRate: 10
-  speed: 28
   distance: 50
-  size: 1
+  size: 1.5
+  pierce: 0
   rotationOffset: {x: 90, y: 0, z: 0}

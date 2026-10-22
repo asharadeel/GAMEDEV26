@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: beans
   displayName: Beans
-  tokenCost: 10
+  coinCost: 10
   levelRequired: 1
   hunger: 40
   thirst: 0

@@ -1,13 +1,16 @@
 // ============================================================
 // Title:       ShopPopups
-// Version:     1.2
+// Version:     1.5
 // Written by:  Ashar
-// Description: The shop's Buy, Upgrade and Refund pop-ups, shared
-//              by every ShopItemCard (weapons) and ConsumableCard
-//              (food/drink: Buy and Refund). Each pop-up is a
-//              GeneralPopUpWindow copy:
+// Updated by:  Ali (v1.3: Buy pop-up also buys shooter upgrades,
+//              v1.4: and every other weapon upgrade, Upgrade pop-up removed,
+//              v1.5: OpenBuy(name, cost, buy) for anything, e.g. skill tree nodes)
+// Description: The shop's Buy and Refund pop-ups, shared by every
+//              ShopItemCard (weapons), ConsumableCard (food/drink),
+//              the bars in WeaponUpgradeUI and the SkillTreeUI nodes
+//              (Buy). Each pop-up
+//              is a GeneralPopUpWindow copy:
 //              Buy:     "Buy <item>",               button "Buy: <cost>"
-//              Upgrade: "Upgrade to level <n>",     button "Cost: <cost>"
 //              Refund:  "Refund <item>: <refund>",  button "Refund"
 //              Goes on the shop's container (always active).
 // ============================================================
@@ -23,7 +26,7 @@ public class ShopPopup
     public Text title;
     public Button action;
     public Text actionLabel;
-    public Text message;        // "You have 120 tokens" / "Not enough tokens"
+    public Text message;        // "You have 120 coins" / "Not enough coins"
 }
 
 public class ShopPopups : MonoBehaviour
@@ -32,17 +35,16 @@ public class ShopPopups : MonoBehaviour
     public static ShopPopups Instance { get; private set; }
 
     public ShopPopup buy;
-    public ShopPopup upgrade;
     public ShopPopup refund;
 
     private ShopItemCard card;           // the weapon card that opened the pop-up
     private ConsumableCard consumable;   // or the food/drink card
+    private System.Func<bool> buyAction; // or anything else (an upgrade, a skill node): true if it was bought
 
     void Awake()
     {
         Instance = this;
         buy.action.onClick.AddListener(Buy);
-        upgrade.action.onClick.AddListener(Upgrade);
         refund.action.onClick.AddListener(Refund);
     }
 
@@ -52,21 +54,26 @@ public class ShopPopups : MonoBehaviour
     {
         card = from;
         consumable = null;
-        Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.tokenCost);
+        buyAction = null;
+        Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.coinCost);
     }
 
     public void OpenBuy(ConsumableCard from)
     {
         consumable = from;
         card = null;
-        Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.tokenCost);
+        buyAction = null;
+        Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.coinCost);
     }
 
-    public void OpenUpgrade(ShopItemCard from)
+    // Anything else that costs coins, e.g. "Buy Damage (10 → 13)" or "Buy Searing".
+    // tryBuy spends the coins and returns false if there weren't enough
+    public void OpenBuy(string name, int cost, System.Func<bool> tryBuy)
     {
-        card = from;
-        int next = ProfileManager.GetLevel(card.item) + 1;
-        Open(upgrade, "Upgrade to level " + next, "Cost: " + card.item.UpgradeCost(next));
+        buyAction = tryBuy;
+        card = null;
+        consumable = null;
+        Open(buy, "Buy " + name, "Buy: " + cost);
     }
 
     public void OpenRefund(ConsumableCard from)
@@ -87,7 +94,7 @@ public class ShopPopups : MonoBehaviour
     {
         popup.title.text = title;
         popup.actionLabel.text = action;
-        popup.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+        popup.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
         popup.window.SetActive(true);
     }
 
@@ -95,15 +102,26 @@ public class ShopPopups : MonoBehaviour
 
     void Buy()
     {
+        if (buyAction != null)
+        {
+            if (!buyAction())
+            {
+                buy.message.text = "Not enough coins";
+                return;
+            }
+            Done(buy);
+            return;
+        }
+
         ItemData item = consumable != null ? (ItemData)consumable.item : card.item;
         if (ProfileManager.Profile.Level < item.levelRequired)
         {
             buy.message.text = "Needs player level " + item.levelRequired;
             return;
         }
-        if (ProfileManager.Profile.Tokens < item.tokenCost)
+        if (ProfileManager.Profile.Coins < item.coinCost)
         {
-            buy.message.text = "Not enough tokens";
+            buy.message.text = "Not enough coins";
             return;
         }
 
@@ -119,21 +137,11 @@ public class ShopPopups : MonoBehaviour
         // Food/drink: stay open to buy more, just update the count
         if (consumable != null)
         {
-            buy.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+            buy.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
             ConsumableCard.RefreshAll();
             return;
         }
         Done(buy);
-    }
-
-    void Upgrade()
-    {
-        if (!ProfileManager.TryUpgrade(card.item))
-        {
-            upgrade.message.text = "Not enough tokens";
-            return;
-        }
-        Done(upgrade);
     }
 
     void Refund()
@@ -150,7 +158,7 @@ public class ShopPopups : MonoBehaviour
             if (ProfileManager.Profile.CountInInventory(consumable.item.id) == 0)
                 Done(refund);
             else
-                refund.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+                refund.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
             return;
         }
 
@@ -167,5 +175,9 @@ public class ShopPopups : MonoBehaviour
         popup.window.SetActive(false);
         ShopItemCard.RefreshAll();
         ConsumableCard.RefreshAll();
+        if (WeaponUpgradeUI.Instance != null)
+            WeaponUpgradeUI.Instance.Refresh();
+        if (SkillTreeUI.Instance != null)
+            SkillTreeUI.Instance.Refresh();
     }
 }

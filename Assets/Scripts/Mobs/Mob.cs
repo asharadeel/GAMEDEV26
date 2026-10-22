@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       Mob
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.4: drops loot on death, v1.5: counts kills for achievements)
+//              Ali (v1.6: can be slowed, used by the Ice ability)
 // Description: Base for every mob. Holds health, shows the health
 //              bar, dies at 0 (dropping its loot), and has helpers
 //              for finding the player. FollowMob and ShooterMob
@@ -23,6 +24,8 @@ public class Mob : MonoBehaviour
     protected float playerRadius;
 
     private MobHealthBar healthBar;
+    private float slowMultiplier = 1f;
+    private float slowUntil;
 
     public virtual void Init(MobData mobData, GameObject healthBarPrefab)
     {
@@ -77,7 +80,20 @@ public class Mob : MonoBehaviour
         }
     }
 
+    // Moves at multiplier x speed (e.g. 0.5 = half) for a few seconds
+    public void Slow(float multiplier, float seconds)
+    {
+        slowMultiplier = multiplier;
+        slowUntil = Time.time + seconds;
+    }
+
     // ---- Helpers for FollowMob / ShooterMob ----
+
+    // 1 normally, less while slowed. Multiply movement speed by this
+    protected float SpeedMultiplier
+    {
+        get { return Time.time < slowUntil ? slowMultiplier : 1f; }
+    }
 
     // Flat distance (ignores height). Infinity if there's no player.
     protected float DistanceToPlayer()

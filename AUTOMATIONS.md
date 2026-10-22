@@ -6,13 +6,14 @@ This is an AI-written document: step-by-step guides and rules for repeatable tas
 
 > Refer to AUTOMATIONS.md for how to add this so you're consistent with the structure.
 
-Example: *"Add a food called Canned Peaches that restores 35 hunger and 10 thirst, costs 15 tokens. Refer to AUTOMATIONS.md for how to add this so you're consistent with the structure."*
+Example: *"Add a food called Canned Peaches that restores 35 hunger and 10 thirst, costs 15 coins. Refer to AUTOMATIONS.md for how to add this so you're consistent with the structure."*
 
 **For AI assistants:** these are project rules agreed by the team. Follow them even if a request doesn't mention them, and if a request conflicts with a rule, point it out and ask before going ahead. Policies (like UI POLICY) apply to every change, not only when someone refers to this file.
 
 Sections:
 - [UI POLICY](#ui-policy)
 - [Adding Items](#adding-items)
+- [Abilities and Skill Tree](#abilities-and-skill-tree)
 - [Adding Mobs](#adding-mobs)
 
 ---
@@ -48,7 +49,7 @@ Canvas
    - `Title/Label` = window title, `Content/Title1` = heading, `Content/Context` = body (rich text: `<b>bold</b>`)
    - The scroll view is vertical only, Clamped (stops where the content ends) and the content sizes itself (Vertical Layout Group + Content Size Fitter). Text inside it must have Best Fit off, otherwise the layout can't measure it
    - Point the thing that opens it (e.g. `RadiusUI.ui`) at the window's root. Its Close button already closes it
-7. **Pop-ups / prompts** (short message + one action, e.g. "Go to the next floor?", "Not enough tokens"): use the `Assets/UI/GeneralPopUpWindow` prefab as the menu's Frame
+7. **Pop-ups / prompts** (short message + one action, e.g. "Go to the next floor?", "Not enough coins"): use the `Assets/UI/GeneralPopUpWindow` prefab as the menu's Frame
    - It's a centred box (root inset 500px left/right and 300px top/bottom from the container), with `InactiveOnStart` and `OverlayUI` already on its root, so the player is frozen while it's open
    - `Title/Label` = title, `Button` = the action button (its label is `Button/Text (TMP)`, a legacy Text despite the name), `CloseButton` closes the pop-up
    - The action button has no script in the prefab. Add what it should do on the scene copy, e.g. `OpenScene`, `OpenElemOnClick` / `CloseElemOnClick`, or a script of your own. Change the text on the scene copy too, not in the prefab
@@ -60,7 +61,8 @@ Canvas
    - Fill in the boxes on the scene copy, not in the prefab
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 8b. **Prefab copies:** change a window's text/boxes on its scene copy (overrides). Don't **Unpack** a General window (an unpacked copy never gets prefab fixes) and don't **Apply** a scene copy's overrides to the prefab (that would put e.g. the tutorial's 8 steps into every tile window). Only edit the prefab itself for changes every window should get
-8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Upgrade/Refund pop-ups are shared (`ShopPopups` on the shop's container), don't add pop-ups per card
+8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Refund pop-ups are shared (`ShopPopups` on the shop's container) and Upgrade opens the shared `UpgradePopup` window (`WeaponUpgradeUI`: bars for shooters, a Level bar for melee/specials, whose Buy buttons reuse `BuyPopup`), don't add pop-ups per card. Refunds never change with upgrades (always a third of the price)
+8d. **Inventory cards:** each weapon in the Hub's Inventory is a copy of `Assets/UI/InventoryCard` in the matching tab of `InventoryMenu` (`Frame (n)/Viewport/Content/Items`), placed by hand with the weapon in `Item`, same as shop cards. `InventoryGrid` hides the ones the player doesn't own. New weapon? Add a card there too
 9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
 ## Adding a new menu (in the Editor)
@@ -81,7 +83,7 @@ Canvas
 |---|---|---|
 | Scene 1 Plains | `EscMenu` (no OverlayUI yet, Ashar is working on it), `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
 | Main Menu | `Tutorial` (GeneralTileWindow, 8 steps), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
-| Hub | `StoreUI` (`GeneralSelectorUI` + `TabSelector`, `ShopPopups` on the container), `BuyPopup`, `UpgradePopup`, `RefundPopup` (GeneralPopUpWindow), `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `LibraryMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
+| Hub | `StoreUI` (`GeneralSelectorUI` + `TabSelector`, `ShopPopups` on the container), `BuyPopup`, `RefundPopup`, `UpgradePopup` (GeneralPopUpWindow, + `WeaponUpgradeUI` on the container), `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `InventoryMenu` (GeneralSelectorUI copy, 3 tabs with `InventoryCard` grids), `SkillTreeMenu` (GeneralPopUpWindow full screen + `SkillTreeUI` on the container, nodes drawn from the ability assets), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
 `Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
@@ -96,9 +98,10 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 | Type | Script | Folder | Database list | Create menu |
 |---|---|---|---|---|
 | Shooter (gun) | `ShooterData` | `Data/Weapons/Shooters/` | `shooters` | Game > Weapons > Shooter |
-| Lazer (ammo/upgrade for a gun) | `LazerData` | `Data/Weapons/Shooters/Lazers/` | `lazers` | Game > Weapons > Lazer |
+| Lazer (what a gun fires, its lazer bar) | `LazerData` | `Data/Weapons/Shooters/Lazers/` | `lazers` | Game > Weapons > Lazer |
 | Melee | `MeleeData` | `Data/Weapons/Melee/` | `melee` | Game > Weapons > Melee |
-| Special | `SpecialData` | `Data/Weapons/Specials/` | `specials` | Game > Weapons > Special |
+| Special (not used any more, abilities replaced specials: ask before adding one) | `SpecialData` | `Data/Weapons/Specials/` | `specials` | Game > Weapons > Special |
+| Ability (see Abilities and Skill Tree below) | `AbilityData` | `Data/Abilities/` | `abilities` | Game > Ability |
 | Food | `ConsumableData` | `Data/Consumables/Food/` | `food` | Game > Consumable |
 | Drink | `ConsumableData` | `Data/Consumables/Drinks/` | `drinks` | Game > Consumable |
 
@@ -107,11 +110,13 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 - **File name and `m_Name`:** the item's display name, e.g. `Canned Peaches.asset`
 - **`id`:** lowercase with underscores, unique across *all* items, e.g. `canned_peaches`. Never change an existing id, saves depend on it
 - **`displayName`:** shown in game, e.g. `Canned Peaches`
-- **`tokenCost`:** price in tokens, default `100` unless told otherwise
+- **`coinCost`:** price in coins, default `100` unless told otherwise (old assets say `tokenCost`, that still loads)
 - **`levelRequired`:** player level needed to buy it, default `1`
 - **Weapons only:**
   - `unlocked` default `0` (must be bought). Only `1` if it should be starting gear
   - `model` default `{fileID: 0}` unless a prefab is named
+- **Shooters:** no levels. Each bar (`damage`, `fireRate`, `bulletSpeed`, `reloadTime`) has `start`, `perLevel`, `firstCost` (5 upgrades, upgrade n costs n x firstCost). If not given, copy the EM Raygun's values. `magazineSize` default `20`
+- **Lazers:** `pierce` default `0`. A lazer's `coinCost` is its price on the gun's lazer bar
 - **Lazers and specials:** `distance` default `50`, `size` default `1`, `rotationOffset` default `{x: 90, y: 0, z: 0}` (the project's capsule models stand upright, this lays them along the shot)
 - If a stat isn't given, use the defaults in the type's script and say which ones were assumed
 - Don't edit scenes or scripts to add an item. Items are data only
@@ -121,7 +126,7 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 1. Right-click the type's folder in the Project window > **Create > Game > ...** (see table)
 2. Name the asset, fill in `id`, `displayName` and stats in the Inspector
 3. Open `Assets/Resources/ItemDatabase.asset`, add the new asset to the matching list
-4. **Lazer only:** also add it to the gun's `Lazers` list (e.g. `EM Raygun`). The list is the gun's levels: 1st = level 1, 2nd = level 2, 3rd = level 3
+4. **Lazer only:** also add it to the gun's `Lazers` list (e.g. `EM Raygun`). The list is the gun's lazer bar: 1st = starting lazer, then each upgrade in order
 5. Update the item tables in `README.md`
 
 ## Doing it as files
@@ -177,10 +182,27 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
 ```yaml
   id: em_raygun
   displayName: EM Raygun
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: {fileID: 0}
+  magazineSize: 20
+  damage:
+    start: 10
+    perLevel: 3
+    firstCost: 20
+  fireRate:
+    start: 4
+    perLevel: 0.8
+    firstCost: 20
+  bulletSpeed:
+    start: 20
+    perLevel: 4
+    firstCost: 15
+  reloadTime:
+    start: 2
+    perLevel: -0.3
+    firstCost: 15
   lazers:
   - {fileID: 11400000, guid: <LAZER_ASSET_GUID>, type: 2}
 ```
@@ -189,15 +211,13 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
 ```yaml
   id: lazer
   displayName: Lazer
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: <MODEL_REF>
-  damage: 10
-  fireRate: 4
-  speed: 20
   distance: 50
   size: 1
+  pierce: 0
   rotationOffset: {x: 90, y: 0, z: 0}
 ```
 
@@ -205,7 +225,7 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
 ```yaml
   id: kick
   displayName: Kick
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: {fileID: 0}
@@ -229,7 +249,7 @@ Melee and specials have 3 `levels` (1 = as bought, 2 and 3 = upgrades). If only 
 ```yaml
   id: rocket
   displayName: Rocket
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: <MODEL_REF>
@@ -250,7 +270,7 @@ Melee and specials have 3 `levels` (1 = as bought, 2 and 3 = upgrades). If only 
 ```yaml
   id: soda
   displayName: Soda
-  tokenCost: 15
+  coinCost: 15
   levelRequired: 1
   hunger: 0
   thirst: 25
@@ -291,7 +311,27 @@ Current models (`Models/RayGun/`):
 - [ ] Added to the right list in `ItemDatabase.asset`
 - [ ] Lazer: added to the gun's `Lazers` list
 - [ ] README table updated
+- [ ] Weapon: tell the user to add a shop card (`ShopItemCard`) and an Inventory card (`InventoryCard`, Hub `InventoryMenu/.../Content/Items`) for it, or add them in the Hub scene
 - [ ] Tell the user: no scene changes needed, and new items don't need the save deleted. Changing an existing item's `id` does break saves
+
+---
+
+# Abilities and Skill Tree
+
+Abilities are `AbilityData` assets in `Assets/Data/Abilities/` (`Fire`, `Ice`, `Lightning`), listed under `abilities:` in `ItemDatabase.asset`. Every player has every ability for free. Each asset is also its branch of the skill tree.
+
+## Adding a skill node
+Add a row to the ability's `nodes` list (Inspector or file). Nothing else to change: `SkillTreeUI` draws the tree from the list.
+- `title` - shown under the circle
+- `stat` - `0` Damage, `1` Radius (Fire: Blast, Lightning: Range), `2` Cooldown, `3` Extra (Ice: slow seconds, Lightning: chains)
+- `amount` - added to the stat (negative for Cooldown)
+- `cost` - coins (paths so far go 40, 70, 120)
+- `parent` - index in the list of the node it grows from, `-1` = the ability itself. It can only be bought once its parent is unlocked
+- `column` (-1 left, 0 middle, 1 right) and `row` (1 = just above the ability, up to 3; higher rows squeeze the spacing)
+- Never reorder or remove nodes: the save stores bought nodes by index (`fire.2`)
+
+## Adding a new ability
+Needs code: add a value to `AbilityType` and what it does in `PlayerAbilities.Use`. Then make the asset (script guid `fdec65fe721297377222d7283ab5a383`), add it to `abilities:` in `ItemDatabase.asset`, add an `AbilityCard` to the Inventory's Abilities tab and a 4th `Branch` + entry in `SkillTreeUI.Branches` in the Hub. Ask before doing this, the window only has room for 3 branches
 
 ---
 

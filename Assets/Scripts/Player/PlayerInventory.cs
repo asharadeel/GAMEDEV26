@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       PlayerInventory
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
+// Updated by:  Ali (v1.4: 3rd label shows the Q / E abilities)
 // Description: 10-slot inventory, I to open, 4-9/0 to eat/drink.
 // ============================================================
 
@@ -9,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Goes on the Player. 10 slots:
-//   1 = shooter, 2 = melee, 3 = special (weapon keys are handled by PlayerCombat)
+//   1 = shooter, 2 = melee (weapon keys are handled by PlayerCombat), 3rd label = abilities on Q / E
 //   4-9 and 0 = food/drink slots, pressing the key eats/drinks it
 // I opens/closes the inventory panel.
 [RequireComponent(typeof(PlayerStats))]
@@ -72,7 +73,7 @@ public class PlayerInventory : MonoBehaviour
         string lazer = NameOf(PlayerCombat.GetLazer(db.Get<ShooterData>(p.EquippedShooter)));
         SetLabel(0, "1", shooter + " - " + lazer, p.SelectedWeapon == 0);
         SetLabel(1, "2", NameOf(db.Get<MeleeData>(p.EquippedMelee)), p.SelectedWeapon == 1);
-        SetLabel(2, "3", NameOf(db.Get<SpecialData>(p.EquippedSpecial)), p.SelectedWeapon == 2);
+        SetLabel(2, "Q / E", NameOf(db.Get<AbilityData>(p.GetAbility(0))) + " / " + NameOf(db.Get<AbilityData>(p.GetAbility(1))), false);
 
         for (int i = 0; i < ItemKeys.Length; i++)
         {

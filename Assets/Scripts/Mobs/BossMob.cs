@@ -117,7 +117,7 @@ public class BossMob : Mob
         // walk at the player, stop when close enough to hit
         Vector3 move = Vector3.zero;
         if (walking && DistanceToPlayer() > clubRange - 1f)
-            move = DirectionToPlayer() * data.moveSpeed;
+            move = DirectionToPlayer() * data.moveSpeed * SpeedMultiplier;
 
         rb.velocity = new Vector3(move.x, rb.velocity.y, move.z);
     }
