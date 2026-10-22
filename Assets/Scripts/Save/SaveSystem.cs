@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       SaveSystem
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
 // Description: Saves/loads any serializable class as JSON.
 // ============================================================
@@ -31,6 +31,11 @@ public static class SaveSystem
             return fallback;
 
         return JsonUtility.FromJson<T>(File.ReadAllText(path));
+    }
+
+    public static bool Exists(string fileName)
+    {
+        return File.Exists(GetPath(fileName));
     }
 
     public static void Delete(string fileName)

@@ -1,4 +1,6 @@
-# LOG
+# READ_ME.MD
+
+This is an AI-written document, kept up to date as the project changes so we can all understand each other's changes. Rules for how things should be built are in `AUTOMATIONS.md`.
 
 # Folder Structure
 All project content lives in `Assets/`:
@@ -42,12 +44,15 @@ All project content lives in `Assets/`:
   - `MobHealthBar` - health bar shown above mobs
   - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
   - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
+  - `GeneralTileWindow` - paged window: Title bar, boxes under `Frames` (`Step (1)`-`Step (4)`, each a Title + Content), Prev/Next and Close. `TilePager` shows one box at a time. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
+  - The window backgrounds (each prefab's root) are RawImages
+  - Editing a copy in a scene only changes that copy (an override). Opening and editing the prefab itself, or **Overrides > Apply**, changes every copy. Unpacked copies never get prefab updates
 
 # Build Settings
 - Unity version: 2023.1.22f1
 - Scenes:
-  - 0: `Hub` game starts here
-  - 1: `Main Menu` old menu
+  - 0: `Hub` game starts here (should probably become `Main Menu`, so a profile is picked first)
+  - 1: `Main Menu` title screen, profile select and tutorial
   - 2: `Scene 1 Plains`
 - Any new scene must be added here or it can't be loaded by name
 - Pick the platform (Windows), click **Build** choose an output folder
@@ -55,27 +60,33 @@ All project content lives in `Assets/`:
 - Note: the Exit button only closes the app in a build, in the editor it just stops Play mode
 
 # Scenes 
-- Hub (main menu)
-- Main Menu Scene 
+- Hub (home base)
+- Main Menu (title screen, profiles, tutorial)
 - Scene 1: Plains
 
 Scene Descriptions:
 
 Hub:
-- The main menu, a round cave you walk around in
+- Home base, a round cave you walk around in
 - Player starts in the middle
 - Back wall: intro text written on the wall
 - Left portal: Level 1
 - Right portal: Level 2 locked
-- Left side: Shop, right side: Settings. Stand on the ring and it opens the thing you are standing on
-- `IntroMenu`, `ShopMenu` and `SettingsMenu` are under `Canvas` and are empty
+- Left side: Shop, right side: Library. Stand on the ring and it opens the thing you are standing on
+- `IntroMenu`, `ShopMenu` and `LibraryMenu` are under `Canvas`
 - `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
 - `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
-- `IntroMenu`, `SettingsMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
+- `IntroMenu`, `LibraryMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:
-- Starter UI for entering game, just main menu
+- Play, Tutorial and Exit
+- Tutorial opens `Tutorial` (a `GeneralTileWindow`): 8 short steps flipped with Prev/Next - movement, camera, shooting, objective, boss, inventory, eating/drinking, the Hub. Steps 5-8 are added on the scene copy only, the prefab keeps 4
+- Play opens `ProfileSelect` (a `GeneralTextWindow`): 3 profile cards on the left, `NewProfile` window on the right
+  - Empty card: opens New Profile - name, optional passkey (toggle, 3-30 characters), ball colour
+  - Filled card (name + creation date): plays and loads the Hub. If it has a passkey, `PasskeyPopup` asks for it first ("Username: ...")
+  - Edit on a card: `EditPopup` (change name and ball colour). Delete: `DeletePopup` to confirm, then `PasskeyPopup` too if it has a passkey
+  - All run by `ProfileSelectUI` on the `ProfileSelect` container
 
 Scene 1 Plains
 - A basic plains scene has been made with a player (sphere object), a basic structure of walls to give it a building look, and walls around the map. Baseplate is 200x200. super basic map with colliders and movment script
@@ -123,6 +134,7 @@ All scripts are in `Assets/Scripts/`.
   - WASD moves the player using its Rigidbody, so walls block it. Movement follows the camera's rotation (W is always up the screen)
   - Space jumps (only when on the ground), Shift sprints while there's stamina
   - Move speed comes from the player profile, `Sprint Multiplier` and `Jump Force` are set here
+  - The ball takes the profile's colour (only when a profile was picked on the Main Menu)
   - `uiEnabled` (static) - true while a menu with `OverlayUI` is open, all movement and camera controls stop
   - Right click + drag spins the camera (`Rotate Speed`), scroll zooms Orthographic Size between `Min Zoom` (8) and `Max Zoom` (20) in steps of `Zoom Step` (1), starting at `Start Zoom` (10)
   - `Camera Settings` controls the camera (Camera, Pitch, Yaw, Roll, Distance, Orthographic Size). The camera follows the player and always uses these values, change them here not on the camera
@@ -135,6 +147,7 @@ All scripts are in `Assets/Scripts/`.
 
 ## Scripts/Player/
 - `PlayerProfile.cs` - the player's saved data (not a component)
+  - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
   - Level, Tokens, Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, special and the food/drink slots. Only owned items can be equipped
@@ -185,10 +198,12 @@ All weapons are assets (see Weapons and Items below).
 
 ## Scripts/Save/
 - `SaveSystem.cs` - saves/loads any `[System.Serializable]` class as JSON
-  - `SaveSystem.Save("name", data)`, `SaveSystem.Load("name", fallback)`, `SaveSystem.Delete("name")`
-- `ProfileManager.cs` - the one player profile, usable from any script in any scene
+  - `SaveSystem.Save("name", data)`, `SaveSystem.Load("name", fallback)`, `SaveSystem.Exists("name")`, `SaveSystem.Delete("name")`
+- `ProfileManager.cs` - the current player profile, usable from any script in any scene
   - `ProfileManager.Profile.Tokens += 50;`
-  - Loads `profile.json` the first time it's used, saves when the game closes or the scene changes
+  - 3 slots (`profile_1.json` to `profile_3.json`). The Main Menu picks one with `LoadSlot`. Playing a scene directly (testing) uses the old `profile.json` instead, `HasProfile` is false then
+  - `CreateProfile`, `EditProfile` (name + colour), `DeleteSlot` (also deletes its achievements), `PeekSlot` (read a slot without switching)
+  - Loads the profile the first time it's used, saves when the game closes or the scene changes
   - `TryBuyWeapon`, `TryBuyConsumable`, `TryBuyInventorySlot` (check tokens/level/space)
   - `Equip` (puts an owned item in the current inventory), `Owns`, `CanAfford`
   - `GetOwned<T>()` - every owned item of a type, e.g. `GetOwned<LazerData>()` for a pick-your-lazer menu
@@ -201,6 +216,8 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
 - `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
 - `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
+- `ProfileSelectUI.cs` - on the Main Menu's `ProfileSelect` container. Runs the profile cards, New Profile window and the Passkey/Delete/Edit pop-ups (see Main Menu above). `Play Scene` is where a picked profile goes (Hub)
+- `TilePager.cs` - shows one box (page) at a time instead of a scroll view. `Pages` = list of `Order` + `Content` (the box/Frame), shown lowest order first. `Left Button` / `Right Button` flip pages and are greyed out when there's no page that way. Optional `Page Label` shows e.g. "2 / 5". Goes back to page 1 each time the window opens. Already set up on the `Assets/UI/GeneralTileWindow` prefab (4 steps)
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
 ## Scripts/Mobs/
@@ -247,7 +264,7 @@ Loot (each rolled separately when the mob dies):
   - Tracked stats (`AchievementStat`): MobsKilled, ItemsPickedUp, ItemsConsumed, DrinksConsumed, FoodEaten, DropsMissed
 - `AchievementManager.cs` - holds every achievement and a counter per stat
   - Other scripts call `AchievementManager.Add(stat, 1)` when something happens, achievements unlock when their goal is reached
-  - `OnUnlocked` event for UI, progress saved to `achievements.json`
+  - `OnUnlocked` event for UI, progress saved per profile (`achievements_1.json` to `achievements_3.json`, `achievements.json` when testing a scene directly)
 - `AchievementPanel.cs` - on `Canvas/AchievementUI`. J opens a list of all achievements, e.g. `[ ] Slayer - Kill 10 mobs (7/10)`, `[x]` when unlocked
 - `AchievementPopup.cs` - on `Canvas/AchievementUI`. Shows "Achievement unlocked: X" at the top for `Show Time` (3s)
 
@@ -264,13 +281,13 @@ Loot (each rolled separately when the mob dies):
 - `ReadWritePlayerProfile.cs` - for the Library. Writes the saved profile out as text: level, tokens, health/stamina/hunger/thirst, equipped gear, owned weapons, inventory, and every achievement with progress (e.g. `[ ] Slayer - Kill 10 mobs (7/10)`)
   - Put it on the Library's Frame (e.g. a `GeneralTextWindow`), drag `Content/Title1` into `Title Text` and `Content/Context` into `Body Text`
   - Refreshes every time the Library opens
-  - Title = player name, body = stats. Profiles don't have a name yet, so for now it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/" (fill in `GetPlayerName()` when names exist)
+  - Title = player name, body = stats. If no profile was picked on the Main Menu (e.g. testing the Hub directly) it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/"
 
 ## Scripts/World/
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
   - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
-  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall and Settings signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
+  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Library signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
   - Walking in loads `Scene Name` (must be in Build Settings)
   - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead
@@ -291,15 +308,17 @@ Loot (each rolled separately when the mob dies):
 # Save Data
 - Saved as JSON in Unity's persistent data folder, not in `Assets/` (Assets is read-only in a build)
 - Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\GAMEDEV26\`
-  - `profile.json` - player profile (stats, tokens, owned items, current inventory)
-  - `achievements.json` - achievement progress and unlocks
+  - `profile_1.json` to `profile_3.json` - the 3 player profiles (name, passkey, ball colour, created, stats, tokens, owned items, current inventory)
+  - `achievements_1.json` to `achievements_3.json` - each profile's achievement progress and unlocks
+  - `profile.json` / `achievements.json` - used when a scene is played without picking a profile (testing)
+  - The passkey is stored as plain text, it only stops someone clicking into the wrong profile
 - Same location in the editor and in builds
 - The save only stores item ids, so item stats/models can be changed without breaking saves
-- To reset, delete the file or right-click **Player Stats > Delete Save** (do this after changing profile fields)
+- To reset, delete the file or right-click **Player Stats > Delete Save** (resets progress, keeps the name, passkey and colour). Delete a whole profile from the Main Menu
 
 # Weapons and Items
 - Every item is an asset in `Assets/Data/`
-- Full step-by-step guide (for people and Claude): `AUTOMATIONS.md` > Adding Items
+- Full step-by-step guide: `AUTOMATIONS.md` > Adding Items
 - To make a new one:
   - Right-click in Project > **Create > Game > Weapons > Shooter / Lazer / Melee / Special**, or **Create > Game > Consumable**
   - Give it a unique `id`, set its stats (and `model` for weapons)

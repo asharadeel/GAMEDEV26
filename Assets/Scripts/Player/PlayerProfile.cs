@@ -1,12 +1,14 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Description: Everything about the player that gets saved:
-//              stats, tokens, owned items and current inventory.
+//              name, passkey, ball colour, creation date, stats,
+//              tokens, owned items and current inventory.
 // ============================================================
 
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 // What the player has on them right now. Only owned items can go in here
@@ -29,6 +31,13 @@ public class PlayerProfile
     public const int MaxInventorySlots = 7; // keys 4-9 and 0
     public const float MaxStat = 100f;      // health, stamina, hunger, thirst all go 0-100
 
+    // Who this profile is (set on the Main Menu's profile select)
+    [SerializeField] private string playerName = "";
+    [SerializeField] private bool passwordProtected = false;
+    [SerializeField] private string passkey = "";
+    [SerializeField] private Color ballColour = Color.white;
+    [SerializeField] private string createdAt = "";   // e.g. "22/10/2026 14:05"
+
     [SerializeField] private int level = 1;
     [SerializeField] private int tokens = 0;
 
@@ -45,6 +54,65 @@ public class PlayerProfile
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
     [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee, 2 special
     [SerializeField] private int inventorySlots = MaxInventorySlots; // usable consumable slots
+
+    // ---- Identity ----
+
+    // A brand new profile, stamped with the date and time it was made
+    public static PlayerProfile CreateNew(string name, bool usePasskey, string key, Color colour)
+    {
+        PlayerProfile p = new PlayerProfile();
+        p.PlayerName = name;
+        p.BallColour = colour;
+        p.passwordProtected = usePasskey;
+        p.passkey = usePasskey ? key : "";
+        p.createdAt = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        return p;
+    }
+
+    // Passkeys are 3-30 characters
+    public static bool IsValidPasskey(string key)
+    {
+        return key != null && Regex.IsMatch(key, "^.{3,30}$");
+    }
+
+    public string PlayerName
+    {
+        get { return playerName; }
+        set { playerName = value == null ? "" : value.Trim(); }
+    }
+
+    public bool PasswordProtected
+    {
+        get { return passwordProtected; }
+    }
+
+    // True if the key is right (or the profile has no passkey)
+    public bool CheckPasskey(string key)
+    {
+        return !passwordProtected || key == passkey;
+    }
+
+    public Color BallColour
+    {
+        get { return ballColour; }
+        set { ballColour = value; }
+    }
+
+    public string CreatedAt
+    {
+        get { return createdAt; }
+    }
+
+    // Copies name, passkey, colour and creation date from another profile
+    // (used when resetting progress but keeping who the profile is)
+    public void CopyIdentity(PlayerProfile other)
+    {
+        playerName = other.playerName;
+        passwordProtected = other.passwordProtected;
+        passkey = other.passkey;
+        ballColour = other.ballColour;
+        createdAt = other.createdAt;
+    }
 
     // ---- Stats ----
 
