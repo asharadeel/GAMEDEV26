@@ -52,6 +52,11 @@ Canvas
    - `Title/Label` = title, `Button` = the action button (its label is `Button/Text (TMP)`, a legacy Text despite the name), `CloseButton` closes the pop-up
    - The action button has no script in the prefab. Add what it should do on the scene copy, e.g. `OpenScene`, `OpenElemOnClick` / `CloseElemOnClick`, or a script of your own. Change the text on the scene copy too, not in the prefab
    - For longer text that needs scrolling, use `GeneralTextWindow` instead
+7b. **Paged windows** (a few boxes the player flips through with Prev/Next, e.g. tutorial steps): use the `Assets/UI/GeneralTileWindow` prefab as the menu's Frame
+   - `InactiveOnStart` and `OverlayUI` are on its root, plus `TilePager`, which shows one box at a time
+   - The boxes are under `Frames` (`Step (1)` to `Step (4)` by default). Each one is in `TilePager.Pages` with an `Order` (lowest shows first). To add a box, duplicate a Step and add it to `Pages` with the next order. Leave every box switched on, the pager hides the others
+   - `Prev` / `Next` are greyed out on the first / last box. Don't put `CloseElemOnClick` on them, only `CloseButton` closes the window
+   - Fill in the boxes on the scene copy, not in the prefab
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
