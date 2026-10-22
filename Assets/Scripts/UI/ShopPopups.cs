@@ -1,12 +1,14 @@
 // ============================================================
 // Title:       ShopPopups
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Updated by:  Ali (v1.3: Buy pop-up also buys shooter upgrades,
-//              v1.4: and every other weapon upgrade, Upgrade pop-up removed)
+//              v1.4: and every other weapon upgrade, Upgrade pop-up removed,
+//              v1.5: OpenBuy(name, cost, buy) for anything, e.g. skill tree nodes)
 // Description: The shop's Buy and Refund pop-ups, shared by every
-//              ShopItemCard (weapons), ConsumableCard (food/drink)
-//              and the bars in WeaponUpgradeUI (Buy). Each pop-up
+//              ShopItemCard (weapons), ConsumableCard (food/drink),
+//              the bars in WeaponUpgradeUI and the SkillTreeUI nodes
+//              (Buy). Each pop-up
 //              is a GeneralPopUpWindow copy:
 //              Buy:     "Buy <item>",               button "Buy: <cost>"
 //              Refund:  "Refund <item>: <refund>",  button "Refund"
@@ -37,8 +39,7 @@ public class ShopPopups : MonoBehaviour
 
     private ShopItemCard card;           // the weapon card that opened the pop-up
     private ConsumableCard consumable;   // or the food/drink card
-    private WeaponData upgrading;        // or a weapon upgrade (WeaponUpgradeUI)
-    private ShooterStat stat;            // which bar, for shooters
+    private System.Func<bool> buyAction; // or anything else (an upgrade, a skill node): true if it was bought
 
     void Awake()
     {
@@ -53,7 +54,7 @@ public class ShopPopups : MonoBehaviour
     {
         card = from;
         consumable = null;
-        upgrading = null;
+        buyAction = null;
         Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.coinCost);
     }
 
@@ -61,19 +62,18 @@ public class ShopPopups : MonoBehaviour
     {
         consumable = from;
         card = null;
-        upgrading = null;
+        buyAction = null;
         Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.coinCost);
     }
 
-    // A weapon's next upgrade, e.g. "Buy Damage (10 → 13)" or "Buy Punch Level 2"
-    // (bar is only used for shooters)
-    public void OpenBuy(WeaponData weapon, ShooterStat bar, string upgradeName, int cost)
+    // Anything else that costs coins, e.g. "Buy Damage (10 → 13)" or "Buy Searing".
+    // tryBuy spends the coins and returns false if there weren't enough
+    public void OpenBuy(string name, int cost, System.Func<bool> tryBuy)
     {
-        upgrading = weapon;
-        stat = bar;
+        buyAction = tryBuy;
         card = null;
         consumable = null;
-        Open(buy, "Buy " + upgradeName, "Buy: " + cost);
+        Open(buy, "Buy " + name, "Buy: " + cost);
     }
 
     public void OpenRefund(ConsumableCard from)
@@ -102,12 +102,9 @@ public class ShopPopups : MonoBehaviour
 
     void Buy()
     {
-        if (upgrading != null)
+        if (buyAction != null)
         {
-            bool upgraded = upgrading is ShooterData shooter
-                ? ProfileManager.TryUpgrade(shooter, stat)
-                : ProfileManager.TryUpgrade(upgrading);
-            if (!upgraded)
+            if (!buyAction())
             {
                 buy.message.text = "Not enough coins";
                 return;
@@ -180,5 +177,7 @@ public class ShopPopups : MonoBehaviour
         ConsumableCard.RefreshAll();
         if (WeaponUpgradeUI.Instance != null)
             WeaponUpgradeUI.Instance.Refresh();
+        if (SkillTreeUI.Instance != null)
+            SkillTreeUI.Instance.Refresh();
     }
 }

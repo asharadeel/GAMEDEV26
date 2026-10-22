@@ -1,11 +1,12 @@
 // ============================================================
 // Title:       ProfileManager
-// Version:     1.6
+// Version:     1.7
 // Written by:  Ashar
-// Updated by:  Ali (v1.6: coins, shooter upgrade bars)
+// Updated by:  Ali (v1.6: coins, shooter upgrade bars, v1.7: abilities
+//              and skill tree)
 // Description: The current player profile (one of 3 save slots),
 //              plus create/edit/delete for the slots and buy/equip/
-//              upgrade/refund helpers.
+//              upgrade/refund helpers, and the abilities' skill tree.
 // ============================================================
 
 using System.Collections.Generic;
@@ -279,6 +280,87 @@ public static class ProfileManager
         else if (weapon is MeleeData) Profile.EquippedMelee = weapon.id;
         else if (weapon is SpecialData) Profile.EquippedSpecial = weapon.id;
         return true;
+    }
+
+    // Empties the item's slot if it's the one equipped (that slot then has nothing)
+    public static bool Unequip(WeaponData weapon)
+    {
+        if (weapon == null || !IsEquipped(weapon))
+            return false;
+
+        if (weapon is ShooterData) Profile.EquippedShooter = "";
+        else if (weapon is LazerData) Profile.EquippedLazer = "";
+        else if (weapon is MeleeData) Profile.EquippedMelee = "";
+        else if (weapon is SpecialData) Profile.EquippedSpecial = "";
+        return true;
+    }
+
+    // ---- Abilities and skill tree ----
+
+    // Every ability is free at its base stats. A node is unlocked once it's bought
+    public static bool IsUnlocked(AbilityData ability, int node)
+    {
+        return Profile.HasSkillNode(ability.NodeId(node));
+    }
+
+    // Can be bought: not yet unlocked and the node it grows from is (or it grows from the ability itself)
+    public static bool CanUnlock(AbilityData ability, int node)
+    {
+        int parent = ability.nodes[node].parent;
+        return !IsUnlocked(ability, node) && (parent < 0 || IsUnlocked(ability, parent));
+    }
+
+    public static bool TryUnlock(AbilityData ability, int node)
+    {
+        if (!CanUnlock(ability, node) || Profile.Coins < ability.nodes[node].cost)
+            return false;
+
+        Profile.Coins -= ability.nodes[node].cost;
+        Profile.AddSkillNode(ability.NodeId(node));
+        return true;
+    }
+
+    // A stat with every unlocked node added, e.g. GetStat(fire, AbilityStat.Damage)
+    public static float GetStat(AbilityData ability, AbilityStat stat)
+    {
+        float value = ability.BaseValue(stat);
+        for (int i = 0; i < ability.nodes.Count; i++)
+        {
+            if (ability.nodes[i].stat == stat && IsUnlocked(ability, i))
+                value += ability.nodes[i].amount;
+        }
+        return value;
+    }
+
+    // The ability on Q (slot 0) or E (slot 1), or null
+    public static AbilityData GetAbility(int slot)
+    {
+        return ItemDatabase.Instance.Get<AbilityData>(Profile.GetAbility(slot));
+    }
+
+    // -1 if it isn't on Q or E
+    public static int AbilitySlot(AbilityData ability)
+    {
+        for (int slot = 0; slot < 2; slot++)
+        {
+            if (Profile.GetAbility(slot) == ability.id)
+                return slot;
+        }
+        return -1;
+    }
+
+    // Puts it on Q or E (moving it if it was on the other key)
+    public static void EquipAbility(AbilityData ability, int slot)
+    {
+        int other = 1 - slot;
+        if (Profile.GetAbility(other) == ability.id)
+            Profile.SetAbility(other, "");
+        Profile.SetAbility(slot, ability.id);
+    }
+
+    public static void UnequipAbility(int slot)
+    {
+        Profile.SetAbility(slot, "");
     }
 
     // ---- Inventory ----

@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdec65fe721297377222d7283ab5a383, type: 3}
+  m_Name: Lightning
+  m_EditorClassIdentifier: 
+  id: lightning
+  displayName: Lightning
+  coinCost: 0
+  levelRequired: 1
+  type: 2
+  colour: {r: 1, g: 0.9, b: 0.2, a: 1}
+  model: {fileID: 3310862098313322536, guid: b0a52a49c6610000de6d73444660ac57, type: 3}
+  damage: 20
+  radius: 10
+  cooldown: 5
+  extra: 2
+  radiusName: Range
+  extraName: Chains
+  nodes:
+  - title: Charged
+    stat: 0
+    amount: 8
+    cost: 40
+    parent: -1
+    column: -1
+    row: 1
+  - title: High Voltage
+    stat: 0
+    amount: 8
+    cost: 70
+    parent: 0
+    column: -1
+    row: 2
+  - title: Overcharge
+    stat: 0
+    amount: 14
+    cost: 120
+    parent: 1
+    column: -1
+    row: 3
+  - title: Arc
+    stat: 3
+    amount: 1
+    cost: 40
+    parent: -1
+    column: 1
+    row: 1
+  - title: Quick Strike
+    stat: 2
+    amount: -1
+    cost: 70
+    parent: 3
+    column: 1
+    row: 2
+  - title: Storm
+    stat: 3
+    amount: 2
+    cost: 120
+    parent: 4
+    column: 1
+    row: 3

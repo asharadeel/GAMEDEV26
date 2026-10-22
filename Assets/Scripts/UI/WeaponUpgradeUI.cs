@@ -154,7 +154,11 @@ public class WeaponUpgradeUI : MonoBehaviour
                 : BarNames[(int)bar.stat] + " (" + Describe(bar.stat, next - 1) + " → " + Describe(bar.stat, next) + ")";
             cost = shooter.UpgradeCost(bar.stat, next);
         }
-        ShopPopups.Instance.OpenBuy(weapon, bar.stat, name, cost);
+        WeaponData item = weapon;
+        ShooterStat stat = bar.stat;
+        ShopPopups.Instance.OpenBuy(name, cost, () => item is ShooterData gun
+            ? ProfileManager.TryUpgrade(gun, stat)
+            : ProfileManager.TryUpgrade(item));
     }
 
     // Hidden with a CanvasGroup instead of switched off, so it keeps its tab when it comes back

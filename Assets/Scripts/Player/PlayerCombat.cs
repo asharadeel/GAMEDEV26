@@ -1,9 +1,10 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.9
+// Version:     2.0
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.7: capsule fist shows while punch is selected)
-//              Ali (v1.9: shooter magazine + reload, shooter upgrade bars)
+//              Ali (v1.9: shooter magazine + reload, shooter upgrade bars,
+//              v2.0: special slot removed (abilities on Q/E), aim shared with PlayerAbilities)
 // Description: Aiming, weapon slots and attacking. Each weapon
 //              uses the stats of its current upgrade level.
 // ============================================================
@@ -11,8 +12,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Goes on the Player. Three weapon slots: 1 shooter, 2 melee, 3 special.
-// 1/2/3 pick a slot, Q cycles. Left click or X attacks with the selected weapon.
+// Goes on the Player. Two weapon slots: 1 shooter, 2 melee (abilities are on Q/E, see PlayerAbilities).
+// 1/2 pick a slot. Left click or X attacks with the selected weapon.
 // The shooter fires its magazine then reloads (R reloads early).
 // Aims at the mouse, 360 degrees around the player.
 [RequireComponent(typeof(PlayerStats))]
@@ -67,8 +68,6 @@ public class PlayerCombat : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) stats.Profile.SelectedWeapon = 0;
         if (Input.GetKeyDown(KeyCode.Alpha2)) stats.Profile.SelectedWeapon = 1;
-        if (Input.GetKeyDown(KeyCode.Alpha3)) stats.Profile.SelectedWeapon = 2;
-        if (Input.GetKeyDown(KeyCode.Q)) stats.Profile.SelectedWeapon = (stats.Profile.SelectedWeapon + 1) % 3;
 
         if (Input.GetKeyDown(reloadKey) && stats.Profile.SelectedWeapon == 0)
         {
@@ -114,7 +113,7 @@ public class PlayerCombat : MonoBehaviour
             if (shotsLeft <= 0)
                 Reload(gun);
         }
-        else if (p.SelectedWeapon == 1)
+        else
         {
             MeleeData melee = db.Get<MeleeData>(p.EquippedMelee);
             if (!ProfileManager.Owns(melee))
@@ -124,16 +123,18 @@ public class PlayerCombat : MonoBehaviour
             nextAttackTime = Time.time + 1f / m.fireRate;
             Swing(m);
         }
-        else
-        {
-            SpecialData special = db.Get<SpecialData>(p.EquippedSpecial);
-            if (!ProfileManager.Owns(special))
-                return;
+    }
 
-            SpecialLevel s = special.AtLevel(ProfileManager.GetLevel(special));
-            nextAttackTime = Time.time + 1f / s.fireRate;
-            Fire(s.model, s.size, s.rotationOffset, s.speed, s.damage, s.distance, s.radius, 0);
-        }
+    // Where the player is aiming (flat, towards the mouse)
+    public Vector3 AimDirection
+    {
+        get { return aimDirection; }
+    }
+
+    // Just outside the player in the aim direction, where shots start
+    public Vector3 ShotOrigin()
+    {
+        return transform.position + aimDirection * (PlayerRadius() + 0.3f);
     }
 
     // The lazer on the gun's lazer bar (null if the gun isn't owned)
@@ -179,8 +180,7 @@ public class PlayerCombat : MonoBehaviour
 
     void Fire(GameObject model, float size, Vector3 rotationOffset, float speed, float damage, float distance, float radius, int pierce)
     {
-        Vector3 spawnPos = transform.position + aimDirection * (PlayerRadius() + 0.3f); // just outside the player
-        Projectile.Spawn(model, spawnPos, aimDirection, size, rotationOffset, speed, damage, distance, radius, false, pierce);
+        Projectile.Spawn(model, ShotOrigin(), aimDirection, size, rotationOffset, speed, damage, distance, radius, false, pierce);
     }
 
     void Swing(MeleeLevel melee)

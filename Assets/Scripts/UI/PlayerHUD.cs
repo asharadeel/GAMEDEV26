@@ -1,9 +1,9 @@
 // ============================================================
 // Title:       PlayerHUD
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
-// Updated by:  Ali (v1.2: ammo counter)
-// Description: Keeps the health/stamina/hunger/thirst bars, ammo and objectives up to date.
+// Updated by:  Ali (v1.2: ammo counter, v1.3: Q/E ability cooldowns)
+// Description: Keeps the health/stamina/hunger/thirst bars, ammo, abilities and objectives up to date.
 //              H hides/shows the whole player UI.
 // ============================================================
 
@@ -23,6 +23,10 @@ public class PlayerHUD : MonoBehaviour
     [Header("Ammo")]
     public PlayerCombat combat;
     public Text ammoText;        // "12 / 20" or "Reloading..." while the shooter is selected
+
+    [Header("Abilities")]
+    public PlayerAbilities abilities;
+    public Text abilityText;     // "Q  Fire  Ready" / "E  Ice  3.2s"
 
     [Header("Hide UI")]
     public KeyCode hideKey = KeyCode.H;
@@ -58,6 +62,8 @@ public class PlayerHUD : MonoBehaviour
 
         if (ammoText != null && combat != null)
             ammoText.text = combat.AmmoLabel();
+        if (abilityText != null && abilities != null)
+            abilityText.text = abilities.SlotLabel(0) + "\n" + abilities.SlotLabel(1);
     }
 
     public void SetVisible(bool visible)

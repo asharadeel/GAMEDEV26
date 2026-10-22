@@ -13,6 +13,7 @@ Example: *"Add a food called Canned Peaches that restores 35 hunger and 10 thirs
 Sections:
 - [UI POLICY](#ui-policy)
 - [Adding Items](#adding-items)
+- [Abilities and Skill Tree](#abilities-and-skill-tree)
 - [Adding Mobs](#adding-mobs)
 
 ---
@@ -61,6 +62,7 @@ Canvas
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 8b. **Prefab copies:** change a window's text/boxes on its scene copy (overrides). Don't **Unpack** a General window (an unpacked copy never gets prefab fixes) and don't **Apply** a scene copy's overrides to the prefab (that would put e.g. the tutorial's 8 steps into every tile window). Only edit the prefab itself for changes every window should get
 8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Refund pop-ups are shared (`ShopPopups` on the shop's container) and Upgrade opens the shared `UpgradePopup` window (`WeaponUpgradeUI`: bars for shooters, a Level bar for melee/specials, whose Buy buttons reuse `BuyPopup`), don't add pop-ups per card. Refunds never change with upgrades (always a third of the price)
+8d. **Inventory cards:** each weapon in the Hub's Inventory is a copy of `Assets/UI/InventoryCard` in the matching tab of `InventoryMenu` (`Frame (n)/Viewport/Content/Items`), placed by hand with the weapon in `Item`, same as shop cards. `InventoryGrid` hides the ones the player doesn't own. New weapon? Add a card there too
 9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
 ## Adding a new menu (in the Editor)
@@ -81,7 +83,7 @@ Canvas
 |---|---|---|
 | Scene 1 Plains | `EscMenu` (no OverlayUI yet, Ashar is working on it), `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
 | Main Menu | `Tutorial` (GeneralTileWindow, 8 steps), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
-| Hub | `StoreUI` (`GeneralSelectorUI` + `TabSelector`, `ShopPopups` on the container), `BuyPopup`, `RefundPopup`, `UpgradePopup` (GeneralPopUpWindow, + `WeaponUpgradeUI` on the container), `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `LibraryMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
+| Hub | `StoreUI` (`GeneralSelectorUI` + `TabSelector`, `ShopPopups` on the container), `BuyPopup`, `RefundPopup`, `UpgradePopup` (GeneralPopUpWindow, + `WeaponUpgradeUI` on the container), `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `InventoryMenu` (GeneralSelectorUI copy, 3 tabs with `InventoryCard` grids), `SkillTreeMenu` (GeneralPopUpWindow full screen + `SkillTreeUI` on the container, nodes drawn from the ability assets), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
 `Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
@@ -98,7 +100,8 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 | Shooter (gun) | `ShooterData` | `Data/Weapons/Shooters/` | `shooters` | Game > Weapons > Shooter |
 | Lazer (what a gun fires, its lazer bar) | `LazerData` | `Data/Weapons/Shooters/Lazers/` | `lazers` | Game > Weapons > Lazer |
 | Melee | `MeleeData` | `Data/Weapons/Melee/` | `melee` | Game > Weapons > Melee |
-| Special | `SpecialData` | `Data/Weapons/Specials/` | `specials` | Game > Weapons > Special |
+| Special (not used any more, abilities replaced specials: ask before adding one) | `SpecialData` | `Data/Weapons/Specials/` | `specials` | Game > Weapons > Special |
+| Ability (see Abilities and Skill Tree below) | `AbilityData` | `Data/Abilities/` | `abilities` | Game > Ability |
 | Food | `ConsumableData` | `Data/Consumables/Food/` | `food` | Game > Consumable |
 | Drink | `ConsumableData` | `Data/Consumables/Drinks/` | `drinks` | Game > Consumable |
 
@@ -308,7 +311,27 @@ Current models (`Models/RayGun/`):
 - [ ] Added to the right list in `ItemDatabase.asset`
 - [ ] Lazer: added to the gun's `Lazers` list
 - [ ] README table updated
+- [ ] Weapon: tell the user to add a shop card (`ShopItemCard`) and an Inventory card (`InventoryCard`, Hub `InventoryMenu/.../Content/Items`) for it, or add them in the Hub scene
 - [ ] Tell the user: no scene changes needed, and new items don't need the save deleted. Changing an existing item's `id` does break saves
+
+---
+
+# Abilities and Skill Tree
+
+Abilities are `AbilityData` assets in `Assets/Data/Abilities/` (`Fire`, `Ice`, `Lightning`), listed under `abilities:` in `ItemDatabase.asset`. Every player has every ability for free. Each asset is also its branch of the skill tree.
+
+## Adding a skill node
+Add a row to the ability's `nodes` list (Inspector or file). Nothing else to change: `SkillTreeUI` draws the tree from the list.
+- `title` - shown under the circle
+- `stat` - `0` Damage, `1` Radius (Fire: Blast, Lightning: Range), `2` Cooldown, `3` Extra (Ice: slow seconds, Lightning: chains)
+- `amount` - added to the stat (negative for Cooldown)
+- `cost` - coins (paths so far go 40, 70, 120)
+- `parent` - index in the list of the node it grows from, `-1` = the ability itself. It can only be bought once its parent is unlocked
+- `column` (-1 left, 0 middle, 1 right) and `row` (1 = just above the ability, up to 3; higher rows squeeze the spacing)
+- Never reorder or remove nodes: the save stores bought nodes by index (`fire.2`)
+
+## Adding a new ability
+Needs code: add a value to `AbilityType` and what it does in `PlayerAbilities.Use`. Then make the asset (script guid `fdec65fe721297377222d7283ab5a383`), add it to `abilities:` in `ItemDatabase.asset`, add an `AbilityCard` to the Inventory's Abilities tab and a 4th `Branch` + entry in `SkillTreeUI.Branches` in the Hub. Ask before doing this, the window only has room for 3 branches
 
 ---
 
