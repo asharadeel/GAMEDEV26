@@ -60,6 +60,7 @@ Canvas
    - Fill in the boxes on the scene copy, not in the prefab
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 8b. **Prefab copies:** change a window's text/boxes on its scene copy (overrides). Don't **Unpack** a General window (an unpacked copy never gets prefab fixes) and don't **Apply** a scene copy's overrides to the prefab (that would put e.g. the tutorial's 8 steps into every tile window). Only edit the prefab itself for changes every window should get
+8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Upgrade/Refund pop-ups are shared (`ShopPopups` on the shop's container), don't add pop-ups per card
 9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
 ## Adding a new menu (in the Editor)
@@ -80,7 +81,7 @@ Canvas
 |---|---|---|
 | Scene 1 Plains | `EscMenu` (no OverlayUI yet, Ashar is working on it), `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
 | Main Menu | `Tutorial` (GeneralTileWindow, 8 steps), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
-| Hub | `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `LibraryMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
+| Hub | `StoreUI` (`GeneralSelectorUI` + `TabSelector`, `ShopPopups` on the container), `BuyPopup`, `UpgradePopup`, `RefundPopup` (GeneralPopUpWindow), `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `LibraryMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
 `Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
@@ -120,7 +121,7 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 1. Right-click the type's folder in the Project window > **Create > Game > ...** (see table)
 2. Name the asset, fill in `id`, `displayName` and stats in the Inspector
 3. Open `Assets/Resources/ItemDatabase.asset`, add the new asset to the matching list
-4. **Lazer only:** also add it to the gun's `Lazers` list (e.g. `EM Raygun`)
+4. **Lazer only:** also add it to the gun's `Lazers` list (e.g. `EM Raygun`). The list is the gun's levels: 1st = level 1, 2nd = level 2, 3rd = level 3
 5. Update the item tables in `README.md`
 
 ## Doing it as files
@@ -208,10 +209,21 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
   levelRequired: 1
   unlocked: 0
   model: {fileID: 0}
-  damage: 8
-  fireRate: 1.2
-  radius: 1.5
+  levels:
+  - model: {fileID: 0}
+    damage: 8
+    fireRate: 1.2
+    radius: 1.5
+  - model: {fileID: 0}
+    damage: 12
+    fireRate: 1.2
+    radius: 1.5
+  - model: {fileID: 0}
+    damage: 16
+    fireRate: 1.2
+    radius: 1.5
 ```
+Melee and specials have 3 `levels` (1 = as bought, 2 and 3 = upgrades). If only level 1 stats are given, use them for all 3 and multiply `damage` by 1.5 for level 2 and 2 for level 3
 
 **Special**
 ```yaml
@@ -221,13 +233,17 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
   levelRequired: 1
   unlocked: 0
   model: <MODEL_REF>
-  damage: 50
-  fireRate: 0.5
-  speed: 15
-  radius: 3
-  distance: 50
-  size: 1
-  rotationOffset: {x: 90, y: 0, z: 0}
+  levels:
+  - model: <MODEL_REF>
+    damage: 50
+    fireRate: 0.5
+    speed: 15
+    radius: 3
+    distance: 50
+    size: 1
+    rotationOffset: {x: 90, y: 0, z: 0}
+  - (same fields, level 2)
+  - (same fields, level 3)
 ```
 
 **Food / Drink**

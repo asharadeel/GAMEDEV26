@@ -12,7 +12,7 @@ All project content lives in `Assets/`:
   - `Mobs/` - mob profiles (`MobLevel1`, `MobLevel2`, `MobLevel3`)
   - `Consumables/Drinks/` - `WaterBottle`, `Soda`
   - `Weapons/Shooters/` - `EM Raygun`
-    - `Lazers/` - `Lazer`, `UV Lazer`, `Gamme Lazer` (ammo/upgrades for the EM Raygun)
+    - `Lazers/` - `Lazer`, `UV Lazer`, `Gamme Lazer` (the EM Raygun's level 1, 2 and 3)
   - `Weapons/Melee/` - `Punch`, `Kick`, `Bat`
   - `Weapons/Specials/` - `Rocket`, `Grenade`
 - `Fonts/` - Arial, used by all UI text
@@ -44,6 +44,8 @@ All project content lives in `Assets/`:
   - `MobHealthBar` - health bar shown above mobs
   - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
   - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
+  - `ShopItemCard` - one shop item (Name, Buy, Upgrade, Refund, Equip + `ShopItemCard`). Place one per item by hand in a shop section and drag the item asset into `Item`
+  - `ConsumableCard` - one food/drink in the shop (Name, Buy, Refund, Quantity + `ConsumableCard`). Place one per item by hand and drag the item asset into `Item`
   - `GeneralTileWindow` - paged window: Title bar, boxes under `Frames` (`Step (1)`-`Step (4)`, each a Title + Content), Prev/Next and Close. `TilePager` shows one box at a time. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
   - The window backgrounds (each prefab's root) are RawImages
   - Editing a copy in a scene only changes that copy (an override). Opening and editing the prefab itself, or **Overrides > Apply**, changes every copy. Unpacked copies never get prefab updates
@@ -74,7 +76,9 @@ Hub:
 - Right portal: Level 2 locked
 - Each portal has a square slot on its inner pillar (**Tools > Add Portal Slots**): Level 1's is purple (open), Level 2's is dark grey. After beating the Level 1 boss and picking up the portal piece, walking up to Level 2 asks to place it (`PlacePiecePrompt`), which turns the slot and the portal purple. Level 2 doesn't exist yet, so the open portal does nothing
 - Left side: Shop, right side: Library. Stand on the ring and it opens the thing you are standing on
-- `IntroMenu`, `ShopMenu` and `LibraryMenu` are under `Canvas`
+- `IntroMenu`, `StoreUI`, `LibraryMenu` are under `Canvas`
+- `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). Tabs in order: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Specials (Rocket, Grenade) as `ShopItemCard`s, Food (Beans), Drinks (Water Bottle, Soda) as `ConsumableCard`s, each in the section's `Items` grid. The Shooters tab's frame is still called `Weapons`
+- `BuyPopup`, `UpgradePopup`, `RefundPopup`: the shop's pop-ups (GeneralPopUpWindow), run by `ShopPopups` on `StoreUI`
 - `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
 - `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
 - `IntroMenu`, `LibraryMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
@@ -155,7 +159,7 @@ All scripts are in `Assets/Scripts/`.
 ## Scripts/Player/
 - `PlayerProfile.cs` - the player's saved data (not a component)
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
-  - Level, Tokens, Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
+  - Level, Tokens (new profiles start with 150), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, special and the food/drink slots. Only owned items can be equipped
   - Selected weapon
@@ -188,10 +192,11 @@ All scripts are in `Assets/Scripts/`.
 ## Scripts/Weapons/
 All weapons are assets (see Weapons and Items below).
 - `WeaponData.cs` - shared by all weapon gear: `unlocked` (starts owned), `model`
-- `ShooterData.cs` - slot 1 gun (EM Raygun). Has a `Lazers` list of the lazers it can fire, the lazer decides the shot
+- `WeaponData.cs` - base for all weapons: `unlocked`, `model`, and the prices: upgrade to level 2 = half the `tokenCost`, level 3 = 1.5x (rounded up), refund = a third of the `tokenCost` (rounded up, upgrades aren't refunded). Max level 3
+- `ShooterData.cs` - slot 1 gun (EM Raygun). Its `Lazers` list is its levels: 1st lazer = level 1, 2nd = level 2, 3rd = level 3. The lazer decides the shot
 - `LazerData.cs` - a bullet/upgrade for a gun: `damage`, `fireRate` (shots/sec), `speed`, `distance` (50), `size`, `rotationOffset`
-- `MeleeData.cs` - slot 2: `damage`, `fireRate`, hits everything within `radius` in front of the player
-- `SpecialData.cs` - slot 3, fires a projectile that explodes: `damage`, `fireRate`, `speed`, `radius`, `distance` (50), `size`, `rotationOffset`
+- `MeleeData.cs` - slot 2, hits everything within `radius` in front of the player. 3 `Levels`, each with `model`, `damage`, `fireRate`, `radius`
+- `SpecialData.cs` - slot 3, fires a projectile that explodes. 3 `Levels`, each with `model`, `damage`, `fireRate`, `speed`, `radius`, `distance` (50), `size`, `rotationOffset`
 - `Damage.cs` - shared helpers: `Damage.Hit` (one target) and `Damage.HitArea` (everything in a radius, each mob once)
 - `Projectile.cs` - `Projectile.Spawn(...)` fires a model as a shot (used by the player and shooter mobs)
   - Player shots hit everything except the player. Enemy shots hit only the player and pass through mobs
@@ -214,6 +219,7 @@ All weapons are assets (see Weapons and Items below).
   - `CreateProfile`, `EditProfile` (name + colour), `DeleteSlot` (also deletes its achievements), `PeekSlot` (read a slot without switching)
   - Loads the profile the first time it's used, saves when the game closes or the scene changes
   - `TryBuyWeapon`, `TryBuyConsumable`, `TryBuyInventorySlot` (check tokens/level/space)
+  - `GetLevel`, `CanUpgrade` / `TryUpgrade`, `CanRefund` / `TryRefund` (not starting items, not while equipped), `IsEquipped`
   - `Equip` (puts an owned item in the current inventory), `Owns`, `CanAfford`
   - `GetOwned<T>()` - every owned item of a type, e.g. `GetOwned<LazerData>()` for a pick-your-lazer menu
 
@@ -226,6 +232,11 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
 - `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
 - `ProfileSelectUI.cs` - on the Main Menu's `ProfileSelect` container. Runs the profile cards, New Profile window and the Passkey/Delete/Edit pop-ups (see Main Menu above). `Play Scene` is where a picked profile goes (Hub)
+- `ShopItemCard.cs` - on the `ShopItemCard` prefab. Drag a weapon asset into `Item`. Shows "<name>" and "Level <n>", plus Buy (not owned) or Equip + Upgrade + Refund (owned). Upgrade is hidden at level 3, Refund is hidden for starting items and greyed out while equipped
+- `ConsumableCard.cs` - on the `ConsumableCard` prefab. Drag a food/drink asset into `Item`. Shows its name, Buy, Refund and "Amount owned: <n>" (how many are in the inventory slots). Buying puts one in the first free slot. Refund sells one back for half its price (rounded up), greyed out when you have none
+- `ShopPopups.cs` - on the Hub's `StoreUI` container. Runs the shared `BuyPopup` ("Buy <item>", button "Buy: <cost>"), `UpgradePopup` ("Upgrade to level <n>", button "Cost: <cost>") and `RefundPopup` ("Refund <item>: <refund>"). Shows the player's tokens, or why it didn't work. Buying food/drink keeps the pop-up open so you can buy several
+- `CurrencyChangeButton.cs` - on a Button: `Mode` Add / Subtract and `Amount` of tokens. Subtract doesn't go through without enough tokens
+- `TabSelector.cs` - a row of buttons that each open their own frame. `Tabs` = list of `Button` + `Frame`. Clicking a button shows its frame and hides the rest, the open tab's button is greyed out. Opens on the first tab each time the window opens. On the Hub's `StoreUI/GeneralSelectorUI` (5 buttons under `SectionSelector`, 5 frames under `Sections`)
 - `TilePager.cs` - shows one box (page) at a time instead of a scroll view. `Pages` = list of `Order` + `Content` (the box/Frame), shown lowest order first. `Left Button` / `Right Button` flip pages and are greyed out when there's no page that way. Optional `Page Label` shows e.g. "2 / 5". Goes back to page 1 each time the window opens. Already set up on the `Assets/UI/GeneralTileWindow` prefab (4 steps)
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
@@ -326,7 +337,7 @@ Loot (each rolled separately when the mob dies):
 # Save Data
 - Saved as JSON in Unity's persistent data folder, not in `Assets/` (Assets is read-only in a build)
 - Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\GAMEDEV26\`
-  - `profile_1.json` to `profile_3.json` - the 3 player profiles (name, passkey, ball colour, created, stats, tokens, owned items, current inventory)
+  - `profile_1.json` to `profile_3.json` - the 3 player profiles (name, passkey, ball colour, created, stats, tokens, owned items, item levels, current inventory)
   - `achievements_1.json` to `achievements_3.json` - each profile's achievement progress and unlocks
   - `profile.json` / `achievements.json` - used when a scene is played without picking a profile (testing)
   - The passkey is stored as plain text, it only stops someone clicking into the wrong profile
@@ -344,24 +355,28 @@ Loot (each rolled separately when the mob dies):
   - New lazer? Also add it to the gun's `Lazers` list
 - EM Raygun, Lazer and Punch are `unlocked` (every player starts with them), everything else must be bought
 
-EM Raygun lazers (slot 1 fires the equipped lazer):
+Upgrades: every weapon has 3 levels. Level 1 comes with the item, level 2 costs half its price, level 3 costs 1.5x its price (100-token item: 50, then 150). Refund = a third of the price (34), whatever the level, and the level goes back to 1.
 
-| Lazer | Damage | Shots/sec | Speed | Model |
-|---|---|---|---|---|
-| Lazer | 10 | 4 | 20 | `Lazer` |
-| UV Lazer | 4 | 10 | 28 | `UV Lazer` |
-| Gamme Lazer | 40 | 1 | 35 | `Gamme Lazer` |
+EM Raygun levels (the lazer it fires):
 
-| Melee | Damage | Attacks/sec | Radius |
+| Level | Lazer | Damage | Shots/sec | Speed | Model |
+|---|---|---|---|---|---|
+| 1 | Lazer | 10 | 4 | 20 | `Lazer` |
+| 2 | UV Lazer | 4 | 10 | 28 | `UV Lazer` |
+| 3 | Gamme Lazer | 40 | 1 | 35 | `Gamme Lazer` |
+
+Melee and specials: level 2 = 1.5x damage, level 3 = 2x damage, everything else the same (change per level in the asset).
+
+| Melee | Damage (Lv 1 / 2 / 3) | Attacks/sec | Radius |
 |---|---|---|---|
-| Punch | 5 | 2 | 1.2 |
-| Kick | 8 | 1.2 | 1.5 |
-| Bat | 15 | 1 | 2 |
+| Punch | 5 / 7.5 / 10 | 2 | 1.2 |
+| Kick | 8 / 12 / 16 | 1.2 | 1.5 |
+| Bat | 15 / 22.5 / 30 | 1 | 2 |
 
-| Special | Damage | Shots/sec | Speed | Explosion Radius |
+| Special | Damage (Lv 1 / 2 / 3) | Shots/sec | Speed | Explosion Radius |
 |---|---|---|---|---|
-| Rocket | 50 | 0.5 | 15 | 3 |
-| Grenade | 35 | 0.8 | 8 | 5 |
+| Rocket | 50 / 75 / 100 | 0.5 | 15 | 3 |
+| Grenade | 35 / 52.5 / 70 | 0.8 | 8 | 5 |
 
 | Consumable | Restores | Token Cost |
 |---|---|---|

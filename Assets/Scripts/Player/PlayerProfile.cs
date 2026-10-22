@@ -1,11 +1,12 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.6
+// Version:     1.9
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
-//              tokens, owned items and current inventory.
+//              tokens, owned items, item levels, current inventory
+//              and portal progress.
 // ============================================================
 
 using System.Collections.Generic;
@@ -24,6 +25,14 @@ public class CurrentInventory
     public List<string> consumables = new List<string>();      // food/drink slots, "" = empty
 }
 
+// An owned item's upgrade level (items not listed are level 1)
+[System.Serializable]
+public class ItemLevel
+{
+    public string id;
+    public int level = 1;
+}
+
 // Add new stats here: a private [SerializeField] field + a public property.
 // Items are stored by id only; their stats live in the item assets.
 [System.Serializable]
@@ -40,7 +49,7 @@ public class PlayerProfile
     [SerializeField] private string createdAt = "";   // e.g. "22/10/2026 14:05"
 
     [SerializeField] private int level = 1;
-    [SerializeField] private int tokens = 0;
+    [SerializeField] private int tokens = 150;   // starting tokens for a new profile
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 100f;
@@ -50,6 +59,7 @@ public class PlayerProfile
 
     // Everything bought (items ticked "unlocked" in their asset don't need to be here)
     [SerializeField] private List<string> ownedItems = new List<string>();
+    [SerializeField] private List<ItemLevel> itemLevels = new List<ItemLevel>();
 
     // What's equipped / carried right now
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
@@ -202,6 +212,38 @@ public class PlayerProfile
             ownedItems.Add(itemId);
     }
 
+    // Refunded: no longer owned and back to level 1
+    public void RemoveOwned(string itemId)
+    {
+        ownedItems.Remove(itemId);
+        itemLevels.RemoveAll(l => l.id == itemId);
+    }
+
+    // ---- Item levels ----
+
+    public int GetItemLevel(string itemId)
+    {
+        foreach (ItemLevel l in itemLevels)
+        {
+            if (l.id == itemId)
+                return l.level;
+        }
+        return 1;
+    }
+
+    public void SetItemLevel(string itemId, int level)
+    {
+        foreach (ItemLevel l in itemLevels)
+        {
+            if (l.id == itemId)
+            {
+                l.level = level;
+                return;
+            }
+        }
+        itemLevels.Add(new ItemLevel { id = itemId, level = level });
+    }
+
     // ---- Current inventory ----
 
     public CurrentInventory CurrentInventory
@@ -262,6 +304,32 @@ public class PlayerProfile
         while (slots.Count <= index)
             slots.Add("");
         slots[index] = itemId;
+    }
+
+    // How many of an item are in the usable slots
+    public int CountInInventory(string itemId)
+    {
+        int count = 0;
+        for (int i = 0; i < inventorySlots; i++)
+        {
+            if (GetSlot(i) == itemId)
+                count++;
+        }
+        return count;
+    }
+
+    // Takes one of the item out (the last slot it's in). False if there's none
+    public bool RemoveFromInventory(string itemId)
+    {
+        for (int i = inventorySlots - 1; i >= 0; i--)
+        {
+            if (GetSlot(i) == itemId)
+            {
+                SetSlot(i, "");
+                return true;
+            }
+        }
+        return false;
     }
 
     // Puts the item in the first empty usable slot. False if full.

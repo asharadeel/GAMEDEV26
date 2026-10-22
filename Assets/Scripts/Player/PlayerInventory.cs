@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerInventory
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
 // Description: 10-slot inventory, I to open, 4-9/0 to eat/drink.
 // ============================================================
@@ -69,7 +69,7 @@ public class PlayerInventory : MonoBehaviour
         ItemDatabase db = ItemDatabase.Instance;
 
         string shooter = NameOf(db.Get<ShooterData>(p.EquippedShooter));
-        string lazer = NameOf(db.Get<LazerData>(p.EquippedLazer));
+        string lazer = NameOf(PlayerCombat.GetLazer(db.Get<ShooterData>(p.EquippedShooter)));
         SetLabel(0, "1", shooter + " - " + lazer, p.SelectedWeapon == 0);
         SetLabel(1, "2", NameOf(db.Get<MeleeData>(p.EquippedMelee)), p.SelectedWeapon == 1);
         SetLabel(2, "3", NameOf(db.Get<SpecialData>(p.EquippedSpecial)), p.SelectedWeapon == 2);
