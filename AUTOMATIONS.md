@@ -1,8 +1,8 @@
 # AUTOMATIONS
 
-Step-by-step guides for repeatable tasks in this project. They're written so Claude can do the task on its own and stay consistent with the project structure, and so group members know what Claude will do (or can do it by hand).
+This is an AI-written document: step-by-step guides and rules for repeatable tasks, so everything stays consistent with the project structure. Each task can be done in the Unity Editor or as files.
 
-**How to use:** tell Claude what you want plus this line:
+**How to use:** when asking an AI assistant for something, add this line:
 
 > Refer to AUTOMATIONS.md for how to add this so you're consistent with the structure.
 
@@ -59,15 +59,16 @@ Canvas
    - `Prev` / `Next` are greyed out on the first / last box. Don't put `CloseElemOnClick` on them, only `CloseButton` closes the window
    - Fill in the boxes on the scene copy, not in the prefab
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
+8b. **Prefab copies:** change a window's text/boxes on its scene copy (overrides). Don't **Unpack** a General window (an unpacked copy never gets prefab fixes) and don't **Apply** a scene copy's overrides to the prefab (that would put e.g. the tutorial's 8 steps into every tile window). Only edit the prefab itself for changes every window should get
 9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
-## Adding a new menu (by hand)
+## Adding a new menu (in the Editor)
 1. Right-click `Canvas` > **Create Empty**, name it after the menu, set its RectTransform to stretch (Alt + click the bottom-right anchor preset) and zero all offsets
 2. Inside it, create an empty `Frame`, stretch it the same way, add `InactiveOnStart` if it should start hidden
 3. Build the menu inside the Frame
 4. Point whatever opens/closes it at the **Frame**
 
-## Converting an existing menu (Claude)
+## Converting an existing menu (as files)
 1. Make a new container GameObject with the menu's original name, stretched, parented to the menu's old parent, in the menu's old place in the parent's `m_Children` list
 2. Make `Frame` under it, stretched, with an `InactiveOnStart` MonoBehaviour (script guid `c60abf8e2bb6ee64b979f04f724e2c2c`) if it should start hidden
 3. Rename the old menu object to `Panel`, set `m_IsActive: 1`, change its `m_Father` to the Frame's RectTransform
@@ -79,7 +80,7 @@ Canvas
 |---|---|---|
 | Scene 1 Plains | `EscMenu` (no OverlayUI yet, Ashar is working on it), `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
 | Main Menu | `Tutorial` (GeneralTileWindow, 8 steps), `ProfileSelect` (GeneralTextWindow + `ProfileSelectUI` on the container), `PasskeyPopup`, `DeletePopup`, `EditPopup` (GeneralPopUpWindow) | `MainMenu` (always shown, no Frame needed) |
-| Hub | `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `SettingsMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
+| Hub | `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `LibraryMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
 `Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
@@ -114,7 +115,7 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 - If a stat isn't given, use the defaults in the type's script and say which ones were assumed
 - Don't edit scenes or scripts to add an item. Items are data only
 
-## Doing it in the Unity Editor (by hand)
+## Doing it in the Unity Editor
 
 1. Right-click the type's folder in the Project window > **Create > Game > ...** (see table)
 2. Name the asset, fill in `id`, `displayName` and stats in the Inspector
@@ -122,7 +123,7 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 4. **Lazer only:** also add it to the gun's `Lazers` list (e.g. `EM Raygun`)
 5. Update the item tables in `README.md`
 
-## Doing it as files (Claude)
+## Doing it as files
 
 Create two files: the `.asset` and its `.meta`. Use a new random 32-character lowercase hex guid for the `.meta`.
 
@@ -293,13 +294,13 @@ A mob is a profile asset (`MobData`) in `Assets/Data/Mobs/` pointing at a model 
 - **Collider:** give the mob prefab's root a Box Collider covering the whole model (every current mob has one), so hits always land
 - **`drops`:** loot rolled on death, each row is a consumable + `chance` (0-1, rolled separately). Can be empty
 
-## By hand
+## In the Editor
 1. Right-click `Assets/Data/Mobs` > **Create > Game > Mob**, fill in the fields (including `Drops` if it should drop loot)
 2. To spawn it: select a spawner (prefab `Models/Mobs/Spawners/MobSpawner` changes every spawner, or a single one in the scene), add a row to `Spawns` with the mob and amount
 3. Keep `Spawns` in order weakest to strongest (row order decides when they start)
 4. Update the mob table and loot table in `README.md`
 
-## As files (Claude)
+## As files
 `.meta`: same as items (NativeFormatImporter, mainObjectFileID 11400000). `.asset` header: same as items with `<SCRIPT_GUID>` = `MobData` guid (`5546605e9e7b4fcaa7c5323071295c28`, check `Assets/Scripts/Mobs/MobData.cs.meta`). Fields:
 ```yaml
   id: mob_level_1

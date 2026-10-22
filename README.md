@@ -1,4 +1,6 @@
-# LOG
+# READ_ME.MD
+
+This is an AI-written document, kept up to date as the project changes so we can all understand each other's changes. Rules for how things should be built are in `AUTOMATIONS.md`.
 
 # Folder Structure
 All project content lives in `Assets/`:
@@ -42,12 +44,15 @@ All project content lives in `Assets/`:
   - `MobHealthBar` - health bar shown above mobs
   - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
   - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
+  - `GeneralTileWindow` - paged window: Title bar, boxes under `Frames` (`Step (1)`-`Step (4)`, each a Title + Content), Prev/Next and Close. `TilePager` shows one box at a time. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
+  - The window backgrounds (each prefab's root) are RawImages
+  - Editing a copy in a scene only changes that copy (an override). Opening and editing the prefab itself, or **Overrides > Apply**, changes every copy. Unpacked copies never get prefab updates
 
 # Build Settings
 - Unity version: 2023.1.22f1
 - Scenes:
-  - 0: `Hub` game starts here
-  - 1: `Main Menu` old menu
+  - 0: `Hub` game starts here (should probably become `Main Menu`, so a profile is picked first)
+  - 1: `Main Menu` title screen, profile select and tutorial
   - 2: `Scene 1 Plains`
 - Any new scene must be added here or it can't be loaded by name
 - Pick the platform (Windows), click **Build** choose an output folder
@@ -55,23 +60,23 @@ All project content lives in `Assets/`:
 - Note: the Exit button only closes the app in a build, in the editor it just stops Play mode
 
 # Scenes 
-- Hub (main menu)
-- Main Menu Scene 
+- Hub (home base)
+- Main Menu (title screen, profiles, tutorial)
 - Scene 1: Plains
 
 Scene Descriptions:
 
 Hub:
-- The main menu, a round cave you walk around in
+- Home base, a round cave you walk around in
 - Player starts in the middle
 - Back wall: intro text written on the wall
 - Left portal: Level 1
 - Right portal: Level 2 locked
-- Left side: Shop, right side: Settings. Stand on the ring and it opens the thing you are standing on
-- `IntroMenu`, `ShopMenu` and `SettingsMenu` are under `Canvas` and are empty
+- Left side: Shop, right side: Library. Stand on the ring and it opens the thing you are standing on
+- `IntroMenu`, `ShopMenu` and `LibraryMenu` are under `Canvas`
 - `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
 - `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
-- `IntroMenu`, `SettingsMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
+- `IntroMenu`, `LibraryMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:
@@ -282,7 +287,7 @@ Loot (each rolled separately when the mob dies):
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
   - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
-  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall and Settings signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
+  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Library signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
   - Walking in loads `Scene Name` (must be in Build Settings)
   - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead
@@ -313,7 +318,7 @@ Loot (each rolled separately when the mob dies):
 
 # Weapons and Items
 - Every item is an asset in `Assets/Data/`
-- Full step-by-step guide (for people and Claude): `AUTOMATIONS.md` > Adding Items
+- Full step-by-step guide: `AUTOMATIONS.md` > Adding Items
 - To make a new one:
   - Right-click in Project > **Create > Game > Weapons > Shooter / Lazer / Melee / Special**, or **Create > Game > Consumable**
   - Give it a unique `id`, set its stats (and `model` for weapons)
