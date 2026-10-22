@@ -171,14 +171,14 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
 ```
 
 ### Model references (`<MODEL_REF>`)
-Models are prefabs in `Assets/Models/`. The reference is:
+Models are prefabs in `Assets/Models/` (lazers in `Models/RayGun/`, mobs in `Models/Mobs/`). The reference is:
 ```yaml
 {fileID: <ROOT_GAMEOBJECT_ID>, guid: <PREFAB_GUID>, type: 3}
 ```
 - `<PREFAB_GUID>`: the `guid:` line in the prefab's `.prefab.meta`
 - `<ROOT_GAMEOBJECT_ID>`: in the `.prefab` file, the number after `--- !u!1 &` on the block whose `m_Name` is the prefab's name
 
-Current models:
+Current models (`Models/RayGun/`):
 
 | Prefab | Reference |
 |---|---|
@@ -194,6 +194,7 @@ Current models:
    `<NEW_ITEM_GUID>` is the guid from the item's new `.meta`
 2. **Lazer only:** add the same line under `lazers:` in the gun's asset (e.g. `Data/Weapons/Shooters/EM Raygun.asset`)
 3. **README:** add the item to the matching table under "Weapons and Items"
+4. **Food/drink only, optional:** to make mobs drop it, add it to a mob's `drops` (see Adding Mobs)
 
 ### Checklist before finishing
 - [ ] `.asset` and `.meta` are in the right folder (see table)
@@ -214,22 +215,25 @@ A mob is a profile asset (`MobData`) in `Assets/Data/Mobs/` pointing at a model 
 - **File name / `m_Name`:** `MobLevel<N>` or the mob's name, e.g. `MobLevel4`
 - **`id`:** lowercase with underscores, unique, e.g. `mob_level_4`
 - **`displayName`:** e.g. `Mob Level 4`
+- **`shortName`:** label in the Mobs Left tracker, e.g. `Lvl 4`
 - **`health`, `attackDamage`:** as given. If not given, ask
 - **`type`:** `0` = Follow (chases the player), `1` = Shooter (stays still and shoots). Shooters need a `projectileModel`
 - **`model`:** the mob prefab in `Assets/Models/Mobs/` (see *Model references* in Adding Items for how to write the reference)
-- Mobs don't need a collider on the root, colliders on child shapes are fine (damage reaches the root)
+- **Collider:** give the mob prefab's root a Box Collider covering the whole model (every current mob has one), so hits always land
+- **`drops`:** loot rolled on death, each row is a consumable + `chance` (0-1, rolled separately). Can be empty
 
 ## By hand
-1. Right-click `Assets/Data/Mobs` > **Create > Game > Mob**, fill in the fields
+1. Right-click `Assets/Data/Mobs` > **Create > Game > Mob**, fill in the fields (including `Drops` if it should drop loot)
 2. To spawn it: select a spawner (prefab `Models/Mobs/Spawners/MobSpawner` changes every spawner, or a single one in the scene), add a row to `Spawns` with the mob and amount
 3. Keep `Spawns` in order weakest to strongest (row order decides when they start)
-4. Update the mob table in `README.md`
+4. Update the mob table and loot table in `README.md`
 
 ## As files (Claude)
 `.meta`: same as items (NativeFormatImporter, mainObjectFileID 11400000). `.asset` header: same as items with `<SCRIPT_GUID>` = `MobData` guid (`5546605e9e7b4fcaa7c5323071295c28`, check `Assets/Scripts/Mobs/MobData.cs.meta`). Fields:
 ```yaml
   id: mob_level_1
   displayName: Mob Level 1
+  shortName: Lvl 1
   model: <MODEL_REF>
   type: 0
   health: 100
@@ -243,7 +247,12 @@ A mob is a profile asset (`MobData`) in `Assets/Data/Mobs/` pointing at a model 
   projectileModel: {fileID: 0}
   projectileSpeed: 15
   projectileSize: 1
+  drops:
+  - item: {fileID: 11400000, guid: <CONSUMABLE_GUID>, type: 2}
+    chance: 0.3
 ```
+`<CONSUMABLE_GUID>` is the guid in the food/drink asset's `.meta` (e.g. `Data/Consumables/Food/Beans.asset.meta`). Use `drops: []` for no loot.
+
 To add it to every spawner, add a row under `spawns:` in `Assets/Models/Mobs/Spawners/MobSpawner.prefab`:
 ```yaml
   - mob: {fileID: 11400000, guid: <NEW_MOB_GUID>, type: 2}
@@ -262,4 +271,6 @@ Current mob models:
 - [ ] `.asset` and `.meta` in `Assets/Data/Mobs/`, `id` unique
 - [ ] Model reference guid exists in a `.prefab.meta`
 - [ ] Added to the spawner(s) in weakest-to-strongest order if it should spawn
-- [ ] README mob table updated
+- [ ] Root Box Collider on the mob prefab
+- [ ] Every `drops` item guid exists in a consumable `.meta`
+- [ ] README mob table and loot table updated
