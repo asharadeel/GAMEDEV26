@@ -38,6 +38,7 @@ All project content lives in `Assets/`:
 - `Textures/` - textures used by materials (empty for now)
 - `UI/` - UI prefabs
   - `MobHealthBar` - health bar shown above mobs
+  - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
   - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
 
 # Build Settings
@@ -66,6 +67,7 @@ Hub:
 - Right portal: Level 2 locked
 - Left side: Shop, right side: Settings. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `ShopMenu` and `SettingsMenu` are under `Canvas` and are empty
+- `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
 - `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
 - `IntroMenu`, `SettingsMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub

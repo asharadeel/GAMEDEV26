@@ -47,6 +47,12 @@ Canvas
    - `Title/Label` = window title, `Content/Title1` = heading, `Content/Context` = body (rich text: `<b>bold</b>`)
    - The scroll view is vertical only, Clamped (stops where the content ends) and the content sizes itself (Vertical Layout Group + Content Size Fitter). Text inside it must have Best Fit off, otherwise the layout can't measure it
    - Point the thing that opens it (e.g. `MenuZone.menu`) at the window's root. Its Close button already closes it
+7. **Pop-ups / prompts** (short message + one action, e.g. "Go to the next floor?", "Not enough tokens"): use the `Assets/UI/GeneralPopUpWindow` prefab as the menu's Frame
+   - It's a centred box (root inset 500px left/right and 300px top/bottom from the container), with `InactiveOnStart` and `OverlayUI` already on its root, so the player is frozen while it's open
+   - `Title/Label` = title, `Button` = the action button (its label is `Button/Text (TMP)`, a legacy Text despite the name), `CloseButton` closes the pop-up
+   - The action button has no script in the prefab. Add what it should do on the scene copy, e.g. `OpenScene`, `OpenElemOnClick` / `CloseElemOnClick`, or a script of your own. Change the text on the scene copy too, not in the prefab
+   - For longer text that needs scrolling, use `GeneralTextWindow` instead
+8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 
 ## Adding a new menu (by hand)
 1. Right-click `Canvas` > **Create Empty**, name it after the menu, set its RectTransform to stretch (Alt + click the bottom-right anchor preset) and zero all offsets
@@ -65,7 +71,7 @@ Canvas
 | Scene | Follows the policy | Not yet |
 |---|---|---|
 | Scene 1 Plains | `EscMenu` (no OverlayUI yet, Ashar is working on it), `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
-| Hub | `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `SettingsMenu` (no OverlayUI yet) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
+| Hub | `LockedMessage` (+ OverlayUI), `IntroMenu` (GeneralTextWindow, + OverlayUI), `SettingsMenu` (no OverlayUI yet), `Scene1Prompt` (pop-up "Enter Scene 1?" with a Play button) | `ShopMenu`: **someone else is working on it, don't change it** without asking |
 
 `Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
