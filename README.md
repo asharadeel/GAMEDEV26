@@ -102,6 +102,11 @@ Scene 1 Plains layout (200x200 grey floor):
 - `Garden` (front/south): grass, `SpawnPad` with `PlayerSpawn`, path to the building with 4 `StreetLights` along it. `Trees` and `Bushes` are all copies of the `Models/Scene1` prefabs, in the garden and scattered all around the building
 - `HelperArea` (west of the spawn pad): 16x16 square with 4 low wooden walls and a doorway facing the spawn, `HelperSpot` in the middle. Empty for now, for helper stuff later
 - `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
+- Entering: walk up to the building's `Door` (approach ring) and press **Enter** on the pop-up, which moves the player to `BuildingInterior/Building/LandingSpot` (`OnClickMoveToPos`)
+  - Inside, the first 20x10 in front of the entrance is a wall-free landing (`LandingPad`), the maze starts behind it
+  - The maze has extra openings (gaps in the long walls, fewer dead-end walls) so there are several routes, including a second way into the end room
+  - The entrance is closed by a red `LockedDoor`: red doors are doors you can't go out of
+- `ReturnToCavePrompt`: walk up to the cave by the spawn (`CaveDoor`, approach ring) to get "Return to Cave?", **Return** loads the Hub
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
 - `HexRoom` (`BossArea`, east of the map past the walls, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 - `HexRoom/BossArena`: the boss fight (added with **Tools > Build Boss Room**, running it again replaces it)
@@ -331,6 +336,7 @@ Loot (each rolled separately when the mob dies):
 - `StreetLight.cs` - on the `StreetLight` prefab. Turns the light on at night (before sunrise / after sunset in the scene's `DayNight`): the `Bulb` glows (emission, `Glow Colour` white) and its point light turns on (white, range 10, intensity 2). Off in the day, and always off if the scene has no `DayNight`
 
 ## Scripts/Generic/
+- `OnClickMoveToPos.cs` - on a Button: moves the player (tagged `Player`) to `Target`'s position when clicked. Used by the Enter Building pop-up's Enter button
 - `FaceCamera.cs` - keeps a label turned towards the camera (used for the names above the portals, shop and settings)
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled
 
