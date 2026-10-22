@@ -23,8 +23,10 @@ All project content lives in `Assets/`:
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes
 - `Scripts/` - all C# code
+  - `Achievements/` - achievement list, stat counters, unlock popup and achievements panel
   - `Generic/` - small reusable scripts that can go on any object
   - `Items/` - item base class, consumables, item database
+  - `Loot/` - mob loot drops, pickups on the ground, floating text
   - `Mobs/` - mob profiles, mobs, spawners
   - `Player/` - player profile, survival stats, combat, inventory
   - `Save/` - saving and loading to JSON, the shared player profile
@@ -79,6 +81,8 @@ Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
 Scene 1 Plains UI (`Canvas > PlayerUI`):
 - Top centre: Mobs Left tracker (Lvl 1 x n, Lvl 2 x m, Lvl 3 x p)
 - Top right: Controls button, opens a panel listing all controls
+- Achievement popup: banner "Achievement unlocked: X" for 3 seconds
+- Achievements panel (press J): every achievement with its progress
 - Left: Objectives list (edit it on `PlayerHUD`)
 - Bottom: Health, Stamina, Hunger, Thirst bars across the full width
 - Above the bars: Inventory panel (press I)
@@ -98,6 +102,7 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 | Q | Cycle weapons |
 | 4-9, 0 | Eat / drink from that inventory slot |
 | I | Open / close inventory |
+| J | Open / close achievements |
 | E / Click prompt | Use a door when in range |
 | H | Hide / show the player UI |
 | Esc | Menu |
@@ -118,6 +123,35 @@ All scripts are in `Assets/Scripts/`.
 - `EscapeMenu.cs` - goes on an always-on object (EscMenu)
   - Pressing Esc toggles the `Menu` object on/off
   - Put `InactiveOnStart` on the menu if it should start hidden
+
+## Scripts/Achievements/
+- `AchievementData.cs` - one achievement: `id`, `title`, `description`, `stat`, `goal`. Also defines the `AchievementStat` enum: `MobsKilled`, `ItemsPickedUp`, `ItemsConsumed`, `DrinksConsumed`, `FoodEaten`, `DropsMissed`
+- `AchievementManager.cs` - static, not a component. Keeps a counter for each stat and unlocks an achievement when its stat reaches `goal`
+  - `AchievementManager.Add(AchievementStat.MobsKilled, 1)` - call this from any script when something happens
+  - `GetCount(stat)`, `IsUnlocked(id)`, `All` (the full list)
+  - `OnUnlocked` event - fires once per unlock, the popup listens to it
+  - Progress is saved to `achievements.json` on every unlock and when the game closes
+  - The achievements are defined in `Setup()`, add new ones there
+  - Where stats are counted: `Mob.TakeDamage` (kills), `Pickup` (picked up / missed), `PlayerStats.Consume` (consumed / drinks / food)
+- `AchievementPopup.cs` - goes on the PlayerUI. `Banner Text` shows "Achievement unlocked: X" for `Show Time` (3) seconds
+- `AchievementPanel.cs` - goes on the PlayerUI
+  - `Toggle Key` (J) opens/closes `Panel`, which starts hidden
+  - `Rows` - one Text per achievement, in the same order as the list. Shows e.g. `[x] Slayer - Kill 10 mobs (10/10)`, unlocked rows are yellow
+
+| Achievement | Goal | Stat |
+|---|---|---|
+| First Blood | 1 | Mobs killed |
+| Slayer | 10 | Mobs killed |
+| Exterminator | 50 | Mobs killed |
+| Finders Keepers | 1 | Items picked up |
+| Scavenger | 10 | Items picked up |
+| Hoarder | 30 | Items picked up |
+| Snack Time | 1 | Items eaten or drunk |
+| Thirsty Work | 5 | Drinks |
+| Hungry Hunter | 5 | Food |
+| Well Fed | 20 | Items eaten or drunk |
+| Bag Full | 1 | Pickups missed (inventory full) |
+| Pack Mule | 5 | Pickups missed (inventory full) |
 
 ## Scripts/Player/
 - `PlayerProfile.cs` - the player's saved data (not a component)
@@ -187,9 +221,18 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
+## Scripts/Loot/
+- `LootDropper.cs` - static. `LootDropper.Drop(mobData, position)` rolls every entry in the mob's `drops` and spawns a `Pickup` for each success, scattered around the mob. `Mob` calls it when it dies
+- `Pickup.cs` - a consumable lying in the world: a small coloured cube with a trigger collider
+  - `Item` is the consumable, `Lifetime` (30) seconds until it despawns
+  - Spins (`Spin Speed` 90) and bobs up and down (`Bob Height` 0.15, `Bob Speed` 3)
+  - Walk over it to pick it up and show "+ Item" text. If the inventory is full it stays on the ground and counts as a missed drop for achievements
+  - `Pickup.Spawn(position, item)` creates one from code
+- `FloatingText.cs` - `FloatingText.Show(position, message)` makes a short message that floats up (`Rise Speed` 1) and disappears after `Lifetime` (1.5) seconds
+
 ## Scripts/Mobs/
-- `MobData.cs` - a mob profile asset: `id`, `displayName`, `model`, `type` (Follow / Shooter), `health`, `attackDamage`, plus Follow settings (`moveSpeed`, `chaseRange`, `attackRange`, `attackCooldown`) and Shooter settings (`shootRange`, `fireRate`, `projectileModel`, `projectileSpeed`, `projectileSize`). Create > Game > Mob
-- `Mob.cs` - base for every mob: health, health bar, dies at 0, helpers for finding the player
+- `MobData.cs` - a mob profile asset: `id`, `displayName`, `model`, `type` (Follow / Shooter), `health`, `attackDamage`, `drops` (list of `LootEntry`: an `item` and a `chance` 0-1, each rolled separately on death), plus Follow settings (`moveSpeed`, `chaseRange`, `attackRange`, `attackCooldown`) and Shooter settings (`shootRange`, `fireRate`, `projectileModel`, `projectileSpeed`, `projectileSize`). Create > Game > Mob
+- `Mob.cs` - base for every mob: health, health bar, dies at 0 (drops its loot and counts the kill for achievements), helpers for finding the player
   - `FollowMob.cs` - wanders until the player is within `chaseRange`, then chases and hits them every `attackCooldown` seconds. Has a Rigidbody so walls block it
   - `ShooterMob.cs` - stays still, faces the player within `shootRange` and shoots `projectileModel` at them
   - The spawner adds FollowMob or ShooterMob based on the profile's `type`
@@ -234,6 +277,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - Saved as JSON in Unity's persistent data folder, not in `Assets/` (Assets is read-only in a build)
 - Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\GAMEDEV26\profile.json`
 - Same location in the editor and in builds
+- Achievement progress is saved next to it as `achievements.json`, delete it to reset achievements
 - The save only stores item ids, so item stats/models can be changed without breaking saves
 - To reset, delete the file or right-click **Player Stats > Delete Save** (do this after changing profile fields)
 
