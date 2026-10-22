@@ -339,7 +339,7 @@ Loot (each rolled separately when the mob dies):
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
   - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
-  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Inventory signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
+  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + a red floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Inventory signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
   - Walking in loads `Scene Name` (must be in Build Settings)
   - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead
@@ -351,7 +351,7 @@ Loot (each rolled separately when the mob dies):
   - The end-room door sends the player to `HexRoom/DoorSpawn`
 
 ## Scripts/Generic/
-- `FaceCamera.cs` - keeps a label turned towards the camera (used for the names above the portals, shop and settings)
+- `FaceCamera.cs` - keeps a label turned towards the camera (used for the names above the portals and stalls). With `Face Player Within` above 0, while the player is that close it smoothly turns to point straight at the camera (which follows the player), so it turns as they walk around it and always reads square-on; it turns back when they leave (`Turn Speed`). The SHOP, INVENTORY and SKILL TREE signs use 10
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled
 
 ## Scripts/Editor/
