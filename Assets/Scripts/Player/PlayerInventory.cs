@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerInventory
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
 // Description: 10-slot inventory, I to open, 4-9/0 to eat/drink.
 // ============================================================
@@ -39,7 +39,7 @@ public class PlayerInventory : MonoBehaviour
         if (Input.GetKeyDown(toggleKey) && inventoryPanel != null)
             inventoryPanel.SetActive(!inventoryPanel.activeSelf);
 
-        for (int i = 0; i < ItemKeys.Length; i++)
+        for (int i = 0; i < ItemKeys.Length && !PlayerController.uiEnabled; i++)
         {
             if (Input.GetKeyDown(ItemKeys[i]))
                 UseSlot(i);

@@ -119,6 +119,7 @@ All scripts are in `Assets/Scripts/`.
   - WASD moves the player using its Rigidbody, so walls block it. Movement follows the camera's rotation (W is always up the screen)
   - Space jumps (only when on the ground), Shift sprints while there's stamina
   - Move speed comes from the player profile, `Sprint Multiplier` and `Jump Force` are set here
+  - `uiEnabled` (static) - true while a menu with `OverlayUI` is open, all movement and camera controls stop
   - Right click + drag spins the camera (`Rotate Speed`), scroll zooms Orthographic Size between `Min Zoom` (8) and `Max Zoom` (20) in steps of `Zoom Step` (1), starting at `Start Zoom` (10)
   - `Camera Settings` controls the camera (Camera, Pitch, Yaw, Roll, Distance, Orthographic Size). The camera follows the player and always uses these values, change them here not on the camera
 - `DayNight.cs` - goes on GameController
@@ -195,6 +196,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `OpenElemOnClick.cs` - turns ON every object in its `Elements` list
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
 - `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
+- `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
 ## Scripts/Mobs/

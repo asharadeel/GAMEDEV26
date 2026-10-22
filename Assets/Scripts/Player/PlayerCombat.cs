@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
 // Description: Aiming, weapon slots and attacking.
 // ============================================================
@@ -38,6 +38,10 @@ public class PlayerCombat : MonoBehaviour
     {
         aimDirection = GetAimDirection();
         UpdateArrow();
+
+        // No switching or attacking while a menu is open
+        if (PlayerController.uiEnabled)
+            return;
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) stats.Profile.SelectedWeapon = 0;
         if (Input.GetKeyDown(KeyCode.Alpha2)) stats.Profile.SelectedWeapon = 1;
