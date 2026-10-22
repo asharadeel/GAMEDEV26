@@ -23,7 +23,7 @@ All project content lives in `Assets/`:
   - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
-  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
+  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, on at night), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
     - `Spawners/` - `MobSpawner` prefab
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes (`Hub`, `Main Menu`, `Scene 1 Plains`)
@@ -99,7 +99,7 @@ Scene 1 Plains
 
 Scene 1 Plains layout (200x200 grey floor):
 - `Map-Walls`: 18 `WallBlocks` pairs around the edge (tall/short alternating, inner face on the map edge, 25 deep). `WallHider` hides the ones on the camera's side so they don't block the view (they still collide and cast shadows)
-- `Garden` (front/south): grass, `SpawnPad` with `PlayerSpawn`, path to the building. `Trees` and `Bushes` are all copies of the `Models/Scene1` prefabs, in the garden and scattered all around the building
+- `Garden` (front/south): grass, `SpawnPad` with `PlayerSpawn`, path to the building with 4 `StreetLights` along it. `Trees` and `Bushes` are all copies of the `Models/Scene1` prefabs, in the garden and scattered all around the building
 - `HelperArea` (west of the spawn pad): 16x16 square with 4 low wooden walls and a doorway facing the spawn, `HelperSpot` in the middle. Empty for now, for helper stuff later
 - `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
@@ -326,6 +326,9 @@ Loot (each rolled separately when the mob dies):
   - Press `Key` (E) or click the prompt to move the player to `Destination`
   - `Radius Ring` - circle on the floor showing the radius, visible within `Show Ring Within`
   - The end-room door sends the player to `HexRoom/DoorSpawn`
+
+## Scripts/Models/
+- `StreetLight.cs` - on the `StreetLight` prefab. Turns the light on at night (before sunrise / after sunset in the scene's `DayNight`): the `Bulb` glows (emission, `Glow Colour` white) and its point light turns on (white, range 10, intensity 2). Off in the day, and always off if the scene has no `DayNight`
 
 ## Scripts/Generic/
 - `FaceCamera.cs` - keeps a label turned towards the camera (used for the names above the portals, shop and settings)
