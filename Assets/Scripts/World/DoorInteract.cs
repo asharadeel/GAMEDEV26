@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       DoorInteract
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
-// Updated by:  cthullu96 (v1.1: input system package)
+// Updated by:  Ali (v1.1: PlayerNearDoor, so E opens doors instead of using an ability)
+//              cthullu96 (v1.2: input system package)
 //              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: A door the player can use when close. Shows a ring
 //              on the floor for the radius and an "E / Click"
@@ -10,6 +11,7 @@
 //              moved to the destination.
 // ============================================================
 
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,6 +33,15 @@ public class DoorInteract : MonoBehaviour
 
     private Transform player;
     private Camera cam;
+
+    // Doors the player is close enough to use right now
+    private static readonly HashSet<DoorInteract> inRangeDoors = new HashSet<DoorInteract>();
+
+    // True while E would open a door (PlayerAbilities doesn't use the E ability then)
+    public static bool PlayerNearDoor
+    {
+        get { return inRangeDoors.Count > 0; }
+    }
 
     void Start()
     {
@@ -60,6 +71,10 @@ public class DoorInteract : MonoBehaviour
 
         float distance = FlatDistance(player.position, interactPoint.position);
         bool inRange = distance <= radius;
+        if (inRange)
+            inRangeDoors.Add(this);
+        else
+            inRangeDoors.Remove(this);
 
         SetRing(distance <= showRingWithin);
         SetPrompt(inRange);
@@ -97,6 +112,11 @@ public class DoorInteract : MonoBehaviour
         a.y = 0f;
         b.y = 0f;
         return Vector3.Distance(a, b);
+    }
+
+    void OnDisable()
+    {
+        inRangeDoors.Remove(this);
     }
 
     void SetPrompt(bool visible)

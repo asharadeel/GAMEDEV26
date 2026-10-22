@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: bat
   displayName: Bat
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 0
   model: {fileID: 0}

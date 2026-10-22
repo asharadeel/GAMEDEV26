@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: punch
   displayName: Punch
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 1
   model: {fileID: 0}

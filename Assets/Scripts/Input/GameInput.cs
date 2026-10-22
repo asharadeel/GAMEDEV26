@@ -22,8 +22,11 @@ public static class GameInput
     // weapons
     public static readonly InputAction Weapon1;
     public static readonly InputAction Weapon2;
-    public static readonly InputAction Weapon3;
-    public static readonly InputAction CycleWeapon;
+    public static readonly InputAction Reload;
+
+    // abilities, picked in the hub's inventory
+    public static readonly InputAction AbilityQ;
+    public static readonly InputAction AbilityE;
 
     // food and drink slots, keys 4 to 9 then 0
     public static readonly InputAction[] UseSlot;
@@ -57,8 +60,10 @@ public static class GameInput
 
         Weapon1 = Button("Weapon1", "<Keyboard>/1");
         Weapon2 = Button("Weapon2", "<Keyboard>/2");
-        Weapon3 = Button("Weapon3", "<Keyboard>/3");
-        CycleWeapon = Button("CycleWeapon", "<Keyboard>/q", "<Gamepad>/rightShoulder");
+        Reload = Button("Reload", "<Keyboard>/r", "<Gamepad>/buttonEast");
+
+        AbilityQ = Button("AbilityQ", "<Keyboard>/q", "<Gamepad>/leftShoulder");
+        AbilityE = Button("AbilityE", "<Keyboard>/e", "<Gamepad>/rightShoulder");
 
         string[] slotKeys = { "4", "5", "6", "7", "8", "9", "0" };
         UseSlot = new InputAction[slotKeys.Length];
@@ -75,7 +80,7 @@ public static class GameInput
         Move.Enable();
         Look.Enable();
         Zoom.Enable();
-        foreach (InputAction a in new[] { Sprint, Jump, Attack, RotateCamera, Weapon1, Weapon2, Weapon3, CycleWeapon,
+        foreach (InputAction a in new[] { Sprint, Jump, Attack, RotateCamera, Weapon1, Weapon2, Reload, AbilityQ, AbilityE,
                                           Interact, Inventory, Achievements, HideUI, Menu })
             a.Enable();
         foreach (InputAction a in UseSlot)

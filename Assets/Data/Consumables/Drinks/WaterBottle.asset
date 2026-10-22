@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: water_bottle
   displayName: Water Bottle
-  tokenCost: 10
+  coinCost: 10
   levelRequired: 1
   hunger: 0
   thirst: 50

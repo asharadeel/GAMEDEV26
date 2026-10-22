@@ -14,10 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: em_raygun
   displayName: EM Raygun
-  tokenCost: 100
+  coinCost: 100
   levelRequired: 1
   unlocked: 1
   model: {fileID: 0}
+  magazineSize: 20
+  damage:
+    start: 10
+    perLevel: 3
+    firstCost: 20
+  fireRate:
+    start: 4
+    perLevel: 0.8
+    firstCost: 20
+  bulletSpeed:
+    start: 20
+    perLevel: 4
+    firstCost: 15
+  reloadTime:
+    start: 2
+    perLevel: -0.3
+    firstCost: 15
   lazers:
   - {fileID: 11400000, guid: 56d9c0b5354e4824b84ed502a8addc40, type: 2}
   - {fileID: 11400000, guid: c6dc6cc659ce490f8661ad000ebe844f, type: 2}

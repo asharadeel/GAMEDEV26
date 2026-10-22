@@ -14,13 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: gamme_lazer
   displayName: Gamme Lazer
-  tokenCost: 100
+  coinCost: 200
   levelRequired: 1
   unlocked: 0
   model: {fileID: 2223022628636679097, guid: 6f3a0d6a963c6c04ebc1fa244145ee9b, type: 3}
-  damage: 40
-  fireRate: 1
-  speed: 35
   distance: 50
-  size: 1
+  size: 1.5
+  pierce: 2
   rotationOffset: {x: 90, y: 0, z: 0}

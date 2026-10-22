@@ -1,8 +1,11 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.9
+// Version:     2.1
 // Written by:  Ashar
-// Updated by:  cthullu96 (v1.7: capsule fist shows while punch is selected, v1.9: input system package)
+// Updated by:  cthullu96 (v1.7: capsule fist shows while punch is selected)
+//              Ali (v1.9: shooter magazine + reload, shooter upgrade bars,
+//              v2.0: special slot removed (abilities on Q/E), aim shared with PlayerAbilities)
+//              cthullu96 (v2.1: input system package)
 //              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: Aiming, weapon slots and attacking. Each weapon
 //              uses the stats of its current upgrade level.
@@ -11,8 +14,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Goes on the Player. Three weapon slots: 1 shooter, 2 melee, 3 special.
-// 1/2/3 pick a slot, Q cycles. Left click or X attacks with the selected weapon.
+// Goes on the Player. Two weapon slots: 1 shooter, 2 melee (abilities are on Q/E, see PlayerAbilities).
+// 1/2 pick a slot. Left click or X attacks with the selected weapon.
+// The shooter fires its magazine then reloads (R reloads early).
 // Aims at the mouse, 360 degrees around the player.
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerCombat : MonoBehaviour
@@ -33,6 +37,15 @@ public class PlayerCombat : MonoBehaviour
     private float punchTime = -10f;
     private Vector3 aimDirection = Vector3.forward;
     private float nextAttackTime;
+
+    private ShooterData loadedGun;      // the gun the magazine belongs to
+    private int shotsLeft;
+    private float reloadDoneTime;       // can't shoot until then
+
+    public bool Reloading
+    {
+        get { return Time.time < reloadDoneTime; }
+    }
 
     void Start()
     {
@@ -55,8 +68,16 @@ public class PlayerCombat : MonoBehaviour
 
         if (GameInput.Weapon1.WasPressedThisFrame()) stats.Profile.SelectedWeapon = 0;
         if (GameInput.Weapon2.WasPressedThisFrame()) stats.Profile.SelectedWeapon = 1;
-        if (GameInput.Weapon3.WasPressedThisFrame()) stats.Profile.SelectedWeapon = 2;
-        if (GameInput.CycleWeapon.WasPressedThisFrame()) stats.Profile.SelectedWeapon = (stats.Profile.SelectedWeapon + 1) % 3;
+
+        if (GameInput.Reload.WasPressedThisFrame() && stats.Profile.SelectedWeapon == 0)
+        {
+            ShooterData gun = ItemDatabase.Instance.Get<ShooterData>(stats.Profile.EquippedShooter);
+            if (GetLazer(gun) != null)
+            {
+                CheckMagazine(gun);
+                Reload(gun);
+            }
+        }
 
         // Clicking on UI (buttons, door prompt) shouldn't also shoot
         bool clickOnUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
@@ -74,15 +95,25 @@ public class PlayerCombat : MonoBehaviour
 
         if (p.SelectedWeapon == 0)
         {
-            // The gun's level decides which lazer it fires, the lazer decides the shot
-            LazerData lazer = GetLazer(db.Get<ShooterData>(p.EquippedShooter));
+            // The gun's upgrade bars decide the shot, its lazer decides the look and perks
+            ShooterData gun = db.Get<ShooterData>(p.EquippedShooter);
+            LazerData lazer = GetLazer(gun);
             if (lazer == null)
                 return;
 
-            nextAttackTime = Time.time + 1f / lazer.fireRate;
-            Fire(lazer.model, lazer.size, lazer.rotationOffset, lazer.speed, lazer.damage, lazer.distance, 0f);
+            CheckMagazine(gun);
+            if (Reloading)
+                return;
+
+            shotsLeft--;
+            nextAttackTime = Time.time + 1f / ProfileManager.GetStat(gun, ShooterStat.FireRate);
+            Fire(lazer.model, lazer.size, lazer.rotationOffset, ProfileManager.GetStat(gun, ShooterStat.BulletSpeed),
+                 ProfileManager.GetStat(gun, ShooterStat.Damage), lazer.distance, 0f, lazer.pierce);
+
+            if (shotsLeft <= 0)
+                Reload(gun);
         }
-        else if (p.SelectedWeapon == 1)
+        else
         {
             MeleeData melee = db.Get<MeleeData>(p.EquippedMelee);
             if (!ProfileManager.Owns(melee))
@@ -92,30 +123,64 @@ public class PlayerCombat : MonoBehaviour
             nextAttackTime = Time.time + 1f / m.fireRate;
             Swing(m);
         }
-        else
-        {
-            SpecialData special = db.Get<SpecialData>(p.EquippedSpecial);
-            if (!ProfileManager.Owns(special))
-                return;
-
-            SpecialLevel s = special.AtLevel(ProfileManager.GetLevel(special));
-            nextAttackTime = Time.time + 1f / s.fireRate;
-            Fire(s.model, s.size, s.rotationOffset, s.speed, s.damage, s.distance, s.radius);
-        }
     }
 
-    // The lazer for the gun's current level (null if the gun isn't owned)
+    // Where the player is aiming (flat, towards the mouse)
+    public Vector3 AimDirection
+    {
+        get { return aimDirection; }
+    }
+
+    // Just outside the player in the aim direction, where shots start
+    public Vector3 ShotOrigin()
+    {
+        return transform.position + aimDirection * (PlayerRadius() + 0.3f);
+    }
+
+    // The lazer on the gun's lazer bar (null if the gun isn't owned)
     public static LazerData GetLazer(ShooterData shooter)
     {
         if (!ProfileManager.Owns(shooter))
             return null;
-        return shooter.LazerAtLevel(ProfileManager.GetLevel(shooter));
+        return shooter.LazerAt(ProfileManager.GetLevel(shooter, ShooterStat.Lazer));
     }
 
-    void Fire(GameObject model, float size, Vector3 rotationOffset, float speed, float damage, float distance, float radius)
+    // "12 / 20", "Reloading..." or "" when the shooter isn't selected (for the HUD)
+    public string AmmoLabel()
     {
-        Vector3 spawnPos = transform.position + aimDirection * (PlayerRadius() + 0.3f); // just outside the player
-        Projectile.Spawn(model, spawnPos, aimDirection, size, rotationOffset, speed, damage, distance, radius, false);
+        if (stats == null || stats.Profile.SelectedWeapon != 0)
+            return "";
+
+        ShooterData gun = ItemDatabase.Instance.Get<ShooterData>(stats.Profile.EquippedShooter);
+        if (GetLazer(gun) == null)
+            return "";
+
+        CheckMagazine(gun);
+        return Reloading ? "Reloading..." : shotsLeft + " / " + gun.magazineSize;
+    }
+
+    // A different gun (or the first shot) starts with a full magazine
+    void CheckMagazine(ShooterData gun)
+    {
+        if (gun == loadedGun)
+            return;
+        loadedGun = gun;
+        shotsLeft = gun.magazineSize;
+        reloadDoneTime = 0f;
+    }
+
+    // Refills the magazine, the gun can't fire until its reload time has passed
+    void Reload(ShooterData gun)
+    {
+        if (Reloading || shotsLeft >= gun.magazineSize)
+            return;
+        reloadDoneTime = Time.time + Mathf.Max(0f, ProfileManager.GetStat(gun, ShooterStat.ReloadTime));
+        shotsLeft = gun.magazineSize;
+    }
+
+    void Fire(GameObject model, float size, Vector3 rotationOffset, float speed, float damage, float distance, float radius, int pierce)
+    {
+        Projectile.Spawn(model, ShotOrigin(), aimDirection, size, rotationOffset, speed, damage, distance, radius, false, pierce);
     }
 
     void Swing(MeleeLevel melee)

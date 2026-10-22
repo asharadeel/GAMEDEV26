@@ -60,7 +60,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5100000000000000005}
-  - component: {fileID: 3935843149817729649}
+  - component: {fileID: 5100000000000000006}
   m_Layer: 0
   m_Name: RadiusRing
   m_TagString: Untagged
@@ -83,7 +83,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5100000000000000002}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!120 &3935843149817729649
+--- !u!120 &5100000000000000006
 LineRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
@@ -210,8 +210,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0.9, g: 0.1, b: 0.1, a: 1}
+      key1: {r: 0.9, g: 0.1, b: 0.1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -249,6 +249,7 @@ LineRenderer:
   m_UseWorldSpace: 0
   m_Loop: 1
   m_ApplyActiveColorSpace: 1
+
 --- !u!1 &5100000000000000007
 GameObject:
   m_ObjectHideFlags: 0
