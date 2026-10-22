@@ -125,7 +125,7 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 - Left: Objectives list (edit it on `PlayerHUD`)
 - Bottom: Health, Stamina, Hunger, Thirst bars across the full width
 - Above the bars: Inventory panel (press I)
-- Esc menu (`Canvas > EscMenu`)
+- Esc menu (`Canvas > EscMenu`): `Frame` (dim overlay) > `Panel`, styled like the pop-up windows: dark box with a "PAUSED" title bar, a grey RETURN TO MENU button (loads the Hub) and a dark CLOSE bar along the bottom
 - Achievements (`Canvas > AchievementUI`): `AchievementsPanel` in the centre (press J), `AchievementBanner` at the top centre when one unlocks
 
 # Controls
