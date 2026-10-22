@@ -70,7 +70,7 @@ All project content lives in `Assets/`:
 Scene Descriptions:
 
 Hub:
-- Home base, a round cave you walk around in
+- Home base, a round cave you walk around in (wall radius about 25, floor 53 across)
 - Player starts in the middle
 - Back wall: intro text written on the wall
 - Left portal: Level 1
