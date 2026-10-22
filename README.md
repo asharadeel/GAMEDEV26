@@ -21,8 +21,9 @@ All project content lives in `Assets/`:
   - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
-  - `Abilities/` - `Fireball`, `FrostNova`, `LightningBolt` (what the abilities look like)
     - `Spawners/` - `MobSpawner` prefab
+  - `Abilities/` - `Fireball`, `FrostNova`, `LightningBolt` (what the abilities look like)
+  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, on at night), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes (`Hub`, `Main Menu`, `Scene 1 Plains`)
 - `Scripts/` - all C# code
@@ -71,7 +72,7 @@ All project content lives in `Assets/`:
 Scene Descriptions:
 
 Hub:
-- Home base, a round cave you walk around in
+- Home base, a round cave you walk around in (wall radius about 25, floor 53 across)
 - Player starts in the middle
 - Back wall: intro text written on the wall
 - Left portal: Level 1
@@ -102,12 +103,18 @@ Main Menu:
 Scene 1 Plains
 - A basic plains scene has been made with a player (sphere object), a basic structure of walls to give it a building look, and walls around the map. Baseplate is 200x200. super basic map with colliders and movment script
 
-Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
-- `Garden` (front/south): grass, trees, bushes, `SpawnPad` with `PlayerSpawn`, path to the building
+Scene 1 Plains layout (200x200 grey floor):
+- `Map-Walls`: 18 `WallBlocks` pairs around the edge (tall/short alternating, inner face on the map edge, 25 deep). `WallHider` hides the ones on the camera's side so they don't block the view (they still collide and cast shadows)
+- `Garden` (front/south): grass, `SpawnPad` with `PlayerSpawn`, path to the building with 4 `StreetLights` along it. `Trees` and `Bushes` are all copies of the `Models/Scene1` prefabs, in the garden and scattered all around the building
 - `HelperArea` (west of the spawn pad): 16x16 square with 4 low wooden walls and a doorway facing the spawn, `HelperSpot` in the middle. Empty for now, for helper stuff later
 - `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
+- Entering: walk up to the building's `Door` (approach ring) and press **Enter** on the pop-up, which moves the player to `BuildingInterior/Building/LandingSpot` (`OnClickMoveToPos`)
+  - Inside, the first 20x10 in front of the entrance is a wall-free landing (`LandingPad`), the maze starts behind it
+  - The maze has extra openings (gaps in the long walls, fewer dead-end walls) so there are several routes, including a second way into the end room
+  - The entrance is closed by a red `LockedDoor`: red doors are doors you can't go out of
+- `ReturnToCavePrompt`: walk up to the cave by the spawn (`CaveDoor`, approach ring) to get "Return to Cave?", **Return** loads the Hub
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
-- `HexRoom` (east of the map, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
+- `HexRoom` (`BossArea`, east of the map past the walls, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 - `HexRoom/BossArena`: the boss fight (added with **Tools > Build Boss Room**, running it again replaces it)
   - `Boss` (Plains Guardian) in the middle, wakes up when the player walks into the room
   - 6 purple `Pillar`s on the corners, joined to the boss by a beam. While any pillar stands the boss only takes 20% damage. Break all 6 (shoot or hit them) and the boss turns orange and takes full damage for 12 seconds, then the pillars grow back
@@ -351,7 +358,11 @@ Loot (each rolled separately when the mob dies):
   - `Radius Ring` - circle on the floor showing the radius, visible within `Show Ring Within`
   - The end-room door sends the player to `HexRoom/DoorSpawn`
 
+## Scripts/Models/
+- `StreetLight.cs` - on the `StreetLight` prefab. Turns the light on at night (before sunrise / after sunset in the scene's `DayNight`): the `Bulb` glows (emission, `Glow Colour` white) and its point light turns on (white, range 10, intensity 2). Off in the day, and always off if the scene has no `DayNight`
+
 ## Scripts/Generic/
+- `OnClickMoveToPos.cs` - on a Button: moves the player (tagged `Player`) to `Target`'s position when clicked. Used by the Enter Building pop-up's Enter button
 - `FaceCamera.cs` - keeps a label turned towards the camera (used for the names above the portals and stalls). With `Face Player Within` above 0, while the player is that close it smoothly turns to point straight at the camera (which follows the player), so it turns as they walk around it and always reads square-on; it turns back when they leave (`Turn Speed`). The SHOP, INVENTORY and SKILL TREE signs use 10
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled
 
