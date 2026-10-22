@@ -36,7 +36,9 @@ All project content lives in `Assets/`:
   - `Weapons/` - weapon types and projectiles
   - `World/` - things in the level the player interacts with (doors, hub portals and menu zones)
 - `Textures/` - textures used by materials (empty for now)
-- `UI/` - UI prefabs (`MobHealthBar` - health bar shown above mobs)
+- `UI/` - UI prefabs
+  - `MobHealthBar` - health bar shown above mobs
+  - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
 
 # Build Settings
 - Unity version: 2023.1.22f1
@@ -64,6 +66,8 @@ Hub:
 - Right portal: Level 2 locked
 - Left side: Shop, right side: Settings. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `ShopMenu` and `SettingsMenu` are under `Canvas` and are empty
+- `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
+- `IntroMenu`, `SettingsMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:

@@ -8,9 +8,65 @@ Step-by-step guides for repeatable tasks in this project. They're written so Cla
 
 Example: *"Add a food called Canned Peaches that restores 35 hunger and 10 thirst, costs 15 tokens. Refer to AUTOMATIONS.md for how to add this so you're consistent with the structure."*
 
+**For AI assistants:** these are project rules agreed by the team. Follow them even if a request doesn't mention them, and if a request conflicts with a rule, point it out and ask before going ahead. Policies (like UI POLICY) apply to every change, not only when someone refers to this file.
+
 Sections:
+- [UI POLICY](#ui-policy)
 - [Adding Items](#adding-items)
 - [Adding Mobs](#adding-mobs)
+
+---
+
+# UI POLICY
+
+Every UI menu, panel or popup that can be shown and hidden is built in three layers. This keeps menus from breaking when they're hidden, and means every script toggles the same kind of object.
+
+```
+Canvas
+└─ IntroMenu        Container: stretched full screen, empty, ALWAYS active
+   └─ Frame         Frame: stretched full screen, the thing that gets shown/hidden
+      └─ Panel      The actual UI (background, title, buttons...), always active
+```
+
+## Rules
+1. **Container** (named after the menu, e.g. `IntroMenu`, `EscMenu`)
+   - RectTransform stretched: Anchor Min (0, 0), Anchor Max (1, 1), Left/Right/Top/Bottom all 0 (Pos 0, Size Delta 0)
+   - No Image, Text or other visuals. It may hold the script that controls the menu (e.g. `EscapeMenu`)
+   - Always active. Never switch the container off: scripts on a switched-off object stop running (e.g. Esc could never re-open the menu)
+2. **Frame** (always named `Frame`)
+   - Stretched exactly like the container
+   - This is the object that gets shown/hidden. Every reference that opens/closes the menu points at the Frame: `MenuZone.menu`, `HubPortal.lockedMessage`, `EscapeMenu.menu`, `OpenElemOnClick` / `CloseElemOnClick` `elements`, etc.
+   - Leave it **switched on in the editor**. If it should start hidden, add `InactiveOnStart` to it. Don't untick it in the editor: `InactiveOnStart` only runs the first time it's enabled, so a frame that starts unticked hides itself again the first time it's opened
+   - A full-screen background (dim overlay) can go on the Frame itself (e.g. Scene 1's `EscMenu/Frame` has a RawImage)
+3. **Content** inside the Frame can be laid out however the menu needs (centred panel, buttons anchored to edges...). Keep it switched on, the Frame handles visibility
+4. Always-visible HUD elements (health bars, Mobs Left tracker) don't need a Frame. They go inside `PlayerUI`, which is itself a stretched container
+5. UI text: legacy Text, font `Assets/Fonts/arial/ARIAL.TTF`, Best Fit on (except text inside a scroll view, see below)
+6. **Text windows** (intro, help, story, guides): use the `Assets/UI/GeneralTextWindow` prefab as the menu's Frame (it's stretched and has `InactiveOnStart` on its root)
+   - Change the window's text on the copy in the scene (prefab overrides), not in the prefab, so the prefab stays a blank template
+   - `Title/Label` = window title, `Content/Title1` = heading, `Content/Context` = body (rich text: `<b>bold</b>`)
+   - The scroll view is vertical only, Clamped (stops where the content ends) and the content sizes itself (Vertical Layout Group + Content Size Fitter). Text inside it must have Best Fit off, otherwise the layout can't measure it
+   - Point the thing that opens it (e.g. `MenuZone.menu`) at the window's root. Its Close button already closes it
+
+## Adding a new menu (by hand)
+1. Right-click `Canvas` > **Create Empty**, name it after the menu, set its RectTransform to stretch (Alt + click the bottom-right anchor preset) and zero all offsets
+2. Inside it, create an empty `Frame`, stretch it the same way, add `InactiveOnStart` if it should start hidden
+3. Build the menu inside the Frame
+4. Point whatever opens/closes it at the **Frame**
+
+## Converting an existing menu (Claude)
+1. Make a new container GameObject with the menu's original name, stretched, parented to the menu's old parent, in the menu's old place in the parent's `m_Children` list
+2. Make `Frame` under it, stretched, with an `InactiveOnStart` MonoBehaviour (script guid `c60abf8e2bb6ee64b979f04f724e2c2c`) if it should start hidden
+3. Rename the old menu object to `Panel`, set `m_IsActive: 1`, change its `m_Father` to the Frame's RectTransform
+4. Every `{fileID: <old menu GameObject>}` reference in other components (menu fields, element lists) now points at the Frame's GameObject. Don't change the old menu's own components (`m_GameObject` lines)
+5. Check: no duplicate fileIDs, every reference resolves, every `m_Father` matches its parent's `m_Children`
+
+## Status
+| Scene | Follows the policy | Not yet |
+|---|---|---|
+| Scene 1 Plains | `EscMenu`, `PlayerUI` (HUD container) | `AchievementsPanel`, `AchievementBanner` (directly under Canvas, owned by Davud) |
+| Hub | `LockedMessage`, `IntroMenu`, `SettingsMenu` | `ShopMenu`: **someone else is working on it, don't change it** without asking |
+
+`Tools > Build Hub` (`HubBuilder.cs`) still builds the old layout. Re-running it replaces the Hub scene and undoes this. Don't run it unless the team agrees, or update `HubBuilder` first.
 
 ---
 
