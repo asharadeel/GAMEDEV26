@@ -72,6 +72,7 @@ Hub:
 - Back wall: intro text written on the wall
 - Left portal: Level 1
 - Right portal: Level 2 locked
+- Each portal has a square slot on its inner pillar (**Tools > Add Portal Slots**): Level 1's is purple (open), Level 2's is dark grey. After beating the Level 1 boss and picking up the portal piece, walking up to Level 2 asks to place it (`PlacePiecePrompt`), which turns the slot and the portal purple. Level 2 doesn't exist yet, so the open portal does nothing
 - Left side: Shop, right side: Library. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `ShopMenu` and `LibraryMenu` are under `Canvas`
 - `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
@@ -97,6 +98,12 @@ Scene 1 Plains layout (200x200 grey floor, 4 walls around it):
 - `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
 - `HexRoom` (east of the map, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
+- `HexRoom/BossArena`: the boss fight (added with **Tools > Build Boss Room**, running it again replaces it)
+  - `Boss` (Plains Guardian) in the middle, wakes up when the player walks into the room
+  - 6 purple `Pillar`s on the corners, joined to the boss by a beam. While any pillar stands the boss only takes 20% damage. Break all 6 (shoot or hit them) and the boss turns orange and takes full damage for 12 seconds, then the pillars grow back
+  - Moves: jump slam (red ring shows where it lands, hurts everything inside), throws 3 boulders aimed ahead of the player (pillars block them), swings its club when the player is close
+  - When it dies a `PortalPiece` appears in the middle. Walking onto it picks it up (saved on the profile as `HasPortalPiece`) and opens `PortalPieceMenu` (a `GeneralPopUpWindow`), both buttons load the Hub
+- `PrototypeSkip` (yellow circle beside the path, before the maze): testing shortcut, stand in it and press E to go straight to `HexRoom/DoorSpawn`. Uses `DoorInteract`. Made by **Tools > Build Boss Room**, delete it before the final build
 
 Scene 1 Plains UI (`Canvas > PlayerUI`):
 - Top centre: Mobs Left tracker (Lvl 1 x n, Lvl 2 x m, Lvl 3 x p)
@@ -152,6 +159,7 @@ All scripts are in `Assets/Scripts/`.
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, special and the food/drink slots. Only owned items can be equipped
   - Selected weapon
+  - `Has Portal Piece` (picked up from the Level 1 boss) and `Portal 2 Open` (placed in the Hub)
   - Inventory slots (7 food/drink slots, keys 4-9 and 0)
   - Values have getters/setters that keep them in range (e.g. stamina can't go below 0 or above max)
   - To add a new stat: add a private `[SerializeField]` field and a public property
@@ -169,6 +177,7 @@ All scripts are in `Assets/Scripts/`.
   - Left click or X attacks with the selected weapon, limited by its fire rate
   - 1/2/3 select shooter/melee/special, Q cycles
   - `Aim Arrow` - flat sprite on the floor that points at the mouse (`Arrow Distance`, `Arrow Height`, `Arrow Spin`)
+  - While melee is selected and the equipped melee is Punch, a capsule `Fist` sits in front of the player pointing where they aim and jabs forward on each punch (`Fist Colour`)
   - Right-click the component for **Unlock All Weapons (testing)**
 - `PlayerInventory.cs` - goes on the Player
   - I opens/closes `Inventory Panel`
@@ -223,6 +232,9 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 ## Scripts/Mobs/
 - `MobData.cs` - a mob profile asset: `id`, `displayName`, `model`, `type` (Follow / Shooter), `health`, `attackDamage`, plus Follow settings (`moveSpeed`, `chaseRange`, `attackRange`, `attackCooldown`) and Shooter settings (`shootRange`, `fireRate`, `projectileModel`, `projectileSpeed`, `projectileSize`), and `drops` (loot: consumable + chance 0-1). Create > Game > Mob
 - `Mob.cs` - base for every mob: health, health bar, dies at 0 (drops its loot and counts the kill for achievements), helpers for finding the player
+  - `BossMob.cs` - the Plains boss (on `HexRoom/BossArena/Boss`, not spawned by a spawner). Walks at and keeps facing the player, picks a move after `Rest Between Moves`: club if close, otherwise jump slam or boulders. Takes `Shielded Damage` (0.2) of each hit while any pillar stands, full damage for `Weak Time` seconds once they're all broken. Shows `Portal Piece` when it dies. Profile: `Data/Mobs/Boss`
+  - `BossPillar.cs` - a breakable pillar (`Max Health` 50) with a beam to the boss, shows a health bar (`Health Bar Prefab`) once it's hit, tells the boss when it breaks, `Rebuild()` grows it back
+  - `Shockwave.cs` - the flat ring that spreads out when the boss lands
   - `FollowMob.cs` - wanders until the player is within `chaseRange`, then chases and hits them every `attackCooldown` seconds. Has a Rigidbody so walls block it
   - `ShooterMob.cs` - stays still, faces the player within `shootRange` and shoots `projectileModel` at them
   - The spawner adds FollowMob or ShooterMob based on the profile's `type`
@@ -233,14 +245,16 @@ Button scripts go on a Button and hook into its click automatically (no need to 
   - Row 0 starts straight away and spawns every 5s, each next row starts 30s later and spawns 4s slower (row 1: after 30s every 9s, row 2: after 60s every 13s)
   - `Spawn Radius` - random spread, mobs are placed so they stand on the floor
   - `Activation Radius` (20) - nothing spawns until the player is this close, timings start from then (yellow circle in the Scene view)
+  - `Max Alive` (4) - most mobs from one spawner alive at the same time, it waits for one to die before spawning the next
   - `Health Bar Prefab` - put above each mob it spawns
   - Shows a red circle in the Scene view
 
 | Mob | Type | Health | Attack Damage | Speed | Per spawner |
 |---|---|---|---|---|---|
-| Mob Level 1 | Follow | 100 | 10 / hit | 3.5 | 20 |
-| Mob Level 2 | Follow | 125 | 15 / hit | 2.5 | 10 |
-| Mob Level 3 | Shooter | 200 | 22 / shot | stays still | 5 |
+| Mob Level 1 | Follow | 100 | 10 / hit | 3.5 | 8 |
+| Mob Level 2 | Follow | 125 | 15 / hit | 2.5 | 4 |
+| Mob Level 3 | Shooter | 200 | 22 / shot | stays still | 2 |
+| Plains Guardian (boss) | Boss | 1500 | 30 slam / 20 boulder / 25 club | 2.5 | 1 (HexRoom) |
 
 Loot (each rolled separately when the mob dies):
 
@@ -284,6 +298,8 @@ Loot (each rolled separately when the mob dies):
   - Title = player name, body = stats. If no profile was picked on the Main Menu (e.g. testing the Hub directly) it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/"
 
 ## Scripts/World/
+- `PortalPiece.cs` - spins and bobs the portal piece the boss drops (its `ShowUIonApproach` opens the pop-up). Walking onto it sets `HasPortalPiece` on the profile and saves
+- `PortalSlot.cs` - on the Hub's `Level2Portal`. If the profile has the portal piece, walking up opens `PlacePiecePrompt` instead of the locked pop-up. Place turns the slot and the portal purple and saves `Portal2Open`. There's no Level 2 yet, so the open portal does nothing. Right-click the component for **Give Portal Piece (testing)**
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
   - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
@@ -303,6 +319,8 @@ Loot (each rolled separately when the mob dies):
 - `InactiveOnStart.cs` - turns its object off when the scene starts. Leave the object switched on in the editor, otherwise this won't run until it's first enabled
 
 ## Scripts/Editor/
+- `PortalSlotBuilder.cs` - adds **Tools > Add Portal Slots**. With the Hub open, puts a square slot on each portal's inner pillar (Level 1 purple, Level 2 dark grey), adds `PortalSlot` to `Level2Portal` and the `PlacePiecePrompt` pop-up (`GeneralPopUpWindow`). Editor only
+- `BossRoomBuilder.cs` - adds **Tools > Build Boss Room**. With Scene 1 Plains open, builds the boss, pillars, portal piece, `PortalPieceMenu` and the `PrototypeSkip` pad, and makes `Data/Mobs/Boss.asset` and `Models/Boss/Boulder.prefab` if they don't exist yet. Editor only
 - `HubBuilder.cs` - adds **Tools > Build Hub**. Builds the hub scene out of basic shapes, saves it as `Assets/Scenes/Hub.unity` and puts it first in Build Settings. Editor only, not part of the game
 
 # Save Data

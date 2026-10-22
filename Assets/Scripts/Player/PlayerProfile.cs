@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              tokens, owned items and current inventory.
@@ -54,6 +55,9 @@ public class PlayerProfile
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
     [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee, 2 special
     [SerializeField] private int inventorySlots = MaxInventorySlots; // usable consumable slots
+
+    [SerializeField] private bool hasPortalPiece = false;   // picked up from the level 1 boss
+    [SerializeField] private bool portal2Open = false;      // placed the piece in the hub's portal 2
 
     // ---- Identity ----
 
@@ -112,6 +116,20 @@ public class PlayerProfile
         passkey = other.passkey;
         ballColour = other.ballColour;
         createdAt = other.createdAt;
+    }
+
+    // progress
+
+    public bool HasPortalPiece
+    {
+        get { return hasPortalPiece; }
+        set { hasPortalPiece = value; }
+    }
+
+    public bool Portal2Open
+    {
+        get { return portal2Open; }
+        set { portal2Open = value; }
     }
 
     // ---- Stats ----
