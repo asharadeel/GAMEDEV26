@@ -4,27 +4,28 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// builds the shooter upgrade window in the hub and the ammo counter in scene 1
-// click tools > build shooter upgrades (it opens and saves both scenes itself)
-// hub: shop title set to "Shop", Canvas > ShooterUpgradePopup (container + ShooterUpgradeUI) > Frame (GeneralPopUpWindow copy)
-//      with one bar per ShooterStat: label, 5 blocks, value, Buy button
+// builds the weapon upgrade window in the hub and the ammo counter in scene 1
+// click tools > build weapon upgrades (it opens and saves both scenes itself)
+// hub: shop title set to "Shop", Canvas > UpgradePopup (container + WeaponUpgradeUI) > Frame (GeneralPopUpWindow copy)
+//      with one bar per ShooterStat: label, 5 blocks, value, Buy button (melee/specials only use the 1st as a Level bar)
+//      replaces the old UpgradePopup ("Upgrade to level n") and ShooterUpgradePopup
 //      placed just after StoreUI so it covers the shop but BuyPopup still shows on top of it
 // scene 1: PlayerUI > Frame > AmmoCounter, wired into PlayerHUD
 // running it again replaces them
-public static class ShooterUpgradeBuilder
+public static class WeaponUpgradeBuilder
 {
     const string HubPath = "Assets/Scenes/Hub.unity";
     const string PlainsPath = "Assets/Scenes/Scene 1 Plains.unity";
     const string FontPath = "Assets/Fonts/arial/ARIAL.TTF";
 
-    static readonly string[] BarNames = ShooterUpgradeUI.BarNames;
+    static readonly string[] BarNames = WeaponUpgradeUI.BarNames;
 
-    [MenuItem("Tools/Build Shooter Upgrades")]
+    [MenuItem("Tools/Build Weapon Upgrades")]
     public static void Build()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
-            EditorUtility.DisplayDialog("Build Shooter Upgrades", "Stop Play mode first, then run this again.", "OK");
+            EditorUtility.DisplayDialog("Build Weapon Upgrades", "Stop Play mode first, then run this again.", "OK");
             return;
         }
 
@@ -42,7 +43,7 @@ public static class ShooterUpgradeBuilder
         EditorSceneManager.SaveScene(plains);
 
         EditorSceneManager.OpenScene(HubPath);
-        EditorUtility.DisplayDialog("Build Shooter Upgrades", "Done. The Hub has the upgrade window and Scene 1 has the ammo counter (both saved).", "OK");
+        EditorUtility.DisplayDialog("Build Weapon Upgrades", "Done. The Hub has the upgrade window and Scene 1 has the ammo counter (both saved).", "OK");
     }
 
     // ---- Hub ----
@@ -52,7 +53,7 @@ public static class ShooterUpgradeBuilder
         GameObject canvas = GameObject.Find("Canvas");
         if (canvas == null || canvas.transform.Find("StoreUI") == null)
         {
-            EditorUtility.DisplayDialog("Build Shooter Upgrades", "The Hub needs a Canvas with StoreUI in it.", "OK");
+            EditorUtility.DisplayDialog("Build Weapon Upgrades", "The Hub needs a Canvas with StoreUI in it.", "OK");
             return false;
         }
 
@@ -60,25 +61,26 @@ public static class ShooterUpgradeBuilder
         if (shopTitle != null)
         {
             Text shopLabel = shopTitle.GetComponent<Text>();
-            Undo.RecordObject(shopLabel, "Build Shooter Upgrades");
+            Undo.RecordObject(shopLabel, "Build Weapon Upgrades");
             shopLabel.text = "Shop";
         }
 
         RemoveChild(canvas.transform, "ShooterUpgradePopup");
+        RemoveChild(canvas.transform, "UpgradePopup");
 
         // container > frame, same as every other menu (ui policy). Right after StoreUI: draws over the shop, under BuyPopup
         Transform store = canvas.transform.Find("StoreUI");
-        GameObject container = Stretched("ShooterUpgradePopup", canvas.transform);
+        GameObject container = Stretched("UpgradePopup", canvas.transform);
         container.transform.SetSiblingIndex(store.GetSiblingIndex() + 1);
 
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/UI/GeneralPopUpWindow.prefab");
         GameObject frame = (GameObject)PrefabUtility.InstantiatePrefab(prefab, container.transform);
         frame.name = "Frame";
 
-        // bigger than a normal pop-up so the 5 bars fit (1200 x 800)
+        // full screen, same size as the shop window
         RectTransform frameRect = frame.GetComponent<RectTransform>();
-        frameRect.offsetMin = new Vector2(360f, 140f);
-        frameRect.offsetMax = new Vector2(-360f, -140f);
+        frameRect.offsetMin = Vector2.zero;
+        frameRect.offsetMax = Vector2.zero;
         PrefabUtility.RecordPrefabInstancePropertyModifications(frameRect);
 
         // no single action button, every bar has its own
@@ -98,7 +100,7 @@ public static class ShooterUpgradeBuilder
         barsObj.transform.SetParent(frame.transform, false);
         Place((RectTransform)barsObj.transform, Vector2.zero, Vector2.one, new Vector2(40f, 110f), new Vector2(-40f, -170f));
 
-        ShooterUpgradeUI ui = Undo.AddComponent<ShooterUpgradeUI>(container);
+        WeaponUpgradeUI ui = Undo.AddComponent<WeaponUpgradeUI>(container);
         ui.window = frame;
         Transform shopWindow = store.Find("GeneralSelectorUI");
         ui.shop = shopWindow != null ? shopWindow.gameObject : null;
@@ -125,9 +127,10 @@ public static class ShooterUpgradeBuilder
 
         UpgradeBar bar = new UpgradeBar();
         bar.stat = (ShooterStat)index;
+        bar.row = row;
 
-        Text label = MakeText("Label", row.transform, BarNames[index], 30, TextAnchor.MiddleLeft, textColour);
-        Place(label.rectTransform, Vector2.zero, new Vector2(0f, 1f), Vector2.zero, new Vector2(220f, 0f));
+        bar.label = MakeText("Label", row.transform, BarNames[index], 30, TextAnchor.MiddleLeft, textColour);
+        Place(bar.label.rectTransform, Vector2.zero, new Vector2(0f, 1f), Vector2.zero, new Vector2(220f, 0f));
 
         bar.blocks = new RawImage[ShooterData.MaxUpgrades];
         for (int b = 0; b < bar.blocks.Length; b++)
@@ -175,7 +178,7 @@ public static class ShooterUpgradeBuilder
         Transform frame = hud != null ? hud.transform.Find("Frame") : null;
         if (frame == null)
         {
-            EditorUtility.DisplayDialog("Build Shooter Upgrades", "Scene 1 needs PlayerUI (with PlayerHUD) and a Frame inside it.", "OK");
+            EditorUtility.DisplayDialog("Build Weapon Upgrades", "Scene 1 needs PlayerUI (with PlayerHUD) and a Frame inside it.", "OK");
             return false;
         }
 
@@ -190,7 +193,7 @@ public static class ShooterUpgradeBuilder
         rt.anchoredPosition = new Vector2(-30f, 100f);
         ammo.gameObject.AddComponent<Outline>();
 
-        Undo.RecordObject(hud, "Build Shooter Upgrades");
+        Undo.RecordObject(hud, "Build Weapon Upgrades");
         hud.ammoText = ammo;
         hud.combat = Object.FindFirstObjectByType<PlayerCombat>();
         EditorUtility.SetDirty(hud);
@@ -203,7 +206,7 @@ public static class ShooterUpgradeBuilder
     static GameObject Stretched(string name, Transform parent)
     {
         GameObject obj = new GameObject(name, typeof(RectTransform));
-        Undo.RegisterCreatedObjectUndo(obj, "Build Shooter Upgrades");
+        Undo.RegisterCreatedObjectUndo(obj, "Build Weapon Upgrades");
         obj.transform.SetParent(parent, false);
         Place((RectTransform)obj.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
         return obj;

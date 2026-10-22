@@ -1,15 +1,14 @@
 // ============================================================
 // Title:       ShopPopups
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
-// Updated by:  Ali (v1.3: Buy pop-up also buys shooter upgrades)
-// Description: The shop's Buy, Upgrade and Refund pop-ups, shared
-//              by every ShopItemCard (weapons), ConsumableCard
-//              (food/drink: Buy and Refund) and the bars in
-//              ShooterUpgradeUI (Buy). Each pop-up is a
-//              GeneralPopUpWindow copy:
+// Updated by:  Ali (v1.3: Buy pop-up also buys shooter upgrades,
+//              v1.4: and every other weapon upgrade, Upgrade pop-up removed)
+// Description: The shop's Buy and Refund pop-ups, shared by every
+//              ShopItemCard (weapons), ConsumableCard (food/drink)
+//              and the bars in WeaponUpgradeUI (Buy). Each pop-up
+//              is a GeneralPopUpWindow copy:
 //              Buy:     "Buy <item>",               button "Buy: <cost>"
-//              Upgrade: "Upgrade to level <n>",     button "Cost: <cost>"
 //              Refund:  "Refund <item>: <refund>",  button "Refund"
 //              Goes on the shop's container (always active).
 // ============================================================
@@ -34,19 +33,17 @@ public class ShopPopups : MonoBehaviour
     public static ShopPopups Instance { get; private set; }
 
     public ShopPopup buy;
-    public ShopPopup upgrade;
     public ShopPopup refund;
 
     private ShopItemCard card;           // the weapon card that opened the pop-up
     private ConsumableCard consumable;   // or the food/drink card
-    private ShooterData shooter;         // or a shooter upgrade bar (ShooterUpgradeUI)
-    private ShooterStat stat;
+    private WeaponData upgrading;        // or a weapon upgrade (WeaponUpgradeUI)
+    private ShooterStat stat;            // which bar, for shooters
 
     void Awake()
     {
         Instance = this;
         buy.action.onClick.AddListener(Buy);
-        upgrade.action.onClick.AddListener(Upgrade);
         refund.action.onClick.AddListener(Refund);
     }
 
@@ -56,7 +53,7 @@ public class ShopPopups : MonoBehaviour
     {
         card = from;
         consumable = null;
-        shooter = null;
+        upgrading = null;
         Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.coinCost);
     }
 
@@ -64,26 +61,19 @@ public class ShopPopups : MonoBehaviour
     {
         consumable = from;
         card = null;
-        shooter = null;
+        upgrading = null;
         Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.coinCost);
     }
 
-    // The next upgrade on one of a shooter's bars, e.g. "Buy Damage (10 → 13)"
-    public void OpenBuy(ShooterData gun, ShooterStat bar, string upgradeName)
+    // A weapon's next upgrade, e.g. "Buy Damage (10 → 13)" or "Buy Punch Level 2"
+    // (bar is only used for shooters)
+    public void OpenBuy(WeaponData weapon, ShooterStat bar, string upgradeName, int cost)
     {
-        shooter = gun;
+        upgrading = weapon;
         stat = bar;
         card = null;
         consumable = null;
-        int cost = gun.UpgradeCost(bar, ProfileManager.GetLevel(gun, bar) + 1);
         Open(buy, "Buy " + upgradeName, "Buy: " + cost);
-    }
-
-    public void OpenUpgrade(ShopItemCard from)
-    {
-        card = from;
-        int next = ProfileManager.GetLevel(card.item) + 1;
-        Open(upgrade, "Upgrade to level " + next, "Cost: " + card.item.UpgradeCost(next));
     }
 
     public void OpenRefund(ConsumableCard from)
@@ -112,9 +102,12 @@ public class ShopPopups : MonoBehaviour
 
     void Buy()
     {
-        if (shooter != null)
+        if (upgrading != null)
         {
-            if (!ProfileManager.TryUpgrade(shooter, stat))
+            bool upgraded = upgrading is ShooterData shooter
+                ? ProfileManager.TryUpgrade(shooter, stat)
+                : ProfileManager.TryUpgrade(upgrading);
+            if (!upgraded)
             {
                 buy.message.text = "Not enough coins";
                 return;
@@ -154,16 +147,6 @@ public class ShopPopups : MonoBehaviour
         Done(buy);
     }
 
-    void Upgrade()
-    {
-        if (!ProfileManager.TryUpgrade(card.item))
-        {
-            upgrade.message.text = "Not enough coins";
-            return;
-        }
-        Done(upgrade);
-    }
-
     void Refund()
     {
         // Food/drink: sell one back, stay open until there's none left
@@ -195,7 +178,7 @@ public class ShopPopups : MonoBehaviour
         popup.window.SetActive(false);
         ShopItemCard.RefreshAll();
         ConsumableCard.RefreshAll();
-        if (ShooterUpgradeUI.Instance != null)
-            ShooterUpgradeUI.Instance.Refresh();
+        if (WeaponUpgradeUI.Instance != null)
+            WeaponUpgradeUI.Instance.Refresh();
     }
 }

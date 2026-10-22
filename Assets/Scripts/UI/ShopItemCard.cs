@@ -1,17 +1,17 @@
 // ============================================================
 // Title:       ShopItemCard
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
-// Updated by:  Ali (v1.1: shooters open ShooterUpgradeUI)
+// Updated by:  Ali (v1.1: shooters open the upgrade bars window,
+//              v1.2: every weapon does)
 // Description: One item in the shop (the ShopItemCard prefab).
 //              Drag the item asset into Item. Shows its name and
 //              level, and the buttons that fit:
 //              not owned = Buy, owned = Equip + Refund + Upgrade.
 //              Refund is hidden for starting items and greyed out
-//              while equipped. Upgrade is hidden at max level.
-//              Buy/Upgrade/Refund open the pop-ups in ShopPopups.
-//              Shooters have no level: their Upgrade button opens
-//              the upgrade bars window (ShooterUpgradeUI).
+//              while equipped. Buy/Refund open the pop-ups in
+//              ShopPopups, Upgrade opens WeaponUpgradeUI.
+//              Shooters have no level, just upgrade bars.
 // ============================================================
 
 using System.Collections.Generic;
@@ -75,7 +75,7 @@ public class ShopItemCard : MonoBehaviour
 
         buyButton.gameObject.SetActive(!owned);
         equipButton.gameObject.SetActive(owned);
-        upgradeButton.gameObject.SetActive(shooter ? owned : ProfileManager.CanUpgrade(item));
+        upgradeButton.gameObject.SetActive(owned);
         refundButton.gameObject.SetActive(owned && !item.unlocked);   // starting items can't be refunded
 
         equipButton.interactable = !equipped;
@@ -85,12 +85,10 @@ public class ShopItemCard : MonoBehaviour
 
     void Upgrade()
     {
-        if (!(item is ShooterData shooter))
-            ShopPopups.Instance.OpenUpgrade(this);
-        else if (ShooterUpgradeUI.Instance != null)
-            ShooterUpgradeUI.Instance.Open(shooter);
+        if (WeaponUpgradeUI.Instance != null)
+            WeaponUpgradeUI.Instance.Open(item);
         else
-            Debug.LogWarning("No shooter upgrade window in this scene, run Tools > Build Shooter Upgrades");
+            Debug.LogWarning("No upgrade window in this scene, run Tools > Build Weapon Upgrades");
     }
 
     void Equip()
