@@ -35,7 +35,7 @@ Canvas
    - Always active. Never switch the container off: scripts on a switched-off object stop running (e.g. Esc could never re-open the menu)
 2. **Frame** (always named `Frame`)
    - Stretched exactly like the container
-   - This is the object that gets shown/hidden. Every reference that opens/closes the menu points at the Frame: `MenuZone.menu`, `HubPortal.lockedMessage`, `EscapeMenu.menu`, `OpenElemOnClick` / `CloseElemOnClick` `elements`, etc.
+   - This is the object that gets shown/hidden. Every reference that opens/closes the menu points at the Frame: `RadiusUI.ui`, `HubPortal.lockedMessage`, `EscapeMenu.menu`, `OpenElemOnClick` / `CloseElemOnClick` `elements`, etc.
    - Leave it **switched on in the editor**. If it should start hidden, add `InactiveOnStart` to it. Don't untick it in the editor: `InactiveOnStart` only runs the first time it's enabled, so a frame that starts unticked hides itself again the first time it's opened
    - If the player shouldn't be controllable while it's open (menus, popups, text windows), add `OverlayUI` to the Frame. While any OverlayUI is showing, `PlayerController.uiEnabled` is true and movement, jumping, attacks, eating and camera rotate/zoom are off (so scrolling a menu doesn't zoom the camera). `GeneralTextWindow` already has it
    - A full-screen background (dim overlay) can go on the Frame itself (e.g. Scene 1's `EscMenu/Frame` has a RawImage)
@@ -46,13 +46,14 @@ Canvas
    - Change the window's text on the copy in the scene (prefab overrides), not in the prefab, so the prefab stays a blank template
    - `Title/Label` = window title, `Content/Title1` = heading, `Content/Context` = body (rich text: `<b>bold</b>`)
    - The scroll view is vertical only, Clamped (stops where the content ends) and the content sizes itself (Vertical Layout Group + Content Size Fitter). Text inside it must have Best Fit off, otherwise the layout can't measure it
-   - Point the thing that opens it (e.g. `MenuZone.menu`) at the window's root. Its Close button already closes it
+   - Point the thing that opens it (e.g. `RadiusUI.ui`) at the window's root. Its Close button already closes it
 7. **Pop-ups / prompts** (short message + one action, e.g. "Go to the next floor?", "Not enough tokens"): use the `Assets/UI/GeneralPopUpWindow` prefab as the menu's Frame
    - It's a centred box (root inset 500px left/right and 300px top/bottom from the container), with `InactiveOnStart` and `OverlayUI` already on its root, so the player is frozen while it's open
    - `Title/Label` = title, `Button` = the action button (its label is `Button/Text (TMP)`, a legacy Text despite the name), `CloseButton` closes the pop-up
    - The action button has no script in the prefab. Add what it should do on the scene copy, e.g. `OpenScene`, `OpenElemOnClick` / `CloseElemOnClick`, or a script of your own. Change the text on the scene copy too, not in the prefab
    - For longer text that needs scrolling, use `GeneralTextWindow` instead
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
+9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it) and `Show Ring Within` (when the floor ring appears). Don't write a new trigger script or a one-off ring for this
 
 ## Adding a new menu (by hand)
 1. Right-click `Canvas` > **Create Empty**, name it after the menu, set its RectTransform to stretch (Alt + click the bottom-right anchor preset) and zero all offsets

@@ -310,24 +310,17 @@ public static class HubBuilder
     }
 
     // the spot you stand on to open a menu, with a ring on the floor
+    // (uses the Models/ShowUIonApproach prefab, see RadiusUI)
     static void Zone(Transform parent, Vector3 localPos, float radius, GameObject menu)
     {
-        GameObject zone = new GameObject("MenuZone");
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/ShowUIonApproach.prefab");
+        GameObject zone = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
         zone.transform.SetParent(parent, false);
         zone.transform.localPosition = localPos;
 
-        GameObject ringObj = new GameObject("RadiusRing");
-        ringObj.transform.SetParent(zone.transform, false);
-        ringObj.transform.localPosition = new Vector3(0f, 0.05f, 0f);
-        ringObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-        SpriteRenderer sr = ringObj.AddComponent<SpriteRenderer>();
-        sr.sprite = ring;
-        sr.color = Color.white;
-
-        MenuZone mz = zone.AddComponent<MenuZone>();
-        mz.menu = menu;
-        mz.radius = radius;
-        mz.radiusRing = ringObj;
+        RadiusUI radiusUI = zone.GetComponent<RadiusUI>();
+        radiusUI.ui = menu;
+        radiusUI.radius = radius;
     }
 
     // floating name above something, always faces the camera
