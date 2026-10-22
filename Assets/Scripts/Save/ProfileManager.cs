@@ -1,10 +1,10 @@
 // ============================================================
 // Title:       ProfileManager
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
 // Description: The current player profile (one of 3 save slots),
-//              plus create/edit/delete for the slots and buy/equip
-//              helpers.
+//              plus create/edit/delete for the slots and buy/equip/
+//              upgrade/refund helpers.
 // ============================================================
 
 using System.Collections.Generic;
@@ -157,6 +157,60 @@ public static class ProfileManager
         Profile.Tokens -= weapon.tokenCost;
         Profile.AddOwned(weapon.id);
         return true;
+    }
+
+    // Starting items can't be refunded, and neither can what's equipped
+    public static bool CanRefund(WeaponData weapon)
+    {
+        return weapon != null && !weapon.unlocked && Profile.HasBought(weapon.id) && !IsEquipped(weapon);
+    }
+
+    // Gives back a third of the price (not the upgrades) and resets the level
+    public static bool TryRefund(WeaponData weapon)
+    {
+        if (!CanRefund(weapon))
+            return false;
+
+        Profile.Tokens += weapon.RefundValue;
+        Profile.RemoveOwned(weapon.id);
+        return true;
+    }
+
+    // 1 to 3
+    public static int GetLevel(WeaponData weapon)
+    {
+        if (weapon == null)
+            return 1;
+        return Mathf.Clamp(Profile.GetItemLevel(weapon.id), 1, WeaponData.MaxLevel);
+    }
+
+    public static bool CanUpgrade(WeaponData weapon)
+    {
+        return Owns(weapon) && GetLevel(weapon) < WeaponData.MaxLevel;
+    }
+
+    public static bool TryUpgrade(WeaponData weapon)
+    {
+        if (!CanUpgrade(weapon))
+            return false;
+
+        int next = GetLevel(weapon) + 1;
+        int cost = weapon.UpgradeCost(next);
+        if (Profile.Tokens < cost)
+            return false;
+
+        Profile.Tokens -= cost;
+        Profile.SetItemLevel(weapon.id, next);
+        return true;
+    }
+
+    public static bool IsEquipped(WeaponData weapon)
+    {
+        if (weapon is ShooterData) return Profile.EquippedShooter == weapon.id;
+        if (weapon is LazerData) return Profile.EquippedLazer == weapon.id;
+        if (weapon is MeleeData) return Profile.EquippedMelee == weapon.id;
+        if (weapon is SpecialData) return Profile.EquippedSpecial == weapon.id;
+        return false;
     }
 
     // Enough tokens and a high enough level

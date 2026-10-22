@@ -17,7 +17,17 @@ MonoBehaviour:
   tokenCost: 100
   levelRequired: 1
   unlocked: 0
-  damage: 15
-  fireRate: 1
   model: {fileID: 0}
-  radius: 2
+  levels:
+  - model: {fileID: 0}
+    damage: 15
+    fireRate: 1
+    radius: 2
+  - model: {fileID: 0}
+    damage: 22.5
+    fireRate: 1
+    radius: 2
+  - model: {fileID: 0}
+    damage: 30
+    fireRate: 1
+    radius: 2

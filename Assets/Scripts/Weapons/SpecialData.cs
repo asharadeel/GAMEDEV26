@@ -1,18 +1,21 @@
 // ============================================================
 // Title:       SpecialData
-// Version:     1.1
+// Version:     2.0
 // Written by:  Ashar
 // Description: Slot 3. Fires a projectile that explodes on hit,
-//              damaging everything in its radius.
+//              damaging everything in its radius. Has 3 levels
+//              (1 = as bought, 2 and 3 = upgrades), each with its
+//              own model and stats.
 //              Create > Game > Weapons > Special
 // ============================================================
 
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewSpecial", menuName = "Game/Weapons/Special")]
-public class SpecialData : WeaponData
+// One level of a special weapon
+[System.Serializable]
+public class SpecialLevel
 {
-    [Header("Special")]
+    public GameObject model;         // the projectile
     public float damage = 50f;
     public float fireRate = 0.5f;    // shots per second
     public float speed = 10f;
@@ -20,4 +23,16 @@ public class SpecialData : WeaponData
     public float distance = 50f;     // how far it travels before it disappears
     public float size = 1f;
     public Vector3 rotationOffset = new Vector3(90f, 0f, 0f);
+}
+
+[CreateAssetMenu(fileName = "NewSpecial", menuName = "Game/Weapons/Special")]
+public class SpecialData : WeaponData
+{
+    [Header("Levels (1st = level 1, 2nd = level 2, 3rd = level 3)")]
+    public SpecialLevel[] levels = { new SpecialLevel(), new SpecialLevel(), new SpecialLevel() };
+
+    public SpecialLevel AtLevel(int level)
+    {
+        return levels[Mathf.Clamp(level - 1, 0, levels.Length - 1)];
+    }
 }

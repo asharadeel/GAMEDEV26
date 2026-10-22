@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       ReadWritePlayerProfile
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
 // Description: For the Library in the Hub. Reads the saved player
 //              profile and achievements and writes them out as text
@@ -71,9 +71,11 @@ public class ReadWritePlayerProfile : MonoBehaviour
         sb.AppendLine();
 
         sb.AppendLine("<b>Equipped</b>");
-        sb.AppendLine("- Shooter: " + NameOf(db, p.EquippedShooter) + " (" + NameOf(db, p.EquippedLazer) + ")");
-        sb.AppendLine("- Melee: " + NameOf(db, p.EquippedMelee));
-        sb.AppendLine("- Special: " + NameOf(db, p.EquippedSpecial));
+        ShooterData shooter = db != null ? db.Get<ShooterData>(p.EquippedShooter) : null;
+        LazerData lazer = shooter != null ? PlayerCombat.GetLazer(shooter) : null;
+        sb.AppendLine("- Shooter: " + NameOf(db, p.EquippedShooter) + LevelOf(shooter) + (lazer != null ? " (" + lazer.displayName + ")" : ""));
+        sb.AppendLine("- Melee: " + NameOf(db, p.EquippedMelee) + LevelOf(db != null ? db.Get<MeleeData>(p.EquippedMelee) : null));
+        sb.AppendLine("- Special: " + NameOf(db, p.EquippedSpecial) + LevelOf(db != null ? db.Get<SpecialData>(p.EquippedSpecial) : null));
         sb.AppendLine();
 
         sb.AppendLine("<b>Owned Weapons</b>");
@@ -134,6 +136,12 @@ public class ReadWritePlayerProfile : MonoBehaviour
                 names.Add(w.displayName);
         }
         return names;
+    }
+
+    // " - Level 2", or nothing if there's no weapon
+    string LevelOf(WeaponData weapon)
+    {
+        return weapon != null ? " - Level " + ProfileManager.GetLevel(weapon) : "";
     }
 
     string NameOf(ItemDatabase db, string id)

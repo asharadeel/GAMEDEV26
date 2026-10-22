@@ -1,10 +1,10 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
-//              tokens, owned items and current inventory.
+//              tokens, owned items, item levels and current inventory.
 // ============================================================
 
 using System.Collections.Generic;
@@ -21,6 +21,14 @@ public class CurrentInventory
     public string melee = "punch";
     public string special = "";                                 // none yet
     public List<string> consumables = new List<string>();      // food/drink slots, "" = empty
+}
+
+// An owned item's upgrade level (items not listed are level 1)
+[System.Serializable]
+public class ItemLevel
+{
+    public string id;
+    public int level = 1;
 }
 
 // Add new stats here: a private [SerializeField] field + a public property.
@@ -49,6 +57,7 @@ public class PlayerProfile
 
     // Everything bought (items ticked "unlocked" in their asset don't need to be here)
     [SerializeField] private List<string> ownedItems = new List<string>();
+    [SerializeField] private List<ItemLevel> itemLevels = new List<ItemLevel>();
 
     // What's equipped / carried right now
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
@@ -182,6 +191,38 @@ public class PlayerProfile
     {
         if (!HasBought(itemId))
             ownedItems.Add(itemId);
+    }
+
+    // Refunded: no longer owned and back to level 1
+    public void RemoveOwned(string itemId)
+    {
+        ownedItems.Remove(itemId);
+        itemLevels.RemoveAll(l => l.id == itemId);
+    }
+
+    // ---- Item levels ----
+
+    public int GetItemLevel(string itemId)
+    {
+        foreach (ItemLevel l in itemLevels)
+        {
+            if (l.id == itemId)
+                return l.level;
+        }
+        return 1;
+    }
+
+    public void SetItemLevel(string itemId, int level)
+    {
+        foreach (ItemLevel l in itemLevels)
+        {
+            if (l.id == itemId)
+            {
+                l.level = level;
+                return;
+            }
+        }
+        itemLevels.Add(new ItemLevel { id = itemId, level = level });
     }
 
     // ---- Current inventory ----

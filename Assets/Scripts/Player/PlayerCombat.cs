@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       PlayerCombat
-// Version:     1.6
+// Version:     1.7
 // Written by:  Ashar
-// Description: Aiming, weapon slots and attacking.
+// Description: Aiming, weapon slots and attacking. Each weapon
+//              uses the stats of its current upgrade level.
 // ============================================================
 
 using UnityEngine;
@@ -64,7 +65,7 @@ public class PlayerCombat : MonoBehaviour
 
         if (p.SelectedWeapon == 0)
         {
-            // The gun decides which lazers are allowed, the lazer decides the shot
+            // The gun's level decides which lazer it fires, the lazer decides the shot
             LazerData lazer = GetLazer(db.Get<ShooterData>(p.EquippedShooter));
             if (lazer == null)
                 return;
@@ -78,8 +79,9 @@ public class PlayerCombat : MonoBehaviour
             if (!ProfileManager.Owns(melee))
                 return;
 
-            nextAttackTime = Time.time + 1f / melee.fireRate;
-            Swing(melee);
+            MeleeLevel m = melee.AtLevel(ProfileManager.GetLevel(melee));
+            nextAttackTime = Time.time + 1f / m.fireRate;
+            Swing(m);
         }
         else
         {
@@ -87,27 +89,18 @@ public class PlayerCombat : MonoBehaviour
             if (!ProfileManager.Owns(special))
                 return;
 
-            nextAttackTime = Time.time + 1f / special.fireRate;
-            Fire(special.model, special.size, special.rotationOffset, special.speed, special.damage, special.distance, special.radius);
+            SpecialLevel s = special.AtLevel(ProfileManager.GetLevel(special));
+            nextAttackTime = Time.time + 1f / s.fireRate;
+            Fire(s.model, s.size, s.rotationOffset, s.speed, s.damage, s.distance, s.radius);
         }
     }
 
-    // The equipped lazer if this gun can use it and it's owned, otherwise the first owned lazer the gun has
-    public LazerData GetLazer(ShooterData shooter)
+    // The lazer for the gun's current level (null if the gun isn't owned)
+    public static LazerData GetLazer(ShooterData shooter)
     {
         if (!ProfileManager.Owns(shooter))
             return null;
-
-        LazerData equipped = ItemDatabase.Instance.Get<LazerData>(stats.Profile.EquippedLazer);
-        if (shooter.lazers.Contains(equipped) && ProfileManager.Owns(equipped))
-            return equipped;
-
-        foreach (LazerData lazer in shooter.lazers)
-        {
-            if (ProfileManager.Owns(lazer))
-                return lazer;
-        }
-        return null;
+        return shooter.LazerAtLevel(ProfileManager.GetLevel(shooter));
     }
 
     void Fire(GameObject model, float size, Vector3 rotationOffset, float speed, float damage, float distance, float radius)
@@ -116,7 +109,7 @@ public class PlayerCombat : MonoBehaviour
         Projectile.Spawn(model, spawnPos, aimDirection, size, rotationOffset, speed, damage, distance, radius, false);
     }
 
-    void Swing(MeleeData melee)
+    void Swing(MeleeLevel melee)
     {
         Vector3 centre = transform.position + aimDirection * (PlayerRadius() + melee.radius * 0.5f);
 
