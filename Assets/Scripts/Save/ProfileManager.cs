@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       ProfileManager
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
+// Updated by:  Ali (v1.6: coins, shooter upgrade bars)
 // Description: The current player profile (one of 3 save slots),
 //              plus create/edit/delete for the slots and buy/equip/
 //              upgrade/refund helpers.
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // The current player profile, usable from any script in any scene:
-//   ProfileManager.Profile.Tokens += 50;
+//   ProfileManager.Profile.Coins += 50;
 //   ProfileManager.TryBuyWeapon(someWeapon);
 // There are 3 slots, saved as profile_1.json to profile_3.json. The Main Menu
 // picks one with LoadSlot. If a scene is played without picking one (testing
@@ -67,7 +68,7 @@ public static class ProfileManager
             SaveSystem.Save(FileName(currentSlot), profile);
     }
 
-    // Resets progress (stats, tokens, items) but keeps the name, passkey and colour
+    // Resets progress (stats, coins, items) but keeps the name, passkey and colour
     public static void Delete()
     {
         PlayerProfile fresh = new PlayerProfile();
@@ -154,7 +155,7 @@ public static class ProfileManager
         if (!CanAfford(weapon))
             return false;
 
-        Profile.Tokens -= weapon.tokenCost;
+        Profile.Coins -= weapon.coinCost;
         Profile.AddOwned(weapon.id);
         return true;
     }
@@ -171,7 +172,7 @@ public static class ProfileManager
         if (!CanRefund(weapon))
             return false;
 
-        Profile.Tokens += weapon.RefundValue;
+        Profile.Coins += weapon.RefundValue;
         Profile.RemoveOwned(weapon.id);
         return true;
     }
@@ -196,11 +197,47 @@ public static class ProfileManager
 
         int next = GetLevel(weapon) + 1;
         int cost = weapon.UpgradeCost(next);
-        if (Profile.Tokens < cost)
+        if (Profile.Coins < cost)
             return false;
 
-        Profile.Tokens -= cost;
+        Profile.Coins -= cost;
         Profile.SetItemLevel(weapon.id, next);
+        return true;
+    }
+
+    // ---- Shooter upgrade bars ----
+
+    // How many times a shooter's bar has been upgraded (0 to its max)
+    public static int GetLevel(ShooterData shooter, ShooterStat stat)
+    {
+        if (shooter == null)
+            return 0;
+        return Mathf.Clamp(Profile.GetShooterLevel(shooter.id, stat), 0, shooter.MaxLevel(stat));
+    }
+
+    // A stat with the bought upgrades, e.g. GetStat(raygun, ShooterStat.Damage)
+    public static float GetStat(ShooterData shooter, ShooterStat stat)
+    {
+        return shooter.Value(stat, GetLevel(shooter, stat));
+    }
+
+    public static bool CanUpgrade(ShooterData shooter, ShooterStat stat)
+    {
+        return Owns(shooter) && GetLevel(shooter, stat) < shooter.MaxLevel(stat);
+    }
+
+    public static bool TryUpgrade(ShooterData shooter, ShooterStat stat)
+    {
+        if (!CanUpgrade(shooter, stat))
+            return false;
+
+        int next = GetLevel(shooter, stat) + 1;
+        int cost = shooter.UpgradeCost(stat, next);
+        if (Profile.Coins < cost)
+            return false;
+
+        Profile.Coins -= cost;
+        Profile.SetShooterLevel(shooter.id, stat, next);
         return true;
     }
 
@@ -213,10 +250,10 @@ public static class ProfileManager
         return false;
     }
 
-    // Enough tokens and a high enough level
+    // Enough coins and a high enough level
     public static bool CanAfford(ItemData item)
     {
-        return item != null && Profile.Level >= item.levelRequired && Profile.Tokens >= item.tokenCost;
+        return item != null && Profile.Level >= item.levelRequired && Profile.Coins >= item.coinCost;
     }
 
     // Every owned item of a type, e.g. GetOwned<LazerData>() for a "pick your lazer" menu
@@ -253,7 +290,7 @@ public static class ProfileManager
         if (!Profile.AddToInventory(item.id))
             return false; // no free slot
 
-        Profile.Tokens -= item.tokenCost;
+        Profile.Coins -= item.coinCost;
         return true;
     }
 
@@ -263,16 +300,16 @@ public static class ProfileManager
         if (item == null || !Profile.RemoveFromInventory(item.id))
             return false;
 
-        Profile.Tokens += item.RefundValue;
+        Profile.Coins += item.RefundValue;
         return true;
     }
 
-    public static bool TryBuyInventorySlot(int tokenCost)
+    public static bool TryBuyInventorySlot(int coinCost)
     {
-        if (Profile.InventorySlots >= PlayerProfile.MaxInventorySlots || Profile.Tokens < tokenCost)
+        if (Profile.InventorySlots >= PlayerProfile.MaxInventorySlots || Profile.Coins < coinCost)
             return false;
 
-        Profile.Tokens -= tokenCost;
+        Profile.Coins -= coinCost;
         Profile.InventorySlots++;
         return true;
     }

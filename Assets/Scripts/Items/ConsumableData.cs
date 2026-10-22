@@ -22,6 +22,6 @@ public class ConsumableData : ItemData
     // Half the price, rounded up
     public int RefundValue
     {
-        get { return Mathf.CeilToInt(tokenCost / 2f); }
+        get { return Mathf.CeilToInt(coinCost / 2f); }
     }
 }

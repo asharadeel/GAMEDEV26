@@ -1,12 +1,13 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.9
+// Version:     2.0
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
+//              Ali (v2.0: coins, shooter upgrade bars)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
-//              tokens, owned items, item levels, current inventory
-//              and portal progress.
+//              coins, owned items, item levels, shooter upgrades,
+//              current inventory and portal progress.
 // ============================================================
 
 using System.Collections.Generic;
@@ -33,6 +34,42 @@ public class ItemLevel
     public int level = 1;
 }
 
+// A shooter's upgrade bars, 0 = not upgraded (shooters not listed have nothing upgraded)
+[System.Serializable]
+public class ShooterLevels
+{
+    public string id;
+    public int lazer;        // 0 = the gun's 1st lazer, 1 = 2nd...
+    public int damage;
+    public int fireRate;
+    public int bulletSpeed;
+    public int reloadTime;
+
+    public int Get(ShooterStat stat)
+    {
+        switch (stat)
+        {
+            case ShooterStat.Lazer: return lazer;
+            case ShooterStat.Damage: return damage;
+            case ShooterStat.FireRate: return fireRate;
+            case ShooterStat.BulletSpeed: return bulletSpeed;
+            default: return reloadTime;
+        }
+    }
+
+    public void Set(ShooterStat stat, int level)
+    {
+        switch (stat)
+        {
+            case ShooterStat.Lazer: lazer = level; break;
+            case ShooterStat.Damage: damage = level; break;
+            case ShooterStat.FireRate: fireRate = level; break;
+            case ShooterStat.BulletSpeed: bulletSpeed = level; break;
+            default: reloadTime = level; break;
+        }
+    }
+}
+
 // Add new stats here: a private [SerializeField] field + a public property.
 // Items are stored by id only; their stats live in the item assets.
 [System.Serializable]
@@ -49,7 +86,7 @@ public class PlayerProfile
     [SerializeField] private string createdAt = "";   // e.g. "22/10/2026 14:05"
 
     [SerializeField] private int level = 1;
-    [SerializeField] private int tokens = 150;   // starting tokens for a new profile
+    [SerializeField] private int tokens = 150;   // coins, starting amount for a new profile (still called tokens in the save so old saves keep their balance)
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 100f;
@@ -60,6 +97,7 @@ public class PlayerProfile
     // Everything bought (items ticked "unlocked" in their asset don't need to be here)
     [SerializeField] private List<string> ownedItems = new List<string>();
     [SerializeField] private List<ItemLevel> itemLevels = new List<ItemLevel>();
+    [SerializeField] private List<ShooterLevels> shooterLevels = new List<ShooterLevels>();
 
     // What's equipped / carried right now
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
@@ -150,7 +188,7 @@ public class PlayerProfile
         set { level = Mathf.Max(1, value); }
     }
 
-    public int Tokens
+    public int Coins
     {
         get { return tokens; }
         set { tokens = Mathf.Max(0, value); }
@@ -212,11 +250,12 @@ public class PlayerProfile
             ownedItems.Add(itemId);
     }
 
-    // Refunded: no longer owned and back to level 1
+    // Refunded: no longer owned and back to level 1 (shooters lose their upgrades)
     public void RemoveOwned(string itemId)
     {
         ownedItems.Remove(itemId);
         itemLevels.RemoveAll(l => l.id == itemId);
+        shooterLevels.RemoveAll(l => l.id == itemId);
     }
 
     // ---- Item levels ----
@@ -242,6 +281,34 @@ public class PlayerProfile
             }
         }
         itemLevels.Add(new ItemLevel { id = itemId, level = level });
+    }
+
+    // ---- Shooter upgrades ----
+
+    // How many times one of a shooter's bars has been upgraded (0 = not yet)
+    public int GetShooterLevel(string shooterId, ShooterStat stat)
+    {
+        foreach (ShooterLevels l in shooterLevels)
+        {
+            if (l.id == shooterId)
+                return l.Get(stat);
+        }
+        return 0;
+    }
+
+    public void SetShooterLevel(string shooterId, ShooterStat stat, int level)
+    {
+        foreach (ShooterLevels l in shooterLevels)
+        {
+            if (l.id == shooterId)
+            {
+                l.Set(stat, level);
+                return;
+            }
+        }
+        ShooterLevels added = new ShooterLevels { id = shooterId };
+        added.Set(stat, level);
+        shooterLevels.Add(added);
     }
 
     // ---- Current inventory ----

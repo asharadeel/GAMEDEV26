@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       PlayerHUD
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
-// Description: Keeps the health/stamina/hunger/thirst bars and objectives up to date.
+// Updated by:  Ali (v1.2: ammo counter)
+// Description: Keeps the health/stamina/hunger/thirst bars, ammo and objectives up to date.
 //              H hides/shows the whole player UI.
 // ============================================================
 
@@ -18,6 +19,10 @@ public class PlayerHUD : MonoBehaviour
     public Slider staminaSlider;
     public Slider hungerSlider;
     public Slider thirstSlider;
+
+    [Header("Ammo")]
+    public PlayerCombat combat;
+    public Text ammoText;        // "12 / 20" or "Reloading..." while the shooter is selected
 
     [Header("Hide UI")]
     public KeyCode hideKey = KeyCode.H;
@@ -50,6 +55,9 @@ public class PlayerHUD : MonoBehaviour
         SetBar(staminaSlider, p.Stamina, PlayerProfile.MaxStat);
         SetBar(hungerSlider, p.Hunger, PlayerProfile.MaxStat);
         SetBar(thirstSlider, p.Thirst, PlayerProfile.MaxStat);
+
+        if (ammoText != null && combat != null)
+            ammoText.text = combat.AmmoLabel();
     }
 
     public void SetVisible(bool visible)

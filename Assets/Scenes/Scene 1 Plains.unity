@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -225,6 +225,101 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1844654255}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &60976167
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 60976168}
+  - component: {fileID: 60976171}
+  - component: {fileID: 60976170}
+  - component: {fileID: 60976169}
+  m_Layer: 0
+  m_Name: AmmoCounter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &60976168
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60976167}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2082815049}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -30, y: 100}
+  m_SizeDelta: {x: 320, y: 60}
+  m_Pivot: {x: 1, y: 0}
+--- !u!114 &60976169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60976167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
+--- !u!114 &60976170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60976167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 4e9445fd9bddcaf47b145e7d526aa5a2, type: 3}
+    m_FontSize: 40
+    m_FontStyle: 0
+    m_BestFit: 1
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 5
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 20 / 20
+--- !u!222 &60976171
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60976167}
+  m_CullTransparentMesh: 1
 --- !u!1 &69498521
 GameObject:
   m_ObjectHideFlags: 0
@@ -3880,7 +3975,7 @@ MonoBehaviour:
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 60
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4466,6 +4561,7 @@ MonoBehaviour:
   maxHealth: 50
   crystal: {fileID: 1812015181}
   beam: {fileID: 396305188}
+  healthBarPrefab: {fileID: 0}
   boss: {fileID: 0}
   broken: 0
 --- !u!120 &396305188
@@ -4667,6 +4763,7 @@ MonoBehaviour:
   maxHealth: 50
   crystal: {fileID: 973092376}
   beam: {fileID: 402490126}
+  healthBarPrefab: {fileID: 0}
   boss: {fileID: 0}
   broken: 0
 --- !u!120 &402490126
@@ -16121,10 +16218,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 963194227}
   attackKey: 120
+  reloadKey: 114
   aimArrow: {fileID: 1478733528}
   arrowDistance: 1.6
   arrowHeight: -0.9
   arrowSpin: 0
+  fistColour: {r: 0.85, g: 0.7, b: 0.55, a: 1}
 --- !u!23 &1283364967
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18631,6 +18730,8 @@ MonoBehaviour:
     hunger: 100
     thirst: 100
     ownedItems: []
+    itemLevels: []
+    shooterLevels: []
     currentInventory:
       shooter: em_raygun
       lazer: lazer
@@ -18639,6 +18740,8 @@ MonoBehaviour:
       consumables: []
     selectedWeapon: 0
     inventorySlots: 2
+    hasPortalPiece: 0
+    portal2Open: 0
 --- !u!23 &1454258844
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18734,6 +18837,7 @@ MonoBehaviour:
   maxHealth: 50
   crystal: {fileID: 632948785}
   beam: {fileID: 1460302916}
+  healthBarPrefab: {fileID: 0}
   boss: {fileID: 0}
   broken: 0
 --- !u!120 &1460302916
@@ -20048,6 +20152,7 @@ MonoBehaviour:
   maxHealth: 50
   crystal: {fileID: 839916718}
   beam: {fileID: 1544932096}
+  healthBarPrefab: {fileID: 0}
   boss: {fileID: 0}
   broken: 0
 --- !u!120 &1544932096
@@ -22717,6 +22822,7 @@ MonoBehaviour:
   maxHealth: 50
   crystal: {fileID: 1653693024}
   beam: {fileID: 1723697686}
+  healthBarPrefab: {fileID: 0}
   boss: {fileID: 0}
   broken: 0
 --- !u!120 &1723697686
@@ -22882,6 +22988,7 @@ MonoBehaviour:
   spinSpeed: 90
   bobHeight: 0.3
   bobSpeed: 2
+  pickupRadius: 2.5
 --- !u!4 &1724908642
 Transform:
   m_ObjectHideFlags: 0
@@ -24608,6 +24715,7 @@ MonoBehaviour:
   maxHealth: 50
   crystal: {fileID: 60523982}
   beam: {fileID: 1844654254}
+  healthBarPrefab: {fileID: 0}
   boss: {fileID: 0}
   broken: 0
 --- !u!120 &1844654254
@@ -26308,23 +26416,26 @@ MonoBehaviour:
     Q
     - Cycle weapon
 
+    R - Reload
+
     4-9, 0 - Eat / drink from inventory
 
-    I - Inventory
+    I
+    - Inventory
 
-    J
-    - Achievements
+    J - Achievements
 
     E / Click prompt - Use door
 
-    Right Click + drag - Rotate
-    camera
+    Right
+    Click + drag - Rotate camera
 
     Scroll - Zoom
 
     H - Hide / show UI
 
-    Esc - Menu'
+    Esc
+    - Menu'
 --- !u!23 &1969465732
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -28037,6 +28148,8 @@ MonoBehaviour:
   staminaSlider: {fileID: 1277022927}
   hungerSlider: {fileID: 1930003948}
   thirstSlider: {fileID: 1072198289}
+  combat: {fileID: 1281784802}
+  ammoText: {fileID: 60976170}
   hideKey: 104
   objectivesText: {fileID: 1616843656}
   objectives:
@@ -28459,6 +28572,7 @@ RectTransform:
   - {fileID: 1211256532}
   - {fileID: 1680015955}
   - {fileID: 1686087736}
+  - {fileID: 60976168}
   m_Father: {fileID: 1071355311}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

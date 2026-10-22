@@ -1,10 +1,12 @@
 // ============================================================
 // Title:       ShopPopups
-// Version:     1.2
+// Version:     1.3
 // Written by:  Ashar
+// Updated by:  Ali (v1.3: Buy pop-up also buys shooter upgrades)
 // Description: The shop's Buy, Upgrade and Refund pop-ups, shared
-//              by every ShopItemCard (weapons) and ConsumableCard
-//              (food/drink: Buy and Refund). Each pop-up is a
+//              by every ShopItemCard (weapons), ConsumableCard
+//              (food/drink: Buy and Refund) and the bars in
+//              ShooterUpgradeUI (Buy). Each pop-up is a
 //              GeneralPopUpWindow copy:
 //              Buy:     "Buy <item>",               button "Buy: <cost>"
 //              Upgrade: "Upgrade to level <n>",     button "Cost: <cost>"
@@ -23,7 +25,7 @@ public class ShopPopup
     public Text title;
     public Button action;
     public Text actionLabel;
-    public Text message;        // "You have 120 tokens" / "Not enough tokens"
+    public Text message;        // "You have 120 coins" / "Not enough coins"
 }
 
 public class ShopPopups : MonoBehaviour
@@ -37,6 +39,8 @@ public class ShopPopups : MonoBehaviour
 
     private ShopItemCard card;           // the weapon card that opened the pop-up
     private ConsumableCard consumable;   // or the food/drink card
+    private ShooterData shooter;         // or a shooter upgrade bar (ShooterUpgradeUI)
+    private ShooterStat stat;
 
     void Awake()
     {
@@ -52,14 +56,27 @@ public class ShopPopups : MonoBehaviour
     {
         card = from;
         consumable = null;
-        Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.tokenCost);
+        shooter = null;
+        Open(buy, "Buy " + card.item.displayName, "Buy: " + card.item.coinCost);
     }
 
     public void OpenBuy(ConsumableCard from)
     {
         consumable = from;
         card = null;
-        Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.tokenCost);
+        shooter = null;
+        Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.coinCost);
+    }
+
+    // The next upgrade on one of a shooter's bars, e.g. "Buy Damage (10 → 13)"
+    public void OpenBuy(ShooterData gun, ShooterStat bar, string upgradeName)
+    {
+        shooter = gun;
+        stat = bar;
+        card = null;
+        consumable = null;
+        int cost = gun.UpgradeCost(bar, ProfileManager.GetLevel(gun, bar) + 1);
+        Open(buy, "Buy " + upgradeName, "Buy: " + cost);
     }
 
     public void OpenUpgrade(ShopItemCard from)
@@ -87,7 +104,7 @@ public class ShopPopups : MonoBehaviour
     {
         popup.title.text = title;
         popup.actionLabel.text = action;
-        popup.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+        popup.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
         popup.window.SetActive(true);
     }
 
@@ -95,15 +112,26 @@ public class ShopPopups : MonoBehaviour
 
     void Buy()
     {
+        if (shooter != null)
+        {
+            if (!ProfileManager.TryUpgrade(shooter, stat))
+            {
+                buy.message.text = "Not enough coins";
+                return;
+            }
+            Done(buy);
+            return;
+        }
+
         ItemData item = consumable != null ? (ItemData)consumable.item : card.item;
         if (ProfileManager.Profile.Level < item.levelRequired)
         {
             buy.message.text = "Needs player level " + item.levelRequired;
             return;
         }
-        if (ProfileManager.Profile.Tokens < item.tokenCost)
+        if (ProfileManager.Profile.Coins < item.coinCost)
         {
-            buy.message.text = "Not enough tokens";
+            buy.message.text = "Not enough coins";
             return;
         }
 
@@ -119,7 +147,7 @@ public class ShopPopups : MonoBehaviour
         // Food/drink: stay open to buy more, just update the count
         if (consumable != null)
         {
-            buy.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+            buy.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
             ConsumableCard.RefreshAll();
             return;
         }
@@ -130,7 +158,7 @@ public class ShopPopups : MonoBehaviour
     {
         if (!ProfileManager.TryUpgrade(card.item))
         {
-            upgrade.message.text = "Not enough tokens";
+            upgrade.message.text = "Not enough coins";
             return;
         }
         Done(upgrade);
@@ -150,7 +178,7 @@ public class ShopPopups : MonoBehaviour
             if (ProfileManager.Profile.CountInInventory(consumable.item.id) == 0)
                 Done(refund);
             else
-                refund.message.text = "You have " + ProfileManager.Profile.Tokens + " tokens";
+                refund.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
             return;
         }
 
@@ -167,5 +195,7 @@ public class ShopPopups : MonoBehaviour
         popup.window.SetActive(false);
         ShopItemCard.RefreshAll();
         ConsumableCard.RefreshAll();
+        if (ShooterUpgradeUI.Instance != null)
+            ShooterUpgradeUI.Instance.Refresh();
     }
 }

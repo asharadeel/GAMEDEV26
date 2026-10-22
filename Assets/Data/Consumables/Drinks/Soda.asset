@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: soda
   displayName: Soda
-  tokenCost: 15
+  coinCost: 15
   levelRequired: 1
   hunger: 0
   thirst: 25
