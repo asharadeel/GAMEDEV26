@@ -28,6 +28,7 @@ All project content lives in `Assets/`:
   - `Achievements/` - achievement list, progress tracking, panel and popup
   - `Editor/` - editor-only tools (not part of the game)
   - `Generic/` - small reusable scripts that can go on any object
+  - `Hub/` - scripts only used in the Hub (Library)
   - `Items/` - item base class, consumables, item database
   - `Loot/` - mob drops, pickups and floating text
   - `Mobs/` - mob profiles, mobs, spawners
@@ -258,6 +259,12 @@ Loot (each rolled separately when the mob dies):
 | Thirsty Work | Drink 5 drinks |
 | Hungry Hunter | Eat 5 food items |
 | Bag Full / Pack Mule | Walk over 1 / 5 pickups with a full inventory |
+
+## Scripts/Hub/
+- `ReadWritePlayerProfile.cs` - for the Library. Writes the saved profile out as text: level, tokens, health/stamina/hunger/thirst, equipped gear, owned weapons, inventory, and every achievement with progress (e.g. `[ ] Slayer - Kill 10 mobs (7/10)`)
+  - Put it on the Library's Frame (e.g. a `GeneralTextWindow`), drag `Content/Title1` into `Title Text` and `Content/Context` into `Body Text`
+  - Refreshes every time the Library opens
+  - Title = player name, body = stats. Profiles don't have a name yet, so for now it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/" (fill in `GetPlayerName()` when names exist)
 
 ## Scripts/World/
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away

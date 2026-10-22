@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       MobsLeftUI
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
 // Description: "Mobs Left" tracker at the top of the screen.
 //              Adds up every spawner in the scene and shows how
@@ -20,7 +20,7 @@ public class MobsLeftUI : MonoBehaviour
 
     void Start()
     {
-        spawners = FindObjectsOfType<MobSpawner>();
+        spawners = FindObjectsByType<MobSpawner>(FindObjectsSortMode.None);
     }
 
     void Update()
