@@ -24,15 +24,15 @@ public abstract class WeaponData : ItemData
     public int UpgradeCost(int toLevel)
     {
         if (toLevel == 2)
-            return Mathf.CeilToInt(tokenCost * 0.5f);
+            return Mathf.CeilToInt(coinCost * 0.5f);
         if (toLevel == 3)
-            return Mathf.CeilToInt(tokenCost * 1.5f);
+            return Mathf.CeilToInt(coinCost * 1.5f);
         return 0;
     }
 
-    // A third of the price, rounded up. Upgrades aren't refunded
+    // A third of the price, rounded up. Always the same: upgrades (levels or shooter bars) never change it and aren't refunded
     public int RefundValue
     {
-        get { return Mathf.CeilToInt(tokenCost / 3f); }
+        get { return Mathf.CeilToInt(coinCost / 3f); }
     }
 }

@@ -1,7 +1,9 @@
 // ============================================================
 // Title:       PlayerController
-// Version:     1.6
+// Version:     1.7
 // Written by:  Ashar
+// Updated by:  cthullu96 (v1.7: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: WASD movement, jump, sprint and the follow camera.
 //              Hold right click + drag to spin the camera 360,
 //              scroll to zoom. WASD moves relative to the camera.
@@ -73,15 +75,16 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // WASD / arrow keys: -1 to 1 on each axis
-        float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxisRaw("Vertical");
+        // WASD / arrow keys / left stick: -1 to 1 on each axis
+        Vector2 move = GameInput.Move.ReadValue<Vector2>();
+        float x = move.x;
+        float z = move.y;
 
         // Turn the input to match the camera, so W always moves "up" the screen
         input = Quaternion.Euler(0f, cameraSettings.yaw, 0f) * new Vector3(x, 0f, z).normalized;
-        sprintHeld = Input.GetKey(KeyCode.LeftShift);
+        sprintHeld = GameInput.Sprint.IsPressed();
 
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
+        if (GameInput.Jump.WasPressedThisFrame() && IsGrounded())
             rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
 
         CameraInput();
@@ -92,11 +95,15 @@ public class PlayerController : MonoBehaviour
         CameraSettings c = cameraSettings;
 
         // Right click + drag left/right spins the camera all the way round
-        if (Input.GetMouseButton(1))
-            c.yaw = Mathf.Repeat(c.yaw + Input.GetAxis("Mouse X") * c.rotateSpeed, 360f);
+        // the 0.1 matches how fast the old mouse x axis was, so rotate speed feels the same
+        if (GameInput.RotateCamera.IsPressed())
+            c.yaw = Mathf.Repeat(c.yaw + GameInput.Look.ReadValue<Vector2>().x * 0.1f * c.rotateSpeed, 360f);
 
         // Scroll up zooms in, scroll down zooms out
-        float scroll = Input.mouseScrollDelta.y;
+        // one zoom step per notch, the raw scroll value is much bigger than 1 on some mice
+        float scroll = GameInput.Zoom.ReadValue<Vector2>().y;
+        if (scroll != 0f)
+            scroll = Mathf.Sign(scroll);
         if (scroll != 0f)
             c.orthographicSize = Mathf.Clamp(c.orthographicSize - scroll * c.zoomStep, c.minZoom, c.maxZoom);
     }

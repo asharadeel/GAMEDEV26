@@ -4,7 +4,7 @@
 // Written by:  Ashar
 // Description: For the Library in the Hub. Reads the saved player
 //              profile and achievements and writes them out as text
-//              so the player can track their progress: level, tokens,
+//              so the player can track their progress: level, coins,
 //              stats, equipped gear, owned items, inventory and
 //              achievements. Refreshes every time it's shown.
 //              Title = the player's name, body = their stats.
@@ -60,7 +60,7 @@ public class ReadWritePlayerProfile : MonoBehaviour
         StringBuilder sb = new StringBuilder();
 
         sb.AppendLine("<b>Level</b> " + p.Level);
-        sb.AppendLine("<b>Tokens</b> " + p.Tokens);
+        sb.AppendLine("<b>Coins</b> " + p.Coins);
         sb.AppendLine();
 
         sb.AppendLine("<b>Stats</b>");
@@ -138,10 +138,10 @@ public class ReadWritePlayerProfile : MonoBehaviour
         return names;
     }
 
-    // " - Level 2", or nothing if there's no weapon
+    // " - Level 2", or nothing if there's no weapon (shooters have upgrade bars instead of a level)
     string LevelOf(WeaponData weapon)
     {
-        return weapon != null ? " - Level " + ProfileManager.GetLevel(weapon) : "";
+        return weapon != null && !(weapon is ShooterData) ? " - Level " + ProfileManager.GetLevel(weapon) : "";
     }
 
     string NameOf(ItemDatabase db, string id)

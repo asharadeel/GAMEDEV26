@@ -2,7 +2,7 @@
 // Title:       CurrencyChangeButton
 // Version:     1.0
 // Written by:  Ashar
-// Description: Button: adds or takes tokens from the current
+// Description: Button: adds or takes coins from the current
 //              profile. Pick Add or Subtract and the amount.
 //              Subtract doesn't go through if there aren't enough.
 // ============================================================
@@ -10,7 +10,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// Put on a Button. Changes the profile's tokens when clicked.
+// Put on a Button. Changes the profile's coins when clicked.
 [RequireComponent(typeof(Button))]
 public class CurrencyChangeButton : MonoBehaviour
 {
@@ -29,8 +29,8 @@ public class CurrencyChangeButton : MonoBehaviour
         PlayerProfile p = ProfileManager.Profile;
 
         if (mode == Mode.Add)
-            p.Tokens += amount;
-        else if (p.Tokens >= amount)
-            p.Tokens -= amount;
+            p.Coins += amount;
+        else if (p.Coins >= amount)
+            p.Coins -= amount;
     }
 }

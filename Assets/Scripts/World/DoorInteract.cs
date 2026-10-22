@@ -1,13 +1,17 @@
 // ============================================================
 // Title:       DoorInteract
-// Version:     1.0
+// Version:     1.2
 // Written by:  Ashar
+// Updated by:  Ali (v1.1: PlayerNearDoor, so E opens doors instead of using an ability)
+//              cthullu96 (v1.2: input system package)
+//              ai use: input system change written with claude (anthropic), owner cthullu96
 // Description: A door the player can use when close. Shows a ring
 //              on the floor for the radius and an "E / Click"
 //              prompt on screen. Press E or click the prompt to be
 //              moved to the destination.
 // ============================================================
 
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +24,6 @@ public class DoorInteract : MonoBehaviour
     public Transform interactPoint;      // centre of the radius (defaults to this object)
     public float radius = 4f;            // close enough to use the door
     public float showRingWithin = 10f;   // ring appears when this close
-    public KeyCode key = KeyCode.E;
 
     [Header("Visuals")]
     public GameObject prompt;            // on-screen "E / Click" UI
@@ -30,6 +33,15 @@ public class DoorInteract : MonoBehaviour
 
     private Transform player;
     private Camera cam;
+
+    // Doors the player is close enough to use right now
+    private static readonly HashSet<DoorInteract> inRangeDoors = new HashSet<DoorInteract>();
+
+    // True while E would open a door (PlayerAbilities doesn't use the E ability then)
+    public static bool PlayerNearDoor
+    {
+        get { return inRangeDoors.Count > 0; }
+    }
 
     void Start()
     {
@@ -59,6 +71,10 @@ public class DoorInteract : MonoBehaviour
 
         float distance = FlatDistance(player.position, interactPoint.position);
         bool inRange = distance <= radius;
+        if (inRange)
+            inRangeDoors.Add(this);
+        else
+            inRangeDoors.Remove(this);
 
         SetRing(distance <= showRingWithin);
         SetPrompt(inRange);
@@ -70,7 +86,7 @@ public class DoorInteract : MonoBehaviour
         if (prompt != null && cam != null)
             prompt.transform.position = cam.WorldToScreenPoint(interactPoint.position + Vector3.up * promptHeight);
 
-        if (Input.GetKeyDown(key))
+        if (GameInput.Interact.WasPressedThisFrame())
             Enter();
     }
 
@@ -96,6 +112,11 @@ public class DoorInteract : MonoBehaviour
         a.y = 0f;
         b.y = 0f;
         return Vector3.Distance(a, b);
+    }
+
+    void OnDisable()
+    {
+        inRangeDoors.Remove(this);
     }
 
     void SetPrompt(bool visible)

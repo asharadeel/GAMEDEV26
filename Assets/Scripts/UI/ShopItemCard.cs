@@ -1,14 +1,17 @@
 // ============================================================
 // Title:       ShopItemCard
-// Version:     1.0
+// Version:     1.2
 // Written by:  Ashar
+// Updated by:  Ali (v1.1: shooters open the upgrade bars window,
+//              v1.2: every weapon does)
 // Description: One item in the shop (the ShopItemCard prefab).
 //              Drag the item asset into Item. Shows its name and
 //              level, and the buttons that fit:
 //              not owned = Buy, owned = Equip + Refund + Upgrade.
 //              Refund is hidden for starting items and greyed out
-//              while equipped. Upgrade is hidden at max level.
-//              Buy/Upgrade/Refund open the pop-ups in ShopPopups.
+//              while equipped. Buy/Refund open the pop-ups in
+//              ShopPopups, Upgrade opens WeaponUpgradeUI.
+//              Shooters have no level, just upgrade bars.
 // ============================================================
 
 using System.Collections.Generic;
@@ -33,7 +36,7 @@ public class ShopItemCard : MonoBehaviour
     void Awake()
     {
         buyButton.onClick.AddListener(() => ShopPopups.Instance.OpenBuy(this));
-        upgradeButton.onClick.AddListener(() => ShopPopups.Instance.OpenUpgrade(this));
+        upgradeButton.onClick.AddListener(Upgrade);
         refundButton.onClick.AddListener(() => ShopPopups.Instance.OpenRefund(this));
         equipButton.onClick.AddListener(Equip);
     }
@@ -66,16 +69,26 @@ public class ShopItemCard : MonoBehaviour
         bool owned = ProfileManager.Owns(item);
         bool equipped = ProfileManager.IsEquipped(item);
 
-        nameText.text = item.displayName + "\nLevel " + ProfileManager.GetLevel(item);
+        bool shooter = item is ShooterData;
+
+        nameText.text = shooter ? item.displayName : item.displayName + "\nLevel " + ProfileManager.GetLevel(item);
 
         buyButton.gameObject.SetActive(!owned);
         equipButton.gameObject.SetActive(owned);
-        upgradeButton.gameObject.SetActive(ProfileManager.CanUpgrade(item));
+        upgradeButton.gameObject.SetActive(owned);
         refundButton.gameObject.SetActive(owned && !item.unlocked);   // starting items can't be refunded
 
         equipButton.interactable = !equipped;
         equipLabel.text = equipped ? "Equipped" : "Equip";
         refundButton.interactable = !equipped;                        // unequip (equip something else) first
+    }
+
+    void Upgrade()
+    {
+        if (WeaponUpgradeUI.Instance != null)
+            WeaponUpgradeUI.Instance.Open(item);
+        else
+            Debug.LogWarning("No upgrade window in this scene, run Tools > Build Weapon Upgrades");
     }
 
     void Equip()

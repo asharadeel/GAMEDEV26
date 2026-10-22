@@ -86,3 +86,5 @@ crashlytics-build.properties
 *_bak*.hipnc
 
 *.DS_Store
+# visual studio settings for each person's own pc
+.vsconfig

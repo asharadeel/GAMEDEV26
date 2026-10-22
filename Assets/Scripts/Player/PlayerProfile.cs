@@ -1,12 +1,14 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     1.9
+// Version:     2.1
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
+//              Ali (v2.0: coins, shooter upgrade bars,
+//              v2.1: abilities on Q/E and skill tree nodes, no special slot)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
-//              tokens, owned items, item levels, current inventory
-//              and portal progress.
+//              coins, owned items, item levels, shooter upgrades,
+//              skill tree, current inventory and portal progress.
 // ============================================================
 
 using System.Collections.Generic;
@@ -21,7 +23,9 @@ public class CurrentInventory
     public string shooter = "em_raygun";
     public string lazer = "lazer";
     public string melee = "punch";
-    public string special = "";                                 // none yet
+    public string special = "";                                 // no longer used (abilities replaced specials)
+    public string abilityQ = "fire";
+    public string abilityE = "ice";
     public List<string> consumables = new List<string>();      // food/drink slots, "" = empty
 }
 
@@ -31,6 +35,42 @@ public class ItemLevel
 {
     public string id;
     public int level = 1;
+}
+
+// A shooter's upgrade bars, 0 = not upgraded (shooters not listed have nothing upgraded)
+[System.Serializable]
+public class ShooterLevels
+{
+    public string id;
+    public int lazer;        // 0 = the gun's 1st lazer, 1 = 2nd...
+    public int damage;
+    public int fireRate;
+    public int bulletSpeed;
+    public int reloadTime;
+
+    public int Get(ShooterStat stat)
+    {
+        switch (stat)
+        {
+            case ShooterStat.Lazer: return lazer;
+            case ShooterStat.Damage: return damage;
+            case ShooterStat.FireRate: return fireRate;
+            case ShooterStat.BulletSpeed: return bulletSpeed;
+            default: return reloadTime;
+        }
+    }
+
+    public void Set(ShooterStat stat, int level)
+    {
+        switch (stat)
+        {
+            case ShooterStat.Lazer: lazer = level; break;
+            case ShooterStat.Damage: damage = level; break;
+            case ShooterStat.FireRate: fireRate = level; break;
+            case ShooterStat.BulletSpeed: bulletSpeed = level; break;
+            default: reloadTime = level; break;
+        }
+    }
 }
 
 // Add new stats here: a private [SerializeField] field + a public property.
@@ -49,7 +89,7 @@ public class PlayerProfile
     [SerializeField] private string createdAt = "";   // e.g. "22/10/2026 14:05"
 
     [SerializeField] private int level = 1;
-    [SerializeField] private int tokens = 150;   // starting tokens for a new profile
+    [SerializeField] private int tokens = 150;   // coins, starting amount for a new profile (still called tokens in the save so old saves keep their balance)
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 100f;
@@ -60,10 +100,12 @@ public class PlayerProfile
     // Everything bought (items ticked "unlocked" in their asset don't need to be here)
     [SerializeField] private List<string> ownedItems = new List<string>();
     [SerializeField] private List<ItemLevel> itemLevels = new List<ItemLevel>();
+    [SerializeField] private List<ShooterLevels> shooterLevels = new List<ShooterLevels>();
+    [SerializeField] private List<string> skillNodes = new List<string>();   // unlocked skill tree nodes, e.g. "fire.2"
 
     // What's equipped / carried right now
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
-    [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee, 2 special
+    [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee
     [SerializeField] private int inventorySlots = MaxInventorySlots; // usable consumable slots
 
     [SerializeField] private bool hasPortalPiece = false;   // picked up from the level 1 boss
@@ -150,7 +192,7 @@ public class PlayerProfile
         set { level = Mathf.Max(1, value); }
     }
 
-    public int Tokens
+    public int Coins
     {
         get { return tokens; }
         set { tokens = Mathf.Max(0, value); }
@@ -212,11 +254,12 @@ public class PlayerProfile
             ownedItems.Add(itemId);
     }
 
-    // Refunded: no longer owned and back to level 1
+    // Refunded: no longer owned and back to level 1 (shooters lose their upgrades)
     public void RemoveOwned(string itemId)
     {
         ownedItems.Remove(itemId);
         itemLevels.RemoveAll(l => l.id == itemId);
+        shooterLevels.RemoveAll(l => l.id == itemId);
     }
 
     // ---- Item levels ----
@@ -244,6 +287,47 @@ public class PlayerProfile
         itemLevels.Add(new ItemLevel { id = itemId, level = level });
     }
 
+    // ---- Skill tree ----
+
+    public bool HasSkillNode(string nodeId)
+    {
+        return skillNodes.Contains(nodeId);
+    }
+
+    public void AddSkillNode(string nodeId)
+    {
+        if (!HasSkillNode(nodeId))
+            skillNodes.Add(nodeId);
+    }
+
+    // ---- Shooter upgrades ----
+
+    // How many times one of a shooter's bars has been upgraded (0 = not yet)
+    public int GetShooterLevel(string shooterId, ShooterStat stat)
+    {
+        foreach (ShooterLevels l in shooterLevels)
+        {
+            if (l.id == shooterId)
+                return l.Get(stat);
+        }
+        return 0;
+    }
+
+    public void SetShooterLevel(string shooterId, ShooterStat stat, int level)
+    {
+        foreach (ShooterLevels l in shooterLevels)
+        {
+            if (l.id == shooterId)
+            {
+                l.Set(stat, level);
+                return;
+            }
+        }
+        ShooterLevels added = new ShooterLevels { id = shooterId };
+        added.Set(stat, level);
+        shooterLevels.Add(added);
+    }
+
     // ---- Current inventory ----
 
     public CurrentInventory CurrentInventory
@@ -269,6 +353,20 @@ public class PlayerProfile
         set { currentInventory.melee = value; }
     }
 
+    // 0 = Q, 1 = E
+    public string GetAbility(int slot)
+    {
+        return slot == 0 ? currentInventory.abilityQ : currentInventory.abilityE;
+    }
+
+    public void SetAbility(int slot, string abilityId)
+    {
+        if (slot == 0)
+            currentInventory.abilityQ = abilityId;
+        else
+            currentInventory.abilityE = abilityId;
+    }
+
     public string EquippedSpecial
     {
         get { return currentInventory.special; }
@@ -277,8 +375,8 @@ public class PlayerProfile
 
     public int SelectedWeapon
     {
-        get { return selectedWeapon; }
-        set { selectedWeapon = Mathf.Clamp(value, 0, 2); }
+        get { return Mathf.Clamp(selectedWeapon, 0, 1); }   // old saves can still say 2 (the special slot)
+        set { selectedWeapon = Mathf.Clamp(value, 0, 1); }
     }
 
     public int InventorySlots

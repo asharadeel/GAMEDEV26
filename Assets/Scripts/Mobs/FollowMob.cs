@@ -38,7 +38,7 @@ public class FollowMob : Mob
 
         float distance = DistanceToPlayer();
         Vector3 move;
-        float speed = data.moveSpeed;
+        float speed = data.moveSpeed * SpeedMultiplier;
 
         if (distance <= data.chaseRange)
         {
