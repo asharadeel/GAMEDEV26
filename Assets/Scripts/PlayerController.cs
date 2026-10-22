@@ -1,6 +1,6 @@
 // ============================================================
 // Title:       PlayerController
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Description: WASD movement, jump, sprint and the follow camera.
 //              Hold right click + drag to spin the camera 360,
@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour
         public float startZoom = 10f;        // zoom when the game starts
     }
 
+    // True while a menu (OverlayUI) is open: no movement, jumping or camera control
+    public static bool uiEnabled;
+
     [Header("Movement")]
     public float sprintMultiplier = 1.6f;
     public float jumpForce = 5f;
@@ -57,6 +60,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (uiEnabled)
+        {
+            input = Vector3.zero;   // stop where we are
+            sprintHeld = false;
+            return;
+        }
+
         // WASD / arrow keys: -1 to 1 on each axis
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");

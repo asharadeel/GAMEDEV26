@@ -18,6 +18,7 @@ All project content lives in `Assets/`:
 - `Materials/Palette/` - ready-to-use materials: `Colours` (23 flat colours), `Metals`, `Glow` (emissive), `Glass` (see-through), `Surfaces` (wood, stone, brick, ice, lava...)
 - `Materials/` - materials for scene objects. `Level/` has the level materials (Floor, Grass, Path, SpawnPad, TreeTrunk, TreeLeaves, Door, HexFloor, HexWall). Others: (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
 - `Models/` - 3D models and prefabs
+  - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
     - `Spawners/` - `MobSpawner` prefab
@@ -27,6 +28,7 @@ All project content lives in `Assets/`:
   - `Achievements/` - achievement list, progress tracking, panel and popup
   - `Editor/` - editor-only tools (not part of the game)
   - `Generic/` - small reusable scripts that can go on any object
+  - `Hub/` - scripts only used in the Hub (Library)
   - `Items/` - item base class, consumables, item database
   - `Loot/` - mob drops, pickups and floating text
   - `Mobs/` - mob profiles, mobs, spawners
@@ -36,7 +38,10 @@ All project content lives in `Assets/`:
   - `Weapons/` - weapon types and projectiles
   - `World/` - things in the level the player interacts with (doors, hub portals and menu zones)
 - `Textures/` - textures used by materials (empty for now)
-- `UI/` - UI prefabs (`MobHealthBar` - health bar shown above mobs)
+- `UI/` - UI prefabs
+  - `MobHealthBar` - health bar shown above mobs
+  - `GeneralPopUpWindow` - standard pop-up: centred box with a title, one action button and a Close button. Already has `InactiveOnStart` and `OverlayUI`. Use it as a menu's `Frame` for prompts (see UI POLICY in `AUTOMATIONS.md`)
+  - `GeneralTextWindow` - standard full-screen text window: Title bar, scrolling content (heading + body text), Close button. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
 
 # Build Settings
 - Unity version: 2023.1.22f1
@@ -64,6 +69,9 @@ Hub:
 - Right portal: Level 2 locked
 - Left side: Shop, right side: Settings. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `ShopMenu` and `SettingsMenu` are under `Canvas` and are empty
+- `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
+- `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
+- `IntroMenu`, `SettingsMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
 - The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:
@@ -115,6 +123,7 @@ All scripts are in `Assets/Scripts/`.
   - WASD moves the player using its Rigidbody, so walls block it. Movement follows the camera's rotation (W is always up the screen)
   - Space jumps (only when on the ground), Shift sprints while there's stamina
   - Move speed comes from the player profile, `Sprint Multiplier` and `Jump Force` are set here
+  - `uiEnabled` (static) - true while a menu with `OverlayUI` is open, all movement and camera controls stop
   - Right click + drag spins the camera (`Rotate Speed`), scroll zooms Orthographic Size between `Min Zoom` (8) and `Max Zoom` (20) in steps of `Zoom Step` (1), starting at `Start Zoom` (10)
   - `Camera Settings` controls the camera (Camera, Pitch, Yaw, Roll, Distance, Orthographic Size). The camera follows the player and always uses these values, change them here not on the camera
 - `DayNight.cs` - goes on GameController
@@ -191,6 +200,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `OpenElemOnClick.cs` - turns ON every object in its `Elements` list
 - `CloseElemOnClick.cs` - turns OFF every object in its `Elements` list
 - `MobsLeftUI.cs` - on PlayerUI/MobsLeft (top centre): "Mobs Left" with each mob's `shortName` x how many are still to be killed across all spawners (not spawned yet + alive)
+- `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
 - `PlayerHUD.cs` - goes on PlayerUI, keeps the Health/Stamina/Hunger/Thirst sliders in sync and fills the objectives list from `Objectives`. H hides/shows the whole player UI (`Hide Key`)
 
 ## Scripts/Mobs/
@@ -250,10 +260,17 @@ Loot (each rolled separately when the mob dies):
 | Hungry Hunter | Eat 5 food items |
 | Bag Full / Pack Mule | Walk over 1 / 5 pickups with a full inventory |
 
+## Scripts/Hub/
+- `ReadWritePlayerProfile.cs` - for the Library. Writes the saved profile out as text: level, tokens, health/stamina/hunger/thirst, equipped gear, owned weapons, inventory, and every achievement with progress (e.g. `[ ] Slayer - Kill 10 mobs (7/10)`)
+  - Put it on the Library's Frame (e.g. a `GeneralTextWindow`), drag `Content/Title1` into `Title Text` and `Content/Context` into `Body Text`
+  - Refreshes every time the Library opens
+  - Title = player name, body = stats. Profiles don't have a name yet, so for now it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/" (fill in `GetPlayerName()` when names exist)
+
 ## Scripts/World/
-- `MenuZone.cs` - goes on a spot in the hub (shop, settings, intro wall)
-  - When the player walks within `Radius` the `Menu` opens, walking away closes it
-  - `Radius Ring` - circle on the floor, visible within `Show Ring Within`
+- `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
+  - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
+  - The ring always lies flat and matches the radius, even under a rotated or scaled sign
+  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall and Settings signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
   - Walking in loads `Scene Name` (must be in Build Settings)
   - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead
