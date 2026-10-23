@@ -18,7 +18,7 @@ All project content lives in `Assets/`:
 - `Materials/Palette/` - ready-to-use materials: `Colours` (23 flat colours), `Metals`, `Glow` (emissive), `Glass` (see-through), `Surfaces` (wood, stone, brick, ice, lava...)
 - `Materials/` - materials for scene objects. `Level/` has the level materials (Floor, Grass, Path, SpawnPad, TreeTrunk, TreeLeaves, Door, HexFloor, HexWall). Others: (`Baseplate`, `Bullet`, `Gamme Lazer`, `MapWalls`, `Player`, `UV Lazer`, `Wall`)
 - `Models/` - 3D models and prefabs
-  - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
+  - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a white ring (when near) and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
   - `Consumables/` - what dropped food/drink looks like: `Beans` (chrome can, orange label), `WaterBottle` (blue glass bottle, white cap), `Soda` (red can). Set as `model` on each consumable asset
@@ -80,7 +80,10 @@ Hub:
 - Back wall: intro text written on the wall
 - Left portal: Level 1
 - Right portal: Level 2 locked
-- Each portal has a square slot on its inner pillar (**Tools > Add Portal Slots**): Level 1's is purple (open), Level 2's is dark grey. After beating the Level 1 boss and picking up the portal piece, walking up to Level 2 asks to place it (`PlacePiecePrompt`), which turns the slot and the portal purple. Level 2 doesn't exist yet, so the open portal does nothing
+- The 8 Hub lights are set to **Important** so they always render (the quality setting only draws 4 point lights at full quality, which made far ones switch off as you walked)
+- Level 2 is locked: walking up shows "LOCKED" and it stays locked. cthullu96's place-the-piece code (`PortalSlot` on Level2Portal, `PlacePiecePrompt`) is switched off, not deleted
+- Welcome stall (`IntroWall`): closing its window removes the stall for good (saved per profile, `WelcomeSeen`). Done by `HubProgress` on the `IntroMenu` container
+- `ShardPortal`: after you kill the Level 1 boss and pick up its shard (the portal piece) a portal stall like Level 1/2's takes the welcome stall's spot, with a 3x3 `ShardGrid`: dark slots, a white cube per shard collected (1 for now). No interaction yet
 - Left side: Shop, right side: Inventory (it used to be the Library), east wall: Skill Tree. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `StoreUI`, `InventoryMenu`, `SkillTreeMenu` are under `Canvas`
 - `InventoryMenu`: a `GeneralSelectorUI` copy titled "Inventory" with 3 tabs like the shop: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Abilities (Fire, Ice, Lightning). Buttons 4 and 5 are switched off. Each tab's `Viewport/Content` has a heading, a line of text and an `Items` grid (`Grid Layout Group` 300 x 400 cells + `InventoryGrid`). The weapon tabs have `InventoryCard`s (only owned weapons show, Equip / Unequip), the Abilities tab has `AbilityCard`s (Equip Q / Equip E)
@@ -360,9 +363,9 @@ Loot (each rolled separately when the mob dies):
 - `PortalPiece.cs` - spins and bobs the portal piece the boss drops (its `ShowUIonApproach` opens the pop-up). Walking onto it sets `HasPortalPiece` on the profile and saves
 - `PortalSlot.cs` - on the Hub's `Level2Portal`. If the profile has the portal piece, walking up opens `PlacePiecePrompt` instead of the locked pop-up. Place turns the slot and the portal purple and saves `Portal2Open`. There's no Level 2 yet, so the open portal does nothing. Right-click the component for **Give Portal Piece (testing)**
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
-  - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. The red floor ring always shows
+  - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. The white floor ring (`Images/circleborder.png` sprite, as wide as the radius) shows when the player is within `Show Ring Within`
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
-  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + a red floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Inventory signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
+  - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + white floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Inventory signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
   - Walking in loads `Scene Name` (must be in Build Settings)
   - If `Locked`, shows `Locked Message` for `Show Message For` seconds instead

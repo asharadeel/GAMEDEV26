@@ -1,11 +1,12 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     2.3
+// Version:     2.4
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 //              Ali (v2.0: coins, shooter upgrade bars,
 //              v2.1: abilities on Q/E and skill tree nodes, no special slot)
-//              Ashar (v2.2: ore pouch and armour, v2.3: food slots are 4-9, 0 is the armour slot)
+//              Ashar (v2.2: ore pouch and armour, v2.3: food slots are 4-9, 0 is the armour slot,
+//              v2.4: welcome seen, shard count)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              coins, owned items, item levels, shooter upgrades,
@@ -132,6 +133,7 @@ public class PlayerProfile
     //portal progress
     [SerializeField] private bool hasPortalPiece = false;   // picked up from the level 1 boss
     [SerializeField] private bool portal2Open = false;      // placed the piece in the hub's portal 2
+    [SerializeField] private bool welcomeSeen = false;      // closed the hub's welcome window (its stall is gone)
 
     //IDENTITY
 
@@ -197,6 +199,18 @@ public class PlayerProfile
     {
         get { return hasPortalPiece; }
         set { hasPortalPiece = value; }
+    }
+
+    public bool WelcomeSeen
+    {
+        get { return welcomeSeen; }
+        set { welcomeSeen = value; }
+    }
+
+    //shards collected for the hub's shard portal: the piece the level 1 boss drops, once picked up
+    public int ShardCount
+    {
+        get { return hasPortalPiece ? 1 : 0; }
     }
 
     public bool Portal2Open

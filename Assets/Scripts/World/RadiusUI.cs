@@ -1,14 +1,13 @@
 // ============================================================
 // Title:       RadiusUI
-// Version:     2.2
+// Version:     2.1
 // Written by:  cthullu96 (as MenuZone)
 // Updated by:  Ashar (v2.0: renamed to RadiusUI, made reusable as the
 //              Models/ShowUIonApproach prefab, ring always flat and sized.
-//              v2.1: flat marker disc showing where to go,
-//              v2.2: the red floor ring always shows)
+//              v2.1: flat marker disc showing where to go)
 // Description: Shows a UI when the player walks close and hides it
-//              when they walk away. A red ring on the floor
-//              always shows the radius.
+//              when they walk away. A ring on the floor shows the
+//              radius once the player is near.
 //              Easiest use: drop the Models/ShowUIonApproach prefab
 //              next to a sign and drag the UI's Frame into "UI".
 // ============================================================
@@ -23,7 +22,7 @@ public class RadiusUI : MonoBehaviour
     public GameObject ui;
 
     public float radius = 3f;           // how close the player has to be to open it
-    public float showRingWithin = 8f;   // not used any more, the ring always shows (kept for BossRoomBuilder)
+    public float showRingWithin = 8f;   // the floor ring appears when the player is this close
     public GameObject radiusRing;       // circle on the floor (1 unit wide sprite)
     public GameObject marker;           // flat disc in the middle (half the ring's width) showing where to go
 
@@ -37,8 +36,6 @@ public class RadiusUI : MonoBehaviour
             player = p.transform;
 
         SetUpRing();
-        if (radiusRing != null)
-            radiusRing.SetActive(true);   // always on
         SetUpMarker();
 
         if (ui != null)
@@ -56,6 +53,9 @@ public class RadiusUI : MonoBehaviour
         a.y = 0f;
         b.y = 0f;
         float distance = Vector3.Distance(a, b);
+
+        if (radiusRing != null)
+            radiusRing.SetActive(distance <= showRingWithin);
 
         bool inside = distance <= radius;
 
