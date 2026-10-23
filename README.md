@@ -50,7 +50,7 @@ Some code was generated with AI it is declared at the top of each script or here
 
 | Files | Tool | How it was used | Owner |
 |---|---|---|---|
-| `Input/GameInput.cs`, `Editor/RingLine.cs`, `Editor/BossRoomBuilder.cs`, `Editor/PortalSlotBuilder.cs`, `Mobs/BossMob.cs`, `Mobs/BossPillar.cs`, `Mobs/Shockwave.cs`, `World/PortalPiece.cs`, `World/PortalSlot.cs`, `World/HubPortal.cs`, `World/WallHider.cs`, `World/RadiusUI.cs` (started as MenuZone), `Generic/FaceCamera.cs` | Claude (Anthropic) | Helped debug code and give examples of code whcih complete similair tasks | Elias El Harrak Guiou-Guiou |
+| `Input/GameInput.cs`, `Editor/RingLine.cs`, `Editor/BossRoomBuilder.cs`, `Editor/PortalSlotBuilder.cs`, `Mobs/BossMob.cs`, `Mobs/BossPillar.cs`, `Mobs/Shockwave.cs`, `World/PortalPiece.cs`, `World/PortalSlot.cs`, `World/HubPortal.cs`, `World/WallHider.cs`, `World/RadiusUI.cs` (started as MenuZone), `Generic/FaceCamera.cs` | Claude (Anthropic) | Helped debug code and give examples of code which completed similair tasks as a blueprint | Elias El Harrak Guiou-Guiou |
 | Input System changes in `PlayerController`, `PlayerCombat`, `PlayerInventory`, `PlayerHUD`, `EscapeMenu`, `DoorInteract`, `AchievementPanel`, `PlayerAbilities`; punch fist in `PlayerCombat`; portal fields in `PlayerProfile`; Max Alive in `MobSpawner` | Claude (Anthropic) | Edits to existing scripts to check for errors and used to optimise movement mechanics and features | Elias El Harrak Guiou-Guiou |
 
 
