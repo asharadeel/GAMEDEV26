@@ -1,22 +1,25 @@
 // ============================================================
 // Title:       PlayerHUD
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Updated by:  Ali (v1.2: ammo counter, v1.3: Q/E ability cooldowns)
 //              cthullu96 (v1.4: input system package)
 //              ai use: input system change written with claude (anthropic), owner cthullu96
+//              Ashar (v1.5: armour bar above health)
 // Description: Keeps the health/stamina/hunger/thirst bars, ammo, abilities and objectives up to date.
 //              H hides/shows the whole player UI.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Goes on PlayerUI. Keeps the bottom bars in sync with the player profile
-// and fills in the objectives list.
 public class PlayerHUD : MonoBehaviour
 {
     [Header("Bars")]
+    public Slider armorSlider;    //hidden when no armour is worn
+    public Text armorLabel;       //"Armor", or the countdown while the next piece goes on
     public Slider healthSlider;
     public Slider staminaSlider;
     public Slider hungerSlider;
@@ -36,10 +39,12 @@ public class PlayerHUD : MonoBehaviour
     public string[] objectives = { "Explore the plains", "Find food and water", "Survive the night" };
 
     private CanvasGroup group;
+    private PlayerArmor playerArmor;
 
+    //STARTING PROCEDURES
     void Start()
     {
-        // Fade the UI instead of turning it off, so this script keeps listening for H
+        //fade instead of disabling, so H still works
         group = GetComponent<CanvasGroup>();
         if (group == null)
             group = gameObject.AddComponent<CanvasGroup>();
@@ -54,6 +59,7 @@ public class PlayerHUD : MonoBehaviour
 
         PlayerProfile p = ProfileManager.Profile;
 
+        UpdateArmorBar(p);
         SetBar(healthSlider, p.Health, PlayerProfile.MaxStat);
         SetBar(staminaSlider, p.Stamina, PlayerProfile.MaxStat);
         SetBar(hungerSlider, p.Hunger, PlayerProfile.MaxStat);
@@ -65,6 +71,32 @@ public class PlayerHUD : MonoBehaviour
             abilityText.text = abilities.SlotLabel(0) + "\n" + abilities.SlotLabel(1);
     }
 
+    //ARMOUR BAR
+    void UpdateArmorBar(PlayerProfile p)
+    {
+        if (armorSlider == null)
+            return;
+
+        ArmorData armor = ProfileManager.GetEquippedArmor();
+        bool show = armor != null && p.GetArmorCount(armor.id) > 0;
+        armorSlider.gameObject.SetActive(show);
+        if (!show)
+            return;
+
+        if (playerArmor == null)
+            playerArmor = FindFirstObjectByType<PlayerArmor>();
+
+        SetBar(armorSlider, p.ArmorShield, armor.healthBonus);
+        if (armorLabel != null)
+        {
+            if (playerArmor != null && playerArmor.IsReplacing)
+                armorLabel.text = "New armor in " + Mathf.CeilToInt(playerArmor.ReplaceTimeLeft) + "s";
+            else
+                armorLabel.text = armor.displayName + " x" + p.GetArmorCount(armor.id);
+        }
+    }
+
+    //INTERFACE
     public void SetVisible(bool visible)
     {
         group.alpha = visible ? 1f : 0f;
@@ -78,7 +110,7 @@ public class PlayerHUD : MonoBehaviour
             slider.value = value / max;
     }
 
-    // Call this after changing the objectives array from code
+    //OBJECTIVES
     public void RefreshObjectives()
     {
         if (objectivesText == null)

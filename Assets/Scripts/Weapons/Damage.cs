@@ -7,18 +7,20 @@
 //              (e.g. a Mob on the model's root).
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public static class Damage
 {
-    // Damage one thing
+    //SINGLE HIT
     public static void Hit(Collider target, float amount)
     {
         target.SendMessageUpwards("TakeDamage", amount, SendMessageOptions.DontRequireReceiver);
     }
 
-    // Damage everything in a radius once each (a mob made of several shapes only gets hit once)
+    //AREA HIT
+    //multi-collider mobs only get hit once
     public static void HitArea(Vector3 centre, float radius, float amount)
     {
         HashSet<Object> done = new HashSet<Object>();

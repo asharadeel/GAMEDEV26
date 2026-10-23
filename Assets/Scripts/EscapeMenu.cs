@@ -1,21 +1,13 @@
-// ============================================================
-// Title:       EscapeMenu
-// Version:     1.1
-// Written by:  Ashar
-// Updated by:  cthullu96 (v1.1: input system package)
-//              ai use: input system change written with claude (anthropic), owner cthullu96
-// Description: Esc toggles the menu on and off.
-// ============================================================
-
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-// Put on an object that's always on (e.g. the empty EscMenu), and drag the
-// frame into "menu". Esc toggles the frame on/off.
-// To start hidden, add InactiveOnStart to the frame.
+//must sit on an always-on object, not the menu frame itself
 public class EscapeMenu : MonoBehaviour
 {
     public GameObject menu;
 
+    //INPUT
     void Update()
     {
         if (GameInput.Menu.WasPressedThisFrame() && menu != null)

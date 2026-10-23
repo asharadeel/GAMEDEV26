@@ -9,12 +9,15 @@
 //              Counts open overlays, so two menus open at once works.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class OverlayUI : MonoBehaviour
 {
     private static int openCount;   // how many overlays are showing right now
 
+    //OVERLAY COUNT
     void OnEnable()
     {
         openCount++;

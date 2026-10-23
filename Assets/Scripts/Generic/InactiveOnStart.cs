@@ -5,11 +5,13 @@
 // Description: Turns its object off when the scene starts.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-// Put on any object you want turned off when the scene starts.
 public class InactiveOnStart : MonoBehaviour
 {
+    //STARTING PROCEDURES
     void Awake()
     {
         gameObject.SetActive(false);

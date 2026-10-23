@@ -5,6 +5,8 @@
 // Description: Button: loads the chosen scene.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,26 +14,27 @@ using UnityEngine.UI;
 using UnityEditor;
 #endif
 
-// Put on a Button. Loads the chosen scene when clicked.
-// The dropdown lists the scenes in File > Build Settings.
 [RequireComponent(typeof(Button))]
 public class OpenScene : MonoBehaviour
 {
     public string sceneName = "Scene 1 Plains";
 
+    //LISTENERS
     void Awake()
     {
         GetComponent<Button>().onClick.AddListener(Open);
     }
 
+    //LOAD SCENE
     void Open()
     {
+        Debug.Log("Loading scene: " + sceneName);
         SceneManager.LoadScene(sceneName);
     }
 }
 
 #if UNITY_EDITOR
-// Shows sceneName as a dropdown in the Inspector instead of a text box
+//EDITOR - sceneName as a dropdown of the Build Settings scenes
 [CustomEditor(typeof(OpenScene))]
 public class OpenSceneEditor : Editor
 {

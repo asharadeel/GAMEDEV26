@@ -7,21 +7,26 @@
 //              number. Always faces the camera.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MobHealthBar : MonoBehaviour
 {
+    //bar ui
     public Slider slider;
     public Text healthText;
 
     private Camera cam;
 
+    //STARTING PROCEDURES
     void Start()
     {
         cam = Camera.main;
     }
 
+    //UPDATE BAR
     public void Set(float current, float max)
     {
         if (slider != null)
@@ -30,9 +35,9 @@ public class MobHealthBar : MonoBehaviour
             healthText.text = Mathf.CeilToInt(Mathf.Max(current, 0f)) + " / " + Mathf.CeilToInt(max);
     }
 
+    //FACE CAMERA
     void LateUpdate()
     {
-        // Face the same way as the camera so it's always readable
         if (cam != null)
             transform.rotation = cam.transform.rotation;
     }

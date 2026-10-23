@@ -7,27 +7,30 @@
 //              pop-up puts the player at the building's landing).
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Put on a Button. Drag where to go into Target.
 [RequireComponent(typeof(Button))]
 public class OnClickMoveToPos : MonoBehaviour
 {
     public Transform target;
 
+    //LISTENERS
     void Awake()
     {
         GetComponent<Button>().onClick.AddListener(Move);
     }
 
+    //TELEPORT
     void Move()
     {
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null || target == null)
             return;
 
-        // Move the Rigidbody too, otherwise physics can pull the player back
+        //move rb too or physics pulls the player back
         Rigidbody rb = player.GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -35,5 +38,6 @@ public class OnClickMoveToPos : MonoBehaviour
             rb.position = target.position;
         }
         player.transform.position = target.position;
+        Debug.Log("Moved player to target.");
     }
 }

@@ -5,22 +5,26 @@
 // Description: Button: closes the game.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Put on a Button. Closes the game when clicked.
 [RequireComponent(typeof(Button))]
 public class ExitGame : MonoBehaviour
 {
+    //LISTENERS
     void Awake()
     {
         GetComponent<Button>().onClick.AddListener(Exit);
     }
 
+    //QUIT
     void Exit()
     {
+        Debug.Log("Quitting game.");
 #if UNITY_EDITOR
-        // Application.Quit does nothing in the editor, so stop Play mode instead
+        // Application.Quit does nothing in the editor
         UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();

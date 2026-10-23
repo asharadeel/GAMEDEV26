@@ -1,27 +1,30 @@
 // ============================================================
 // Title:       PlayerStats
-// Version:     1.4
+// Version:     1.7
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.4: counts eating and drinking for achievements)
+//              Ashar (v1.5: armour takes damage before health, v1.6: +1 health a second while hunger is above 90,
+//              v1.7: dying shows the death screen and keeps what was picked up)
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Goes on the Player. All stats go 0-100.
-// Hunger and thirst drop by 1 every few seconds. While either is at or below
-// the low level, health drops by 1 every few seconds. Sprinting drains stamina,
-// not sprinting refills it. Health 0 = death.
+//goes on the Player. all stats go 0-100
 public class PlayerStats : MonoBehaviour
 {
     [Header("Hunger / Thirst")]
-    public float hungerDropEvery = 5f;   // seconds per -1 hunger
-    public float thirstDropEvery = 5f;   // seconds per -1 thirst
-    public float lowLevel = 25f;         // at or below this, health starts dropping
+    public float hungerDropEvery = 5f;   //seconds per -1
+    public float thirstDropEvery = 5f;   //seconds per -1
+    public float lowLevel = 25f;         //at or below this, health drops
 
     [Header("Health")]
-    public float healthDropEvery = 8f;   // seconds per -1 health while hungry/thirsty
+    public float healthDropEvery = 8f;   //seconds per -1 while hungry/thirsty
+    public float wellFedLevel = 90f;     //hunger above this regens health
+    public float regenEvery = 1f;        //seconds per +1 health while well fed
 
     [Header("Stamina (per second)")]
     public float sprintCost = 20f;
@@ -37,18 +40,30 @@ public class PlayerStats : MonoBehaviour
 
     public bool IsSprinting { get; set; }
 
+    //timers
     private float hungerTimer;
     private float thirstTimer;
     private float healthTimer;
+    private float regenTimer;
+    private PlayerArmor armor;
+    private bool dead;
 
+    //STARTING PROCEDURES
     void Awake()
     {
-        // Same object as ProfileManager.Profile, shown here so you can watch it in the Inspector
-        profile = ProfileManager.Profile;
+        profile = ProfileManager.Profile;   //same object, shown for the Inspector
+
+        armor = GetComponent<PlayerArmor>();
+        if (armor == null)
+            armor = gameObject.AddComponent<PlayerArmor>();
     }
 
+    //SURVIVAL
     void Update()
     {
+        if (dead)
+            return;
+
         float dt = Time.deltaTime;
 
         if (Tick(ref hungerTimer, hungerDropEvery))
@@ -58,9 +73,15 @@ public class PlayerStats : MonoBehaviour
 
         bool low = profile.Hunger <= lowLevel || profile.Thirst <= lowLevel;
         if (!low)
-            healthTimer = 0f; // restart the countdown once fed/watered again
+            healthTimer = 0f; //restart once fed/watered
         else if (Tick(ref healthTimer, healthDropEvery))
             profile.Health -= 1f;
+
+        //well fed: +1 health a second
+        if (profile.Hunger <= wellFedLevel)
+            regenTimer = 0f;
+        else if (Tick(ref regenTimer, regenEvery))
+            profile.Health += 1f;
 
         if (IsSprinting)
             profile.Stamina -= sprintCost * dt;
@@ -71,7 +92,7 @@ public class PlayerStats : MonoBehaviour
             Die();
     }
 
-    // Adds time to a timer. True (and resets) each time it passes the interval.
+    //true (and resets) each time it passes the interval
     bool Tick(ref float timer, float interval)
     {
         timer += Time.deltaTime;
@@ -82,9 +103,11 @@ public class PlayerStats : MonoBehaviour
         return true;
     }
 
-    // Called by mobs and enemy projectiles (via Damage.Hit / SendMessage)
+    //DAMAGE AND ITEMS
+    //called via Damage.Hit / SendMessage
     public void TakeDamage(float amount)
     {
+        amount = armor.Absorb(amount);   //shield first, the rest hits health
         profile.Health -= amount;
     }
 
@@ -95,7 +118,7 @@ public class PlayerStats : MonoBehaviour
         profile.Stamina += item.stamina;
         profile.Health += item.health;
 
-        // Count it for achievements
+        //achievements
         AchievementManager.Add(AchievementStat.ItemsConsumed, 1);
         if (item.thirst > 0)
             AchievementManager.Add(AchievementStat.DrinksConsumed, 1);
@@ -103,25 +126,32 @@ public class PlayerStats : MonoBehaviour
             AchievementManager.Add(AchievementStat.FoodEaten, 1);
     }
 
+    //DEATH AND SAVING
     void Die()
     {
         Debug.Log("Player died");
-        profile.RefillAll();
+        dead = true;
+        profile.RefillAll();     //stats back to full, everything picked up stays
         ProfileManager.Save();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        if (DeathScreen.Instance != null)
+            DeathScreen.Instance.Show();
+        else
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Save when leaving the scene too, not just when the game closes
+    //save when leaving the scene too
     void OnDestroy()
     {
         ProfileManager.Save();
     }
 
-    // Right-click the component header in the Inspector to use these
+    //TESTING
     [ContextMenu("Save Now")]
     void SaveNow()
     {
         ProfileManager.Save();
+        Debug.Log("Saved the profile.");
     }
 
     [ContextMenu("Delete Save")]
@@ -129,5 +159,6 @@ public class PlayerStats : MonoBehaviour
     {
         ProfileManager.Delete();
         profile = ProfileManager.Profile;
+        Debug.Log("Deleted the save.");
     }
 }

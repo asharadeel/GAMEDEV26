@@ -8,6 +8,7 @@
 //              e.g. "Lvl 1 x 120   Lvl 2 x 60   Lvl 3 x 30".
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,17 +19,19 @@ public class MobsLeftUI : MonoBehaviour
 
     private MobSpawner[] spawners;
 
+    //STARTING PROCEDURES
     void Start()
     {
         spawners = FindObjectsByType<MobSpawner>(FindObjectsSortMode.None);
     }
 
+    //COUNTS
     void Update()
     {
         if (countsText == null || spawners == null)
             return;
 
-        // Every mob type across all spawners, in the order they first appear (weakest first)
+        // every mob type, weakest first
         List<MobData> types = new List<MobData>();
         foreach (MobSpawner spawner in spawners)
         {

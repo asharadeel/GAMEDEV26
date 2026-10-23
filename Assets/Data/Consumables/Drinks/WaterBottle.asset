@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Water Bottle
   coinCost: 10
   levelRequired: 1
+  model: {fileID: 1295484495843446978, guid: fe4addf956634a6eadbca635241d2e15, type: 3}
   hunger: 0
   thirst: 50
   stamina: 0

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc66a12cee5e478ead110af7dbc1fb57, type: 3}
+  m_Name: Iron Armor
+  m_EditorClassIdentifier: 
+  id: iron_armor
+  displayName: Iron Armor
+  coinCost: 500
+  levelRequired: 1
+  model: {fileID: 0}
+  healthBonus: 50
+  replaceDelay: 7
+  repairCost: 30
+  recipe:
+  - ore: {fileID: 11400000, guid: 702d6fd906d84e54a8e97ff1020a742f, type: 2}
+    amount: 5
+  - ore: {fileID: 11400000, guid: e99e2783731d45b19ad6429538e3a60c, type: 2}
+    amount: 3

@@ -55,7 +55,6 @@ public class InventoryCard : MonoBehaviour
     {
         if (item is ShooterData) return "Shooter";
         if (item is MeleeData) return "Melee";
-        if (item is SpecialData) return "Special";
         return "";
     }
 }

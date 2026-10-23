@@ -1,35 +1,40 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     2.1
+// Version:     2.6
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 //              Ali (v2.0: coins, shooter upgrade bars,
 //              v2.1: abilities on Q/E and skill tree nodes, no special slot)
+//              Ashar (v2.2: ore pouch and armour, v2.3: food slots are 4-9, 0 is the armour slot,
+//              v2.4: welcome seen, shard count, v2.5: stored food, specials removed,
+//              v2.6: new profiles start with 2 of each food/drink stored)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              coins, owned items, item levels, shooter upgrades,
-//              skill tree, current inventory and portal progress.
+//              skill tree, current inventory, portal progress,
+//              ores and armour.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-// What the player has on them right now. Only owned items can go in here
-// (ProfileManager.Equip checks that). Items are stored by id.
+//CURRENT INVENTORY
+//only owned items go in here (ProfileManager.Equip checks), stored by id
 [System.Serializable]
 public class CurrentInventory
 {
     public string shooter = "em_raygun";
     public string lazer = "lazer";
     public string melee = "punch";
-    public string special = "";                                 // no longer used (abilities replaced specials)
     public string abilityQ = "fire";
     public string abilityE = "ice";
     public List<string> consumables = new List<string>();      // food/drink slots, "" = empty
 }
 
-// An owned item's upgrade level (items not listed are level 1)
+//ITEM LEVEL
+//items not listed are level 1
 [System.Serializable]
 public class ItemLevel
 {
@@ -37,12 +42,22 @@ public class ItemLevel
     public int level = 1;
 }
 
-// A shooter's upgrade bars, 0 = not upgraded (shooters not listed have nothing upgraded)
+//ITEM COUNT
+//how many of something (ores, spare armour)
+[System.Serializable]
+public class ItemCount
+{
+    public string id;
+    public int count;
+}
+
+//SHOOTER LEVELS
+//0 = not upgraded, shooters not listed have nothing upgraded
 [System.Serializable]
 public class ShooterLevels
 {
     public string id;
-    public int lazer;        // 0 = the gun's 1st lazer, 1 = 2nd...
+    public int lazer;       
     public int damage;
     public int fireRate;
     public int bulletSpeed;
@@ -73,45 +88,57 @@ public class ShooterLevels
     }
 }
 
-// Add new stats here: a private [SerializeField] field + a public property.
-// Items are stored by id only; their stats live in the item assets.
+//PLAYER PROFILE
 [System.Serializable]
 public class PlayerProfile
 {
-    public const int MaxInventorySlots = 7; // keys 4-9 and 0
-    public const float MaxStat = 100f;      // health, stamina, hunger, thirst all go 0-100
+    public const int MaxInventorySlots = 6;
+    public const float MaxStat = 100f;    
 
-    // Who this profile is (set on the Main Menu's profile select)
+    //key details (set on the Main Menu's profile select)
     [SerializeField] private string playerName = "";
     [SerializeField] private bool passwordProtected = false;
     [SerializeField] private string passkey = "";
     [SerializeField] private Color ballColour = Color.white;
     [SerializeField] private string createdAt = "";   // e.g. "22/10/2026 14:05"
 
+    //games stats
     [SerializeField] private int level = 1;
-    [SerializeField] private int tokens = 150;   // coins, starting amount for a new profile (still called tokens in the save so old saves keep their balance)
+    [SerializeField] private int tokens = 150;   
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 100f;
     [SerializeField] private float stamina = 100f;
-    [SerializeField] private float hunger = 100f;   // 100 = full, 0 = starving
-    [SerializeField] private float thirst = 100f;   // 100 = full, 0 = dehydrated
+    [SerializeField] private float hunger = 100f;   
+    [SerializeField] private float thirst = 100f;  
 
-    // Everything bought (items ticked "unlocked" in their asset don't need to be here)
+    //owned items (ones ticked "unlocked" in their asset aren't listed)
     [SerializeField] private List<string> ownedItems = new List<string>();
     [SerializeField] private List<ItemLevel> itemLevels = new List<ItemLevel>();
     [SerializeField] private List<ShooterLevels> shooterLevels = new List<ShooterLevels>();
-    [SerializeField] private List<string> skillNodes = new List<string>();   // unlocked skill tree nodes, e.g. "fire.2"
+    [SerializeField] private List<string> skillNodes = new List<string>();  
 
-    // What's equipped / carried right now
+    //equipped / carried
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
-    [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee
-    [SerializeField] private int inventorySlots = MaxInventorySlots; // usable consumable slots
+    [SerializeField] private int selectedWeapon = 0;         
+    [SerializeField] private int inventorySlots = MaxInventorySlots;
 
-    [SerializeField] private bool hasPortalPiece = false;   // picked up from the level 1 boss
-    [SerializeField] private bool portal2Open = false;      // placed the piece in the hub's portal 2
+    //ores and armour
+    [SerializeField] private List<ItemCount> ores = new List<ItemCount>();
+    [SerializeField] private List<ItemCount> storedFood = new List<ItemCount>();   // food/drink kept out of the backpack (4-9 slots)
+    [SerializeField] private List<ItemCount> armor = new List<ItemCount>();  
+    [SerializeField] private string equippedArmor = "";
+    [SerializeField] private float armorShield = 0f;                        
 
-    // ---- Identity ----
+    //portal progress
+    [SerializeField] private bool hasPortalPiece = false;  
+    [SerializeField] private bool portal2Open = false;     
+    [SerializeField] private bool welcomeSeen = false;    
+
+    //IDENTITY
+    public static readonly string[] StarterFood = { "beans", "water_bottle", "soda" };
+    public const int StarterFoodAmount = 2;
+
 
     // A brand new profile, stamped with the date and time it was made
     public static PlayerProfile CreateNew(string name, bool usePasskey, string key, Color colour)
@@ -122,6 +149,10 @@ public class PlayerProfile
         p.passwordProtected = usePasskey;
         p.passkey = usePasskey ? key : "";
         p.createdAt = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+        //starter food, picked into the backpack in the Hub
+        foreach (string id in StarterFood)
+            p.AddStoredFood(id, StarterFoodAmount);
         return p;
     }
 
@@ -159,8 +190,7 @@ public class PlayerProfile
         get { return createdAt; }
     }
 
-    // Copies name, passkey, colour and creation date from another profile
-    // (used when resetting progress but keeping who the profile is)
+    // used when resetting progress but keeping who the profile is
     public void CopyIdentity(PlayerProfile other)
     {
         playerName = other.playerName;
@@ -170,12 +200,24 @@ public class PlayerProfile
         createdAt = other.createdAt;
     }
 
-    // progress
+    //PROGRESS
 
     public bool HasPortalPiece
     {
         get { return hasPortalPiece; }
         set { hasPortalPiece = value; }
+    }
+
+    public bool WelcomeSeen
+    {
+        get { return welcomeSeen; }
+        set { welcomeSeen = value; }
+    }
+
+    //shards collected for the hub's shard portal: the piece the level 1 boss drops, once picked up
+    public int ShardCount
+    {
+        get { return hasPortalPiece ? 1 : 0; }
     }
 
     public bool Portal2Open
@@ -184,7 +226,7 @@ public class PlayerProfile
         set { portal2Open = value; }
     }
 
-    // ---- Stats ----
+    //STATS
 
     public int Level
     {
@@ -236,7 +278,7 @@ public class PlayerProfile
         thirst = MaxStat;
     }
 
-    // ---- Owned items ----
+    //OWNED ITEMS
 
     public IReadOnlyList<string> OwnedItems
     {
@@ -254,7 +296,7 @@ public class PlayerProfile
             ownedItems.Add(itemId);
     }
 
-    // Refunded: no longer owned and back to level 1 (shooters lose their upgrades)
+    // refunded: back to level 1, shooters lose their upgrades
     public void RemoveOwned(string itemId)
     {
         ownedItems.Remove(itemId);
@@ -262,7 +304,7 @@ public class PlayerProfile
         shooterLevels.RemoveAll(l => l.id == itemId);
     }
 
-    // ---- Item levels ----
+    //ITEM LEVELS
 
     public int GetItemLevel(string itemId)
     {
@@ -287,7 +329,7 @@ public class PlayerProfile
         itemLevels.Add(new ItemLevel { id = itemId, level = level });
     }
 
-    // ---- Skill tree ----
+    //SKILL TREE
 
     public bool HasSkillNode(string nodeId)
     {
@@ -300,9 +342,9 @@ public class PlayerProfile
             skillNodes.Add(nodeId);
     }
 
-    // ---- Shooter upgrades ----
+    //SHOOTER UPGRADES
 
-    // How many times one of a shooter's bars has been upgraded (0 = not yet)
+    // 0 = not upgraded yet
     public int GetShooterLevel(string shooterId, ShooterStat stat)
     {
         foreach (ShooterLevels l in shooterLevels)
@@ -328,7 +370,94 @@ public class PlayerProfile
         shooterLevels.Add(added);
     }
 
-    // ---- Current inventory ----
+    //ORES
+    public int GetOreCount(string oreId)
+    {
+        return GetCount(ores, oreId);
+    }
+
+    public void AddOre(string oreId, int amount)
+    {
+        AddCount(ores, oreId, amount);
+    }
+
+    //false if there aren't enough
+    public bool TakeOre(string oreId, int amount)
+    {
+        if (GetOreCount(oreId) < amount)
+            return false;
+        AddCount(ores, oreId, -amount);
+        return true;
+    }
+
+    //STORED FOOD
+    public int GetStoredFood(string itemId)
+    {
+        return GetCount(storedFood, itemId);
+    }
+
+    public void AddStoredFood(string itemId, int amount)
+    {
+        AddCount(storedFood, itemId, amount);
+    }
+
+    public bool TakeStoredFood(string itemId)
+    {
+        if (GetStoredFood(itemId) <= 0)
+            return false;
+        AddCount(storedFood, itemId, -1);
+        return true;
+    }
+
+    //ARMOUR
+    public string EquippedArmor
+    {
+        get { return equippedArmor; }
+        set { equippedArmor = value == null ? "" : value; }
+    }
+
+    public float ArmorShield
+    {
+        get { return armorShield; }
+        set { armorShield = Mathf.Max(0f, value); }
+    }
+
+    public int GetArmorCount(string armorId)
+    {
+        return GetCount(armor, armorId);
+    }
+
+    public void AddArmor(string armorId, int amount)
+    {
+        AddCount(armor, armorId, amount);
+    }
+
+    //COUNT HELPERS
+    int GetCount(List<ItemCount> list, string id)
+    {
+        foreach (ItemCount c in list)
+        {
+            if (c.id == id)
+                return c.count;
+        }
+        return 0;
+    }
+
+    void AddCount(List<ItemCount> list, string id, int amount)
+    {
+        foreach (ItemCount c in list)
+        {
+            if (c.id == id)
+            {
+                c.count = Mathf.Max(0, c.count + amount);
+                return;
+            }
+        }
+        if (amount > 0)
+            list.Add(new ItemCount { id = id, count = amount });
+    }
+
+    //CURRENT INVENTORY
 
     public CurrentInventory CurrentInventory
     {
@@ -367,11 +496,6 @@ public class PlayerProfile
             currentInventory.abilityE = abilityId;
     }
 
-    public string EquippedSpecial
-    {
-        get { return currentInventory.special; }
-        set { currentInventory.special = value; }
-    }
 
     public int SelectedWeapon
     {
@@ -381,21 +505,21 @@ public class PlayerProfile
 
     public int InventorySlots
     {
-        get { return inventorySlots; }
+        get { return Mathf.Min(inventorySlots, MaxInventorySlots); }   // old saves had 7
         set { inventorySlots = Mathf.Clamp(value, 0, MaxInventorySlots); }
     }
 
     public string GetSlot(int index)
     {
         List<string> slots = currentInventory.consumables;
-        if (index < 0 || index >= inventorySlots || index >= slots.Count)
+        if (index < 0 || index >= InventorySlots || index >= slots.Count)
             return "";
         return slots[index];
     }
 
     public void SetSlot(int index, string itemId)
     {
-        if (index < 0 || index >= inventorySlots)
+        if (index < 0 || index >= InventorySlots)
             return;
 
         List<string> slots = currentInventory.consumables;
@@ -404,11 +528,10 @@ public class PlayerProfile
         slots[index] = itemId;
     }
 
-    // How many of an item are in the usable slots
     public int CountInInventory(string itemId)
     {
         int count = 0;
-        for (int i = 0; i < inventorySlots; i++)
+        for (int i = 0; i < InventorySlots; i++)
         {
             if (GetSlot(i) == itemId)
                 count++;
@@ -416,10 +539,10 @@ public class PlayerProfile
         return count;
     }
 
-    // Takes one of the item out (the last slot it's in). False if there's none
+    // takes from the last slot it's in
     public bool RemoveFromInventory(string itemId)
     {
-        for (int i = inventorySlots - 1; i >= 0; i--)
+        for (int i = InventorySlots - 1; i >= 0; i--)
         {
             if (GetSlot(i) == itemId)
             {
@@ -430,10 +553,10 @@ public class PlayerProfile
         return false;
     }
 
-    // Puts the item in the first empty usable slot. False if full.
+    // first empty usable slot, false if full
     public bool AddToInventory(string itemId)
     {
-        for (int i = 0; i < inventorySlots; i++)
+        for (int i = 0; i < InventorySlots; i++)
         {
             if (string.IsNullOrEmpty(GetSlot(i)))
             {

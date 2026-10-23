@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Beans
   coinCost: 10
   levelRequired: 1
+  model: {fileID: 3173172310298707341, guid: 346c57a2b0884aa897d9c11acf2ae90c, type: 3}
   hunger: 40
   thirst: 0
   stamina: 0

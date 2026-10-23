@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       ItemDatabase
-// Version:     2.1
+// Version:     2.2
 // Written by:  Ashar
 // Updated by:  Ali (v2.1: abilities)
+//              Ashar (v2.2: ores and armour)
 // Description: The list of every item in the game, split by type.
 //              The save file only stores item ids ("lazer",
 //              "beans"...), so the game uses this to turn an id
@@ -11,6 +12,7 @@
 //              New item? Add it to the right list here.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,7 +23,6 @@ public class ItemDatabase : ScriptableObject
     public List<ShooterData> shooters = new List<ShooterData>();
     public List<LazerData> lazers = new List<LazerData>();
     public List<MeleeData> melee = new List<MeleeData>();
-    public List<SpecialData> specials = new List<SpecialData>();   // empty since abilities replaced specials
 
     [Header("Abilities")]
     public List<AbilityData> abilities = new List<AbilityData>();
@@ -30,6 +31,11 @@ public class ItemDatabase : ScriptableObject
     public List<ConsumableData> food = new List<ConsumableData>();
     public List<ConsumableData> drinks = new List<ConsumableData>();
 
+    [Header("Crafting and Armor")]
+    public List<OreData> ores = new List<OreData>();
+    public List<ArmorData> armor = new List<ArmorData>();
+
+    //INSTANCE
     private static ItemDatabase instance;
 
     public static ItemDatabase Instance
@@ -42,17 +48,18 @@ public class ItemDatabase : ScriptableObject
         }
     }
 
-    // Every item from every list
+    //LOOKUPS
     public List<ItemData> AllItems()
     {
         List<ItemData> all = new List<ItemData>();
         all.AddRange(shooters);
         all.AddRange(lazers);
         all.AddRange(melee);
-        all.AddRange(specials);
         all.AddRange(food);
         all.AddRange(drinks);
         all.AddRange(abilities);
+        all.AddRange(ores);
+        all.AddRange(armor);
         return all;
     }
 

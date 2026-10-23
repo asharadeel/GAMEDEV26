@@ -9,10 +9,12 @@
 //              Goes on the window that holds the buttons and frames.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// One button and the frame it opens
+//TAB
 [System.Serializable]
 public class SelectorTab
 {
@@ -24,22 +26,28 @@ public class TabSelector : MonoBehaviour
 {
     public SelectorTab[] tabs;
 
+    //LISTENERS
     void Awake()
     {
         for (int i = 0; i < tabs.Length; i++)
         {
-            int index = i;   // copy, so each button remembers its own tab
+            int index = i;   //copy so each lambda keeps its own tab
             if (tabs[i].button != null)
-                tabs[i].button.onClick.AddListener(() => Select(index));
+                tabs[i].button.onClick.AddListener(() =>
+                {
+                    Select(index);
+                    Debug.Log("Selected tab " + index);
+                });
         }
     }
 
-    // Back to the first tab every time the window opens
+    //back to the first tab every time the window opens
     void OnEnable()
     {
         Select(0);
     }
 
+    //SELECT
     public void Select(int index)
     {
         for (int i = 0; i < tabs.Length; i++)

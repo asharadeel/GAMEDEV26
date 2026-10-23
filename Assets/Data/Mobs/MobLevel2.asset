@@ -17,6 +17,7 @@ MonoBehaviour:
   shortName: Lvl 2
   model: {fileID: 5796215148282423660, guid: aacc9e99494f6c140be570fb3760c544, type: 3}
   type: 0
+  tier: 2
   health: 125
   attackDamage: 15
   moveSpeed: 2.5

@@ -10,18 +10,20 @@
 //              Create > Game > Weapons > Lazer
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewLazer", menuName = "Game/Weapons/Lazer")]
 public class LazerData : WeaponData
 {
     [Header("Lazer")]
-    public float distance = 50f;     // how far it travels before it disappears
-    public float size = 1f;          // scale multiplier on the model (bigger = easier to hit with)
-    public int pierce = 0;           // how many enemies it goes through before it stops
-    public Vector3 rotationOffset = new Vector3(90f, 0f, 0f); // tilts the model to face travel direction
+    public float distance = 50f;     //travel distance before it disappears
+    public float size = 1f;          //model scale multiplier
+    public int pierce = 0;           //enemies it goes through
+    public Vector3 rotationOffset = new Vector3(90f, 0f, 0f); //tilts the model to face travel direction
 
-    // e.g. "Bigger shots, goes through 2 enemies", shown in the shop
+    //SHOP TEXT
     public string PerkText
     {
         get

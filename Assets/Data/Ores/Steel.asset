@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5362f02a43a144ef9bfd950ffb0ef259, type: 3}
+  m_Name: Steel
+  m_EditorClassIdentifier: 
+  id: steel
+  displayName: Steel
+  coinCost: 40
+  levelRequired: 1
+  model: {fileID: 6736212069451932742, guid: 7bc2799888994e128908551ef8d73fd5, type: 3}
+  colour: {r: 0.7, g: 0.78, b: 0.88, a: 1}

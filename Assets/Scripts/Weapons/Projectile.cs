@@ -9,13 +9,14 @@
 //              through mobs.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Flies straight until it hits something or has travelled its max distance.
-// radius 0 = hits one thing, radius > 0 = explodes and hits everything nearby.
+//radius 0 = hits one thing, radius > 0 = explodes
 public class Projectile : MonoBehaviour
 {
+    //shot stats
     private float damage;
     private float speed;
     private float radius;
@@ -24,10 +25,10 @@ public class Projectile : MonoBehaviour
     private bool fromEnemy;
     private int pierce;
     private Vector3 direction;
-    private readonly HashSet<Mob> hitMobs = new HashSet<Mob>();   // a mob made of several shapes only gets hit once
+    private readonly HashSet<Mob> hitMobs = new HashSet<Mob>();   //multi-collider mobs only get hit once
 
-    // Spawns a model as a projectile. Used by the player and by shooter mobs.
-    // pierce = how many mobs it goes through before it stops (player shots only)
+    //SPAWN
+    //used by the player and shooter mobs, pierce is player shots only
     public static Projectile Spawn(GameObject model, Vector3 position, Vector3 direction, float size, Vector3 rotationOffset,
                                    float speed, float damage, float distance, float radius, bool fromEnemy, int pierce = 0)
     {
@@ -38,7 +39,7 @@ public class Projectile : MonoBehaviour
         GameObject obj = Instantiate(model, position, rotation);
         obj.transform.localScale *= size;
 
-        // Triggers + kinematic rigidbody so it detects hits without being pushed around
+        //triggers + kinematic rb so it detects hits without being pushed
         foreach (Collider c in obj.GetComponentsInChildren<Collider>())
             c.isTrigger = true;
 
@@ -58,6 +59,7 @@ public class Projectile : MonoBehaviour
         return p;
     }
 
+    //MOVEMENT
     void Update()
     {
         float step = speed * Time.deltaTime;
@@ -68,6 +70,7 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
     }
 
+    //HITS
     void OnTriggerEnter(Collider other)
     {
         if (other.GetComponentInParent<Projectile>() != null)
@@ -75,7 +78,7 @@ public class Projectile : MonoBehaviour
 
         if (fromEnemy)
         {
-            // Enemy shots fly through mobs and only hurt the player
+            //enemy shots pass through mobs
             if (other.GetComponentInParent<Mob>() != null)
                 return;
             if (other.CompareTag("Player"))
@@ -96,11 +99,11 @@ public class Projectile : MonoBehaviour
 
         Mob mob = other.GetComponentInParent<Mob>();
         if (mob != null && !hitMobs.Add(mob))
-            return;   // another part of a mob it already hit
+            return;   //already hit another part of this mob
 
         Damage.Hit(other, damage);
 
-        // Piercing shots keep going through mobs (walls still stop them)
+        //pierce goes through mobs, walls still stop it
         if (mob != null && pierce > 0)
         {
             pierce--;

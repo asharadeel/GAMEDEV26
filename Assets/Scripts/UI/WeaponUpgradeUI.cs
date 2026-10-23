@@ -210,14 +210,6 @@ public class WeaponUpgradeUI : MonoBehaviour
             AddChange(changes, "Attacks", a.fireRate, b.fireRate, "/s");
             AddChange(changes, "Radius", a.radius, b.radius, "");
         }
-        else if (weapon is SpecialData special)
-        {
-            SpecialLevel a = special.AtLevel(from), b = special.AtLevel(to);
-            AddChange(changes, "Damage", a.damage, b.damage, "");
-            AddChange(changes, "Fire Rate", a.fireRate, b.fireRate, "/s");
-            AddChange(changes, "Speed", a.speed, b.speed, "");
-            AddChange(changes, "Blast", a.radius, b.radius, "");
-        }
         return changes.Count > 0 ? string.Join(", ", changes) : "Better stats";
     }
 

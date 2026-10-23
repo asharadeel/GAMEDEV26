@@ -1,35 +1,37 @@
 // ============================================================
 // Title:       PlayerInventory
-// Version:     1.5
+// Version:     1.6
 // Written by:  Ashar
 // Updated by:  Ali (v1.4: 3rd label shows the Q / E abilities)
 //              cthullu96 (v1.5: input system package)
 //              ai use: input system change written with claude (anthropic), owner cthullu96
-// Description: 10-slot inventory, I to open, 4-9/0 to eat/drink.
+//              Ashar (v1.6: the 0 slot shows the worn armour and can't be used)
+// Description: 10-slot inventory, I to open, 4-9 to eat/drink,
+//              0 shows the worn armour (not usable).
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Goes on the Player. 10 slots:
-//   1 = shooter, 2 = melee (weapon keys are handled by PlayerCombat), 3rd label = abilities on Q / E
-//   4-9 and 0 = food/drink slots, pressing the key eats/drinks it
-// I opens/closes the inventory panel.
+//goes on the Player. weapon keys are handled by PlayerCombat
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : MonoBehaviour
 {
+    //interface
     public GameObject inventoryPanel;
-
-    // One label per slot, in order 1,2,3,4,5,6,7,8,9,0
-    public Text[] slotLabels = new Text[10];
+    public Text[] slotLabels = new Text[10];   //order 1,2,3,4,5,6,7,8,9,0
 
     private PlayerStats stats;
 
+    //STARTING PROCEDURES
     void Start()
     {
         stats = GetComponent<PlayerStats>();
     }
 
+    //LISTENERS
     void Update()
     {
         if (GameInput.Inventory.WasPressedThisFrame() && inventoryPanel != null)
@@ -45,6 +47,7 @@ public class PlayerInventory : MonoBehaviour
             RefreshLabels();
     }
 
+    //USE ITEMS
     public void UseSlot(int index)
     {
         string id = stats.Profile.GetSlot(index);
@@ -57,8 +60,10 @@ public class PlayerInventory : MonoBehaviour
 
         stats.Consume(item);
         stats.Profile.SetSlot(index, "");
+        Debug.Log("Used an item.");
     }
 
+    //INTERFACE
     void RefreshLabels()
     {
         PlayerProfile p = stats.Profile;
@@ -70,11 +75,14 @@ public class PlayerInventory : MonoBehaviour
         SetLabel(1, "2", NameOf(db.Get<MeleeData>(p.EquippedMelee)), p.SelectedWeapon == 1);
         SetLabel(2, "Q / E", NameOf(db.Get<AbilityData>(p.GetAbility(0))) + " / " + NameOf(db.Get<AbilityData>(p.GetAbility(1))), false);
 
-        for (int i = 0; i < GameInput.UseSlot.Length; i++)
-        {
-            string key = i == GameInput.UseSlot.Length - 1 ? "0" : (i + 4).ToString();
-            SetLabel(i + 3, key, NameOf(db.Get<ConsumableData>(p.GetSlot(i))), false);
-        }
+        //food/drink slots 4-9
+        for (int i = 0; i < PlayerProfile.MaxInventorySlots; i++)
+            SetLabel(i + 3, (i + 4).ToString(), NameOf(db.Get<ConsumableData>(p.GetSlot(i))), false);
+
+        //0 = armour slot
+        ArmorData armor = ProfileManager.GetEquippedArmor();
+        string worn = armor != null && p.GetArmorCount(armor.id) > 0 ? armor.displayName + " x" + p.GetArmorCount(armor.id) : "No armor";
+        SetLabel(PlayerProfile.MaxInventorySlots + 3, "0", worn, false);
     }
 
     void SetLabel(int index, string key, string itemName, bool selected)

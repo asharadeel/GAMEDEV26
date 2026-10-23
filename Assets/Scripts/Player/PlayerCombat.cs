@@ -11,42 +11,44 @@
 //              uses the stats of its current upgrade level.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Goes on the Player. Two weapon slots: 1 shooter, 2 melee (abilities are on Q/E, see PlayerAbilities).
-// 1/2 pick a slot. Left click or X attacks with the selected weapon.
-// The shooter fires its magazine then reloads (R reloads early).
-// Aims at the mouse, 360 degrees around the player.
+//goes on the Player. slot 1 shooter, slot 2 melee
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerCombat : MonoBehaviour
 {
     public Camera cam;
 
     [Header("Aim Arrow")]
-    public Transform aimArrow;          // optional sprite that circles the player, pointing at the mouse
-    public float arrowDistance = 1f;    // how far from the player's centre
-    public float arrowHeight = -0.45f;  // up/down from the player's centre (negative = near the floor)
-    public float arrowSpin = 0f;        // extra turn if the image doesn't point up
+    public Transform aimArrow;          //optional
+    public float arrowDistance = 1f;
+    public float arrowHeight = -0.45f;  //negative = near the floor
+    public float arrowSpin = 0f;        //extra turn if the image doesn't point up
 
     [Header("Punch")]
     public Color fistColour = new Color(0.85f, 0.7f, 0.55f);
 
+    //combat state
     private PlayerStats stats;
-    private GameObject fist;            // capsule in front of the player while punch is selected
+    private GameObject fist;
     private float punchTime = -10f;
     private Vector3 aimDirection = Vector3.forward;
     private float nextAttackTime;
 
-    private ShooterData loadedGun;      // the gun the magazine belongs to
+    //magazine
+    private ShooterData loadedGun;
     private int shotsLeft;
-    private float reloadDoneTime;       // can't shoot until then
+    private float reloadDoneTime;
 
     public bool Reloading
     {
         get { return Time.time < reloadDoneTime; }
     }
 
+    //STARTING PROCEDURES
     void Start()
     {
         stats = GetComponent<PlayerStats>();
@@ -56,13 +58,14 @@ public class PlayerCombat : MonoBehaviour
         MakeFist();
     }
 
+    //INPUT
     void Update()
     {
         aimDirection = GetAimDirection();
         UpdateArrow();
         UpdateFist();
 
-        // No switching or attacking while a menu is open
+        //no switching or attacking while a menu is open
         if (PlayerController.uiEnabled)
             return;
 
@@ -79,12 +82,13 @@ public class PlayerCombat : MonoBehaviour
             }
         }
 
-        // Clicking on UI (buttons, door prompt) shouldn't also shoot
+        //clicking on UI shouldn't also shoot
         bool clickOnUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         if (GameInput.Attack.IsPressed() && !clickOnUI)
             Attack();
     }
 
+    //ATTACK
     public void Attack()
     {
         if (Time.time < nextAttackTime)
@@ -95,7 +99,7 @@ public class PlayerCombat : MonoBehaviour
 
         if (p.SelectedWeapon == 0)
         {
-            // The gun's upgrade bars decide the shot, its lazer decides the look and perks
+            //shooter
             ShooterData gun = db.Get<ShooterData>(p.EquippedShooter);
             LazerData lazer = GetLazer(gun);
             if (lazer == null)
@@ -115,6 +119,7 @@ public class PlayerCombat : MonoBehaviour
         }
         else
         {
+            //melee
             MeleeData melee = db.Get<MeleeData>(p.EquippedMelee);
             if (!ProfileManager.Owns(melee))
                 return;
@@ -125,19 +130,18 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    // Where the player is aiming (flat, towards the mouse)
+    //AIM / WEAPON INFO
     public Vector3 AimDirection
     {
         get { return aimDirection; }
     }
 
-    // Just outside the player in the aim direction, where shots start
     public Vector3 ShotOrigin()
     {
         return transform.position + aimDirection * (PlayerRadius() + 0.3f);
     }
 
-    // The lazer on the gun's lazer bar (null if the gun isn't owned)
+    //null if the gun isn't owned
     public static LazerData GetLazer(ShooterData shooter)
     {
         if (!ProfileManager.Owns(shooter))
@@ -145,7 +149,7 @@ public class PlayerCombat : MonoBehaviour
         return shooter.LazerAt(ProfileManager.GetLevel(shooter, ShooterStat.Lazer));
     }
 
-    // "12 / 20", "Reloading..." or "" when the shooter isn't selected (for the HUD)
+    //HUD ammo text
     public string AmmoLabel()
     {
         if (stats == null || stats.Profile.SelectedWeapon != 0)
@@ -159,7 +163,8 @@ public class PlayerCombat : MonoBehaviour
         return Reloading ? "Reloading..." : shotsLeft + " / " + gun.magazineSize;
     }
 
-    // A different gun (or the first shot) starts with a full magazine
+    //MAGAZINE
+    //different gun starts with a full magazine
     void CheckMagazine(ShooterData gun)
     {
         if (gun == loadedGun)
@@ -169,7 +174,6 @@ public class PlayerCombat : MonoBehaviour
         reloadDoneTime = 0f;
     }
 
-    // Refills the magazine, the gun can't fire until its reload time has passed
     void Reload(ShooterData gun)
     {
         if (Reloading || shotsLeft >= gun.magazineSize)
@@ -178,6 +182,7 @@ public class PlayerCombat : MonoBehaviour
         shotsLeft = gun.magazineSize;
     }
 
+    //FIRE / SWING
     void Fire(GameObject model, float size, Vector3 rotationOffset, float speed, float damage, float distance, float radius, int pierce)
     {
         Projectile.Spawn(model, ShotOrigin(), aimDirection, size, rotationOffset, speed, damage, distance, radius, false, pierce);
@@ -189,21 +194,20 @@ public class PlayerCombat : MonoBehaviour
 
         Damage.HitArea(centre, melee.radius, melee.damage);
 
-        punchTime = Time.time;   // makes the fist jab forward
+        punchTime = Time.time;   //fist jab
 
-        // Flash the model briefly if it has one (punch has none)
+        //punch has no model
         if (melee.model != null)
             Destroy(Instantiate(melee.model, centre, Quaternion.LookRotation(aimDirection)), 0.15f);
     }
 
-    // Half the player's width, so it works at any scale
     float PlayerRadius()
     {
         Collider col = GetComponent<Collider>();
         return col != null ? col.bounds.extents.x : 0.5f;
     }
 
-    // a capsule so you can see punch is the selected weapon
+    //FIST
     void MakeFist()
     {
         fist = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -212,13 +216,12 @@ public class PlayerCombat : MonoBehaviour
         fist.GetComponent<Renderer>().material.color = fistColour;
         fist.transform.SetParent(transform, false);
 
-        // same size whatever the player's scale is
+        //same size at any player scale
         float s = transform.lossyScale.x;
         fist.transform.localScale = new Vector3(0.35f, 0.4f, 0.35f) / s;
         fist.SetActive(false);
     }
 
-    // only shows while the melee slot is picked and the melee is punch
     void UpdateFist()
     {
         if (fist == null || stats == null)
@@ -230,12 +233,12 @@ public class PlayerCombat : MonoBehaviour
         if (!show)
             return;
 
-        // sits just in front of the player pointing where they aim, jabs out for a moment when punching
         float jab = Time.time - punchTime < 0.12f ? 0.6f : 0f;
         fist.transform.position = transform.position + aimDirection * (PlayerRadius() + 0.3f + jab);
         fist.transform.rotation = Quaternion.LookRotation(aimDirection) * Quaternion.Euler(90f, 0f, 0f);
     }
 
+    //AIMING
     void UpdateArrow()
     {
         if (aimArrow == null)
@@ -243,11 +246,11 @@ public class PlayerCombat : MonoBehaviour
 
         aimArrow.position = transform.position + aimDirection * arrowDistance + Vector3.up * arrowHeight;
 
-        // Lay the sprite flat on the ground with its top pointing along the aim
+        //flat on the ground, top pointing along the aim
         aimArrow.rotation = Quaternion.LookRotation(aimDirection) * Quaternion.Euler(90f, 0f, arrowSpin);
     }
 
-    // Where the mouse points on a flat plane at the player's height
+    //mouse on a flat plane at the player's height
     Vector3 GetAimDirection()
     {
         Ray ray = cam.ScreenPointToRay(GameInput.PointerPosition);
@@ -263,10 +266,12 @@ public class PlayerCombat : MonoBehaviour
         return aimDirection;
     }
 
+    //TESTING
     [ContextMenu("Unlock All Weapons (testing)")]
     void UnlockAll()
     {
         foreach (WeaponData weapon in ItemDatabase.Instance.GetAll<WeaponData>())
             ProfileManager.Profile.AddOwned(weapon.id);
+        Debug.Log("Unlocked all weapons.");
     }
 }

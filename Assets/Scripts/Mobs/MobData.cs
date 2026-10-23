@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       MobData
-// Version:     1.3
+// Version:     1.5
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.3: added loot drops)
+//              Ashar (v1.4: loot can be ores too, v1.5: tier for ore drops)
 // Description: Profile for a mob type: its stats, its model and how
 //              it behaves (Follow = chases the player, Shooter =
 //              stays still and shoots). Also lists what it can drop
@@ -10,20 +11,22 @@
 // ============================================================
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum MobType
 {
-    Follow,     // FollowMob: wanders, chases the player, hits up close
-    Shooter     // ShooterMob: stays still, shoots at the player
+    Follow, //chases and hits up close
+    Shooter //stays still and shoots
 }
 
 [Serializable]
 public class LootEntry
 {
-    public ConsumableData item;          // what gets dropped
+    public ItemData item;   //a consumable or an ore
     [Range(0f, 1f)]
-    public float chance = 0.25f;         // 0 = never, 1 = always
+    public float chance = 0.25f; //0 never, 1 always
 }
 
 [CreateAssetMenu(fileName = "NewMob", menuName = "Game/Mob")]
@@ -32,27 +35,29 @@ public class MobData : ScriptableObject
     [Header("Mob")]
     public string id = "";
     public string displayName = "";
-    public string shortName = "";       // used in the Mobs Left tracker, e.g. "Lvl 1"
-    public GameObject model;             // prefab that gets spawned
+    public string shortName = ""; //Mobs Left tracker, e.g. "Lvl 1"
+    public GameObject model;
     public MobType type = MobType.Follow;
+    [Range(1, 3)]
+    public int tier = 1;   //1 easy - 3 hard, harder mobs drop ores more (OreDropper)
 
     [Header("Stats")]
     public float health = 100f;
-    public float attackDamage = 10f;     // per hit (Follow) or per shot (Shooter)
+    public float attackDamage = 10f; //per hit or per shot
 
     [Header("Follow")]
     public float moveSpeed = 3f;
-    public float chaseRange = 25f;       // starts chasing when the player is this close
-    public float attackRange = 0.5f;     // gap between mob and player to hit
-    public float attackCooldown = 1f;    // seconds between hits
+    public float chaseRange = 25f;
+    public float attackRange = 0.5f; //gap between mob and player
+    public float attackCooldown = 1f; //seconds
 
     [Header("Shooter")]
-    public float shootRange = 20f;       // shoots when the player is this close
-    public float fireRate = 0.5f;        // shots per second
+    public float shootRange = 20f;
+    public float fireRate = 0.5f; //shots per second
     public GameObject projectileModel;
     public float projectileSpeed = 15f;
     public float projectileSize = 1f;
 
     [Header("Loot")]
-    public LootEntry[] drops;            // each entry is rolled separately when the mob dies
+    public LootEntry[] drops; //each rolled separately
 }
