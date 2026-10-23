@@ -17,6 +17,7 @@ MonoBehaviour:
   shortName: Lvl 2
   model: {fileID: 5796215148282423660, guid: aacc9e99494f6c140be570fb3760c544, type: 3}
   type: 0
+  tier: 2
   health: 125
   attackDamage: 15
   moveSpeed: 2.5
@@ -35,7 +36,3 @@ MonoBehaviour:
     chance: 0.35
   - item: {fileID: 11400000, guid: de439d0c03f64a1baf3dd14110596cbe, type: 2}
     chance: 0.2
-  - item: {fileID: 11400000, guid: e99e2783731d45b19ad6429538e3a60c, type: 2}
-    chance: 0.4
-  - item: {fileID: 11400000, guid: 702d6fd906d84e54a8e97ff1020a742f, type: 2}
-    chance: 0.25

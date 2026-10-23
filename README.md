@@ -49,6 +49,7 @@ All project content lives in `Assets/`:
   - `InventoryCard` - one weapon in the Hub's Inventory (Name, Equip/Unequip button + `InventoryCard`). Made from `ShopItemCard`'s look. Place one per weapon by hand in the inventory grid and drag the weapon asset into `Item`
   - `ShopItemCard` - one shop item (Name, Buy, Upgrade, Refund, Equip + `ShopItemCard`). Place one per item by hand in a shop section and drag the item asset into `Item`
   - `ConsumableCard` - one food/drink in the shop (Name, Buy, Refund, Quantity + `ConsumableCard`). Place one per item by hand and drag the item asset into `Item`
+  - `ArmorCard` - one armour (Name, info line, one action button + `ArmorCard`). Used by the Blacksmith (Craft), Store ARMOR tab (Buy) and Inventory Armor tab (Equip)
   - `GeneralTileWindow` - paged window: Title bar, boxes under `Frames` (`Step (1)`-`Step (4)`, each a Title + Content), Prev/Next and Close. `TilePager` shows one box at a time. Use it as a menu's `Frame` (see UI POLICY in `AUTOMATIONS.md`)
   - The window backgrounds (each prefab's root) are RawImages
   - Editing a copy in a scene only changes that copy (an override). Opening and editing the prefab itself, or **Overrides > Apply**, changes every copy. Unpacked copies never get prefab updates
@@ -82,6 +83,8 @@ Hub:
 - `IntroMenu`, `StoreUI`, `InventoryMenu`, `SkillTreeMenu` are under `Canvas`
 - `InventoryMenu`: a `GeneralSelectorUI` copy titled "Inventory" with 3 tabs like the shop: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Abilities (Fire, Ice, Lightning). Buttons 4 and 5 are switched off. Each tab's `Viewport/Content` has a heading, a line of text and an `Items` grid (`Grid Layout Group` 300 x 400 cells + `InventoryGrid`). The weapon tabs have `InventoryCard`s (only owned weapons show, Equip / Unequip), the Abilities tab has `AbilityCard`s (Equip Q / Equip E)
 - `Skill Tree` stall (east wall, x 14.8, with `SkillTreeLight`): same as the other stalls (sign + `ShowUIonApproach`), opens `SkillTreeMenu`: a full-screen `GeneralPopUpWindow` copy (`SkillTreeWindow`, action button off) with a coins line and 3 columns, `Branch (Fire)`, `Branch (Ice)`, `Branch (Lightning)`, each a `Header` and a `Tree` area. `SkillTreeUI` on the container draws the nodes and lines into the `Tree` areas
+- `Blacksmith` stall (west side, opposite Skill Tree) with `BlacksmithLight`: walk up to open `BlacksmithMenu` (a `GeneralSelectorUI` copy, one Armor tab) with an `ArmorCard` (Craft) for Stone, Iron and Steel Armor
+- `InventoryMenu` has an Armor tab (tab 4) with `ArmorCard`s (Equip): wear one armour at a time
 - `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). Tabs in order: Shooters (EM Raygun), Melee (Punch, Kick, Bat) as `ShopItemCard`s, Specials (button switched off, abilities replaced specials), Food (Beans), Drinks (Water Bottle, Soda) as `ConsumableCard`s, each in the section's `Items` grid. The Shooters tab's frame is still called `Weapons`
 - `BuyPopup`, `RefundPopup`: the shop's pop-ups (GeneralPopUpWindow), run by `ShopPopups` on `StoreUI`
 - `UpgradePopup`: the weapon upgrade window (a GeneralPopUpWindow stretched full screen, same size as the shop window), run by `WeaponUpgradeUI` on the container. Opened by Upgrade on any weapon's card. Shooters get one bar per upgrade (Lazer, Damage, Fire Rate, Bullet Speed, Reload Time), melee and specials just a Level bar (2 blocks: levels 2 and 3). Bars are under `Frame/Bars`: label, blocks that fill left to right, "now → next" value and a Buy button that opens `BuyPopup`. Sits right after `StoreUI` (over the shop, under `BuyPopup`). Opening it hides the shop, closing it brings the shop back on the same tab. Built by **Tools > Build Weapon Upgrades** (it replaced the old "Upgrade to level n" pop-up)
@@ -148,7 +151,7 @@ All controls use the Input System package and are set up in one place, `Scripts/
 | 1 / 2 | Select shooter / melee |
 | Q / E | Use the ability on that key (picked in the Hub's Inventory) |
 | R | Reload the shooter (it also reloads by itself when empty) |
-| 4-9, 0 | Eat / drink from that inventory slot |
+| 4-9 | Eat / drink from that inventory slot (0 shows your worn armour) |
 | I | Open / close inventory |
 | J | Open / close achievements |
 | E / Click prompt | Use a door when in range (E opens the door instead of the ability) |
@@ -180,6 +183,7 @@ All scripts are in `Assets/Scripts/`.
 
 ## Scripts/Player/
 - `PlayerArmor.cs` - the worn armour's shield (PlayerStats adds it to the player by itself). Damage hits the shield first, the rest goes to health. When it breaks one piece is used up and, if you own more, the next goes on after the armour's `Replace Delay` (health takes the hits until then). Starving/thirst still hits health directly
+- `OreDropper.cs` (Scripts/Loot) - every mob kill except the boss rolls each ore: Stone 15%, Iron 5%, Steel 2% (private fields), times the mob's `tier` (1 = x1, 2 = x1.5, 3 = x2)
 - `Flashlight.cs` - on the Player (Hub and Scene 1). F turns a spot light on/off that points where you're aiming (`Range` 25, `Spot Angle` 50, `Intensity` 3). The F key is `GameInput.Flashlight`
 - `PlayerProfile.cs` - the player's saved data (not a component)
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
@@ -267,6 +271,7 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `InventoryGrid.cs` - on the grid holding the `InventoryCard`s. Each time the window opens it hides the cards for weapons the player doesn't own (so bought weapons appear, refunded ones disappear)
 - `ShopItemCard.cs` - on the `ShopItemCard` prefab. Drag a weapon asset into `Item`. Shows "<name>" and "Level <n>" (shooters just the name), plus Buy (not owned) or Equip + Upgrade + Refund (owned). Upgrade opens `WeaponUpgradeUI`, Refund is hidden for starting items and greyed out while equipped
 - `ConsumableCard.cs` - on the `ConsumableCard` prefab. Drag a food/drink asset into `Item`. Shows its name, Buy, Refund and "Amount owned: <n>" (how many are in the inventory slots). Buying puts one in the first free slot. Refund sells one back for half its price (rounded up), greyed out when you have none
+- `ArmorCard.cs` - on the `ArmorCard` prefab. Drag an armour asset into `Item` and pick `Mode`: **Craft** (Blacksmith: shows the ore recipe in green/red, Craft button), **Buy** (Store: Buy pop-up for coins), **Equip** (Inventory: wear this one, only one at a time)
 - `ShopPopups.cs` - on the Hub's `StoreUI` container. Runs the shared `BuyPopup` ("Buy <item>", button "Buy: <cost>", also used for every upgrade: "Buy Damage (10 → 13)" / "Buy UV Lazer" / "Buy Punch Level 2") and `RefundPopup` ("Refund <item>: <refund>"). Shows the player's coins, or why it didn't work. Buying food/drink keeps the pop-up open so you can buy several
 - `WeaponUpgradeUI.cs` - on the Hub's `UpgradePopup` container. `Open(weapon)` shows "Upgrade <weapon>", the player's coins and its bars: shooters one `UpgradeBar` per `ShooterStat`, melee/specials only the 1st bar as "Level" with what the next level changes (e.g. "Level 1 → 2: Damage 5 → 7.5"), the other rows hide. Buy opens `BuyPopup` for that bar's next upgrade, MAX when full. `Shop` (the shop window) is hidden with a CanvasGroup while it's open, not switched off, so it comes back on the same tab however the window is closed. Blocks past a bar's max hide. `Filled` / `Empty` set the block colours
 - `CurrencyChangeButton.cs` - on a Button: `Mode` Add / Subtract and `Amount` of coins. Subtract doesn't go through without enough coins
@@ -447,17 +452,19 @@ Skill tree: each ability's branch starts at the ability (free) and splits into t
 
 New node? Add it to the ability asset's `Nodes` list (`title`, `stat`, `amount`, `cost`, `parent` = index of the node below it or -1 for the ability, `column` -1/0/1, `row` 1-3). The tree draws itself from that list.
 
-| Ore | Coins | Dropped by |
-|---|---|---|
-| Stone | 5 | Mob Level 1 (50%), Mob Level 2 (40%) |
-| Iron | 15 | Mob Level 2 (25%), Mob Level 3 (40%) |
-| Steel | 40 | Mob Level 3 (15%) |
+| Ore | Mob Lv1 (tier 1) | Lv2 (tier 2) | Lv3 (tier 3) |
+|---|---|---|---|
+| Stone | 15% | 22.5% | 30% |
+| Iron | 5% | 7.5% | 10% |
+| Steel | 2% | 3% | 4% |
 
-| Armor | Coins | Shield | Next piece after | Repair |
-|---|---|---|---|---|
-| Stone Armor | 60 | 25 | 10s | 15 coins |
-| Iron Armor | 150 | 50 | 7s | 30 coins |
-| Steel Armor | 300 | 75 | 4s | 50 coins |
+Rolled by `OreDropper` on every kill (not the boss), on top of the mob's own food/drink drops. Ores can't be bought, only crafted with at the Blacksmith.
+
+| Armor | Store (coins) | Blacksmith recipe | Shield | Next piece after | Repair |
+|---|---|---|---|---|---|
+| Stone Armor | 200 | 5 Stone | 25 | 10s | 15 coins |
+| Iron Armor | 500 | 5 Iron + 3 Stone | 50 | 7s | 30 coins |
+| Steel Armor | 1000 | 3 Steel + 3 Iron | 75 | 4s | 50 coins |
 
 The armour bar sits above Health in the HUD (`ArmorBar`), hidden when no armour is worn, and shows "New armor in Xs" while the next piece goes on.
 

@@ -1,7 +1,8 @@
 // ============================================================
 // Title:       ReadWritePlayerProfile
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
+// Updated by:  Ashar (v1.4: armour and ores, slot keys 4-9)
 // Description: For the Library in the Hub. Reads the saved player
 //              profile and achievements and writes them out as text
 //              so the player can track their progress: level, coins,
@@ -99,12 +100,42 @@ public class ReadWritePlayerProfile : MonoBehaviour
             string id = p.GetSlot(i);
             if (string.IsNullOrEmpty(id))
                 continue;
-            string key = i == PlayerProfile.MaxInventorySlots - 1 ? "0" : (i + 4).ToString();
-            sb.AppendLine("- [" + key + "] " + NameOf(db, id));
+            sb.AppendLine("- [" + (i + 4) + "] " + NameOf(db, id));
             anyItem = true;
         }
         if (!anyItem)
             sb.AppendLine("- Empty");
+        sb.AppendLine();
+
+        //ARMOUR AND ORES
+        sb.AppendLine("<b>Armor</b>");
+        bool anyArmor = false;
+        if (db != null)
+        {
+            foreach (ArmorData armor in db.armor)
+            {
+                int count = armor != null ? p.GetArmorCount(armor.id) : 0;
+                if (count <= 0)
+                    continue;
+                string worn = ProfileManager.IsArmorEquipped(armor) ? " (worn, shield " + Mathf.CeilToInt(p.ArmorShield) + ")" : "";
+                sb.AppendLine("- " + armor.displayName + " x" + count + worn);
+                anyArmor = true;
+            }
+        }
+        if (!anyArmor)
+            sb.AppendLine("- None");
+
+        sb.Append("<b>Ores</b>: ");
+        List<string> ores = new List<string>();
+        if (db != null)
+        {
+            foreach (OreData ore in db.ores)
+            {
+                if (ore != null)
+                    ores.Add(ore.displayName + " " + p.GetOreCount(ore.id));
+            }
+        }
+        sb.AppendLine(ores.Count > 0 ? string.Join(", ", ores) : "none");
         sb.AppendLine();
 
         //ACHIEVEMENTS

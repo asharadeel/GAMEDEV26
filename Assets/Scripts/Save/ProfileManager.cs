@@ -398,7 +398,7 @@ public static class ProfileManager
 
         Profile.Coins -= armor.coinCost;
         Profile.AddArmor(armor.id, 1);
-        if (GetEquippedArmor() == null)
+        if (GetEquippedArmor() == null || Profile.GetArmorCount(Profile.EquippedArmor) <= 0)
             EquipArmor(armor);
         return true;
     }
@@ -419,6 +419,45 @@ public static class ProfileManager
         if (string.IsNullOrEmpty(Profile.EquippedArmor))
             return null;
         return ItemDatabase.Instance.Get<ArmorData>(Profile.EquippedArmor);
+    }
+
+    public static bool IsArmorEquipped(ArmorData armor)
+    {
+        return armor != null && Profile.EquippedArmor == armor.id;
+    }
+
+    //takes it off, the pieces stay owned
+    public static void UnequipArmor()
+    {
+        Profile.EquippedArmor = "";
+        Profile.ArmorShield = 0f;
+    }
+
+    //BLACKSMITH
+    public static bool CanCraftArmor(ArmorData armor)
+    {
+        if (armor == null)
+            return false;
+        foreach (OreCost cost in armor.recipe)
+        {
+            if (cost.ore == null || Profile.GetOreCount(cost.ore.id) < cost.amount)
+                return false;
+        }
+        return true;
+    }
+
+    //uses up the ores, gives one piece, and wears it if nothing is worn
+    public static bool TryCraftArmor(ArmorData armor)
+    {
+        if (!CanCraftArmor(armor))
+            return false;
+
+        foreach (OreCost cost in armor.recipe)
+            Profile.TakeOre(cost.ore.id, cost.amount);
+        Profile.AddArmor(armor.id, 1);
+        if (GetEquippedArmor() == null || Profile.GetArmorCount(Profile.EquippedArmor) <= 0)
+            EquipArmor(armor);
+        return true;
     }
 
     //fills the worn piece's shield back up for its repair cost

@@ -14,9 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: iron_armor
   displayName: Iron Armor
-  coinCost: 150
+  coinCost: 500
   levelRequired: 1
   model: {fileID: 0}
   healthBonus: 50
   replaceDelay: 7
   repairCost: 30
+  recipe:
+  - ore: {fileID: 11400000, guid: 702d6fd906d84e54a8e97ff1020a742f, type: 2}
+    amount: 5
+  - ore: {fileID: 11400000, guid: e99e2783731d45b19ad6429538e3a60c, type: 2}
+    amount: 3

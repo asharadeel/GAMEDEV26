@@ -14,9 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: steel_armor
   displayName: Steel Armor
-  coinCost: 300
+  coinCost: 1000
   levelRequired: 1
   model: {fileID: 0}
   healthBonus: 75
   replaceDelay: 4
   repairCost: 50
+  recipe:
+  - ore: {fileID: 11400000, guid: ffbaade438be4e6492826e870307b67e, type: 2}
+    amount: 3
+  - ore: {fileID: 11400000, guid: 702d6fd906d84e54a8e97ff1020a742f, type: 2}
+    amount: 3

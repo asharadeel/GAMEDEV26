@@ -180,6 +180,7 @@ public class ShopPopups : MonoBehaviour
         popup.window.SetActive(false);
         ShopItemCard.RefreshAll();
         ConsumableCard.RefreshAll();
+        ArmorCard.RefreshAll();
         if (WeaponUpgradeUI.Instance != null)
             WeaponUpgradeUI.Instance.Refresh();
         if (SkillTreeUI.Instance != null)

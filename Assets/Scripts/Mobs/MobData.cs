@@ -1,9 +1,9 @@
 // ============================================================
 // Title:       MobData
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.3: added loot drops)
-//              Ashar (v1.4: loot can be ores too)
+//              Ashar (v1.4: loot can be ores too, v1.5: tier for ore drops)
 // Description: Profile for a mob type: its stats, its model and how
 //              it behaves (Follow = chases the player, Shooter =
 //              stays still and shoots). Also lists what it can drop
@@ -38,6 +38,8 @@ public class MobData : ScriptableObject
     public string shortName = ""; //Mobs Left tracker, e.g. "Lvl 1"
     public GameObject model;
     public MobType type = MobType.Follow;
+    [Range(1, 3)]
+    public int tier = 1;   //1 easy - 3 hard, harder mobs drop ores more (OreDropper)
 
     [Header("Stats")]
     public float health = 100f;

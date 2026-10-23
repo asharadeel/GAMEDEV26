@@ -1,11 +1,11 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     2.2
+// Version:     2.3
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 //              Ali (v2.0: coins, shooter upgrade bars,
 //              v2.1: abilities on Q/E and skill tree nodes, no special slot)
-//              Ashar (v2.2: ore pouch and armour)
+//              Ashar (v2.2: ore pouch and armour, v2.3: food slots are 4-9, 0 is the armour slot)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              coins, owned items, item levels, shooter upgrades,
@@ -92,7 +92,7 @@ public class ShooterLevels
 [System.Serializable]
 public class PlayerProfile
 {
-    public const int MaxInventorySlots = 7; // keys 4-9 and 0
+    public const int MaxInventorySlots = 6; // keys 4-9 (0 is the armour slot)
     public const float MaxStat = 100f;      // health, stamina, hunger, thirst all go 0-100
 
     //key details (set on the Main Menu's profile select)
@@ -470,21 +470,21 @@ public class PlayerProfile
 
     public int InventorySlots
     {
-        get { return inventorySlots; }
+        get { return Mathf.Min(inventorySlots, MaxInventorySlots); }   // old saves had 7
         set { inventorySlots = Mathf.Clamp(value, 0, MaxInventorySlots); }
     }
 
     public string GetSlot(int index)
     {
         List<string> slots = currentInventory.consumables;
-        if (index < 0 || index >= inventorySlots || index >= slots.Count)
+        if (index < 0 || index >= InventorySlots || index >= slots.Count)
             return "";
         return slots[index];
     }
 
     public void SetSlot(int index, string itemId)
     {
-        if (index < 0 || index >= inventorySlots)
+        if (index < 0 || index >= InventorySlots)
             return;
 
         List<string> slots = currentInventory.consumables;
@@ -496,7 +496,7 @@ public class PlayerProfile
     public int CountInInventory(string itemId)
     {
         int count = 0;
-        for (int i = 0; i < inventorySlots; i++)
+        for (int i = 0; i < InventorySlots; i++)
         {
             if (GetSlot(i) == itemId)
                 count++;
@@ -507,7 +507,7 @@ public class PlayerProfile
     // takes from the last slot it's in
     public bool RemoveFromInventory(string itemId)
     {
-        for (int i = inventorySlots - 1; i >= 0; i--)
+        for (int i = InventorySlots - 1; i >= 0; i--)
         {
             if (GetSlot(i) == itemId)
             {
@@ -521,7 +521,7 @@ public class PlayerProfile
     // first empty usable slot, false if full
     public bool AddToInventory(string itemId)
     {
-        for (int i = 0; i < inventorySlots; i++)
+        for (int i = 0; i < InventorySlots; i++)
         {
             if (string.IsNullOrEmpty(GetSlot(i)))
             {
