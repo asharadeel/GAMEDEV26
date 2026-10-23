@@ -85,6 +85,7 @@ Hub:
 - `ShardPortal`: after you kill the Level 1 boss and pick up its shard (the portal piece) a portal stall like Level 1/2's takes the welcome stall's spot, with a 3x3 `ShardGrid`: dark slots, a white cube per shard collected (1 for now). No interaction yet
 - Left side: Shop, right side: Inventory (it used to be the Library), east wall: Skill Tree. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `StoreUI`, `InventoryMenu`, `SkillTreeMenu` are under `Canvas`
+- `PlayerInfo` (first under `Canvas`, so menus draw over it, run by `HubHUD`): top left `NamePanel` with the player's name and an XP bar ("120 / 500 XP"), top right a blue `LevelBadge` ("LEVEL 2") and a `CoinsPill` (gold coin + coins), left of the Controls button
 - `InventoryMenu`: a `GeneralSelectorUI` copy titled "Inventory" with 5 tabs: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Abilities (Fire, Ice, Lightning), Armor and Backpack. Each tab's `Viewport/Content` has a heading, a line of text and an `Items` grid (`Grid Layout Group` 300 x 400 cells + `InventoryGrid`). The weapon tabs have `InventoryCard`s (only owned weapons show, Equip / Unequip), the Abilities tab has `AbilityCard`s (Equip Q / Equip E)
 - `Skill Tree` stall (east wall, x 14.8, with `SkillTreeLight`): same as the other stalls (sign + `ShowUIonApproach`), opens `SkillTreeMenu`: a full-screen `GeneralPopUpWindow` copy (`SkillTreeWindow`, action button off) with a coins line and 3 columns, `Branch (Fire)`, `Branch (Ice)`, `Branch (Lightning)`, each a `Header` and a `Tree` area. `SkillTreeUI` on the container draws the nodes and lines into the `Tree` areas
 - `ControlsUI`: the same Controls button as Scene 1 (top right). It opens `ControlsPanel` with the Hub's controls (move, sprint, jump, camera, zoom, flashlight, walk up to signs)
@@ -127,10 +128,10 @@ Scene 1 Plains layout (200x200 grey floor):
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
 - `HexRoom` (`BossArea`, east of the map past the walls, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 - `HexRoom/BossArena`: the boss fight (added with **Tools > Build Boss Room**, running it again replaces it)
-  - `Boss` (Plains Guardian, 1000 health) in the middle, wakes up when the player walks into the room
+  - `Boss` (Plains Guardian, 50 health for now) in the middle, wakes up when the player walks into the room
   - 6 purple `Pillar`s on the corners, joined to the boss by a beam. While any pillar stands the boss only takes 20% damage. Break all 6 (shoot or hit them) and the boss turns orange and takes full damage for 12 seconds, then the pillars grow back
   - Moves: jump slam (red ring shows where it lands, hurts everything inside), throws 3 boulders aimed ahead of the player (pillars block them), swings its club when the player is close
-  - When it dies all its pillars break for good and a `PortalPiece` appears in the middle. Walking onto it picks it up (saved on the profile as `HasPortalPiece`) and opens `PortalPieceMenu` (a `GeneralPopUpWindow`), both buttons load the Hub
+  - When it dies all its pillars break for good, you get the boss reward (`BossReward`: 500 coins, enough XP for a level, 4-6 random food/drinks and ores) and a `PortalPiece` appears in the middle. Walking onto it picks it up (saved on the profile as `HasPortalPiece`) and opens `PortalPieceMenu` (a `GeneralPopUpWindow`), both buttons load the Hub
 - `PrototypeSkip` (yellow circle beside the path, before the maze): testing shortcut, stand in it and press E to go straight to `HexRoom/DoorSpawn`. Uses `DoorInteract`. Made by **Tools > Build Boss Room**, delete it before the final build
 
 Scene 1 Plains UI (`Canvas > PlayerUI`):
@@ -194,7 +195,7 @@ All scripts are in `Assets/Scripts/`.
 - `Flashlight.cs` - on the Player (Hub and Scene 1). F turns a spot light on/off that points where you're aiming (`Range` 25, `Spot Angle` 50, `Intensity` 3). The F key is `GameInput.Flashlight`
 - `PlayerProfile.cs` - the player's saved data (not a component)
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
-  - Level, Coins (new profiles start with 150; still called `tokens` in the save file so old saves keep their balance), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
+  - Level and XP (`AddXp` levels up, `XpToNextLevel` = 500 x level), Coins (new profiles start with 150; still called `tokens` in the save file so old saves keep their balance), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
   - `Current Inventory` - what they have on them right now: shooter, lazer, melee, the abilities on Q and E (`abilityQ` / `abilityE`, Fire and Ice to start) and the food/drink slots (the backpack).
   - `Stored Food` - food/drink kept back in the Hub (`GetStoredFood`, `AddStoredFood`, `TakeStoredFood`). New profiles start with 2 Beans, 2 Water Bottles and 2 Sodas (`StarterFood`). Pickups that don't fit in the backpack go here, and the Hub's Backpack tab moves them in and out
@@ -366,6 +367,8 @@ Loot (each rolled separately when the mob dies):
 
 ## Scripts/World/
 - `SessionTracker.cs` - the level's own log for this run: time survived, mobs killed (`Mob` reports) and items picked up (`Pickup` reports). `Report()` is what the death screen shows. One per level, on the `DeathScreen` container
+- `HubHUD.cs` (Scripts/Hub) - the Hub's player info: name, level, XP bar and coins. Only changes the text when the profile changes
+- `BossReward.cs` (Scripts/Mobs) - `BossReward.Give(position)`, called by `BossMob` when it dies: 500 coins, XP (at least 500, always enough for one level), 4-6 random items (60% a food/drink into the backpack or stored food, 40% 1-3 ores: stone 60%, iron 30%, steel 10%). Saves and shows each reward as floating text
 - `PortalPiece.cs` - spins and bobs the portal piece the boss drops (its `ShowUIonApproach` opens the pop-up). Walking onto it sets `HasPortalPiece` on the profile and saves
 - `PortalSlot.cs` - on the Hub's `Level2Portal`. If the profile has the portal piece, walking up opens `PlacePiecePrompt` instead of the locked pop-up. Place turns the slot and the portal purple and saves `Portal2Open`. There's no Level 2 yet, so the open portal does nothing. Right-click the component for **Give Portal Piece (testing)**
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away

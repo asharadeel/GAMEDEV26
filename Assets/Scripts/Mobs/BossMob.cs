@@ -351,6 +351,7 @@ public class BossMob : Mob
         }
 
         FloatingText.Show(transform.position + Vector3.up * 5f, data.displayName + " defeated!");
+        BossReward.Give(transform.position);   // coins, xp and random items (added by Ashar)
     }
 
     // little effects

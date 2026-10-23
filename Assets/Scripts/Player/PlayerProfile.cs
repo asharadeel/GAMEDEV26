@@ -1,13 +1,13 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     2.6
+// Version:     2.7
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 //              Ali (v2.0: coins, shooter upgrade bars,
 //              v2.1: abilities on Q/E and skill tree nodes, no special slot)
 //              Ashar (v2.2: ore pouch and armour, v2.3: food slots are 4-9, 0 is the armour slot,
 //              v2.4: welcome seen, shard count, v2.5: stored food, specials removed,
-//              v2.6: new profiles start with 2 of each food/drink stored)
+//              v2.6: new profiles start with 2 of each food/drink stored, v2.7: xp and levelling up)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              coins, owned items, item levels, shooter upgrades,
@@ -104,6 +104,7 @@ public class PlayerProfile
 
     //games stats
     [SerializeField] private int level = 1;
+    [SerializeField] private int xp = 0;          // towards the next level
     [SerializeField] private int tokens = 150;   
 
     [SerializeField] private float speed = 5f;
@@ -138,6 +139,7 @@ public class PlayerProfile
     //IDENTITY
     public static readonly string[] StarterFood = { "beans", "water_bottle", "soda" };
     public const int StarterFoodAmount = 2;
+    public const int XpPerLevel = 500;
 
 
     // A brand new profile, stamped with the date and time it was made
@@ -232,6 +234,31 @@ public class PlayerProfile
     {
         get { return level; }
         set { level = Mathf.Max(1, value); }
+    }
+
+    //xp needed to go from this level to the next (level 1: 500, level 2: 1000...)
+    public int XpToNextLevel
+    {
+        get { return XpPerLevel * level; }
+    }
+
+    public int Xp
+    {
+        get { return xp; }
+    }
+
+    // adds xp and levels up as many times as it covers, returns how many levels were gained
+    public int AddXp(int amount)
+    {
+        int gained = 0;
+        xp += Mathf.Max(0, amount);
+        while (xp >= XpToNextLevel)
+        {
+            xp -= XpToNextLevel;
+            level++;
+            gained++;
+        }
+        return gained;
     }
 
     public int Coins
