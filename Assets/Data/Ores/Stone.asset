@@ -16,4 +16,5 @@ MonoBehaviour:
   displayName: Stone
   coinCost: 5
   levelRequired: 1
+  model: {fileID: 2575601587679189118, guid: 404074642489402ea2e9c25f96172be2, type: 3}
   colour: {r: 0.55, g: 0.55, b: 0.55, a: 1}

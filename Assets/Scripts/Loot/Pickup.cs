@@ -1,9 +1,10 @@
 // ============================================================
 // Title:       Pickup
-// Version:     1.4
+// Version:     1.5
 // Written by:  Davud Jabiyev
 // Updated by:  Davud Jabiyev (v1.3: counts pickups for achievements)
-//              Ashar (v1.4: ores, they go in the ore pouch so are never left behind)
+//              Ashar (v1.4: ores, they go in the ore pouch so are never left behind,
+//              v1.5: uses the item's model when it has one)
 // Description: A consumable lying in the world. The player picks it
 //              up by walking over it. If the inventory is full it
 //              stays on the ground. Coloured by type, spins and bobs
@@ -26,6 +27,22 @@ public class Pickup : MonoBehaviour
     // Small cube with a trigger collider
     public static void Spawn(Vector3 position, ItemData item)
     {
+        // Use the item's model if it has one (Models/Consumables, Models/Ores)
+        GameObject model = null;
+        if (item is ConsumableData c) {
+            model = c.model;
+        } else if (item is OreData o) {
+            model = o.model;
+        }
+        if (model != null) {
+            GameObject obj = Object.Instantiate(model, position + Vector3.up * 0.5f, Quaternion.identity);
+            BoxCollider box = obj.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            box.size = new Vector3(0.8f, 0.8f, 0.8f);
+            obj.AddComponent<Pickup>().item = item;
+            return;
+        }
+
         // Create cube
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.position = position + Vector3.up * 0.5f;

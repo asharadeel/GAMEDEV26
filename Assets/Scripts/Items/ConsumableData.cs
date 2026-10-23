@@ -1,9 +1,10 @@
 // ============================================================
 // Title:       ConsumableData
-// Version:     1.1
+// Version:     1.2
 // Written by:  Ashar
 // Description: Food or drink that restores stats when used.
-//              Refunds for half its price.
+//              Refunds for half its price. Model = what it looks like
+//              when a mob drops it.
 // ============================================================
 
 using System.Collections;
@@ -13,6 +14,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewConsumable", menuName = "Game/Consumable")]
 public class ConsumableData : ItemData
 {
+    [Header("Dropped")]
+    public GameObject model;   //Models/Consumables, empty = plain cube
+
     [Header("Restores")]
     public float hunger = 0f;
     public float thirst = 0f;

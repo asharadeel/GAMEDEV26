@@ -16,4 +16,5 @@ MonoBehaviour:
   displayName: Steel
   coinCost: 40
   levelRequired: 1
+  model: {fileID: 6736212069451932742, guid: 7bc2799888994e128908551ef8d73fd5, type: 3}
   colour: {r: 0.7, g: 0.78, b: 0.88, a: 1}

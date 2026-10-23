@@ -1,10 +1,10 @@
 // ============================================================
 // Title:       OreData
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
-// Description: A crafting ore (Stone, Iron, Steel...). Dropped by
-//              mobs and bought in the shop, kept in the profile's
-//              ore pouch (not the food/drink slots).
+// Description: A crafting ore (Stone, Iron, Steel...). Only dropped
+//              by mobs (OreDropper), used at the Blacksmith. Kept in
+//              the profile's ore pouch (not the food/drink slots).
 //              Create > Game > Ore
 // ============================================================
 
@@ -16,5 +16,6 @@ using UnityEngine;
 public class OreData : ItemData
 {
     [Header("Ore")]
-    public Color colour = Color.grey;   //pickup cube colour
+    public GameObject model;            //Models/Ores sphere, empty = plain cube
+    public Color colour = Color.grey;   //plain cube colour when there's no model
 }

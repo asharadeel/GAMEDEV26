@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Soda
   coinCost: 15
   levelRequired: 1
+  model: {fileID: 7359637220241436938, guid: c18b835559cb47fba33844f90584643f, type: 3}
   hunger: 0
   thirst: 25
   stamina: 30

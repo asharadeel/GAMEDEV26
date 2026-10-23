@@ -16,4 +16,5 @@ MonoBehaviour:
   displayName: Iron
   coinCost: 15
   levelRequired: 1
+  model: {fileID: 5745846859064672413, guid: 4d72f733f13a45d2a0e2eb12c7d35522, type: 3}
   colour: {r: 0.65, g: 0.42, b: 0.3, a: 1}

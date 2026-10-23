@@ -21,6 +21,8 @@ All project content lives in `Assets/`:
   - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a ring and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
+  - `Consumables/` - what dropped food/drink looks like: `Beans` (chrome can, orange label), `WaterBottle` (blue glass bottle, white cap), `Soda` (red can). Set as `model` on each consumable asset
+  - `Ores/` - dropped ores as spheres: `StoneOre` (stone), `IronOre` (rusty metal), `SteelOre` (steel). Set as `model` on each ore asset
     - `Spawners/` - `MobSpawner` prefab
   - `Abilities/` - `Fireball`, `FrostNova`, `LightningBolt` (what the abilities look like)
   - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, on at night), `Lamp` (small glowing yellow cube with a yellow point light, intensity 2.5, range 20, always on), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
@@ -323,7 +325,7 @@ Loot (each rolled separately when the mob dies):
 ## Scripts/Loot/
 - `LootDropper.cs` - `LootDropper.Drop(mobData, position)` rolls the mob's `drops` and spawns a Pickup for each success. Called by `Mob` when it dies
 - `Pickup.cs` - a dropped consumable on the ground
-  - `Pickup.Spawn(position, item)` makes one: a small cube, blue for drinks, orange for food, white otherwise
+  - `Pickup.Spawn(position, item)` makes one from the item's `model` (Models/Consumables, Models/Ores). Items with no model fall back to a small cube: blue for drinks, orange for food, the ore's colour for ores, white otherwise
   - Spins and bobs, walk over it to pick it up. If the inventory is full it stays on the ground
   - Disappears after `Lifetime` (30s)
   - Counts towards achievements (picked up, or missed with a full inventory)
