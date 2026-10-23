@@ -170,7 +170,7 @@ All scripts are in `Assets/Scripts/`.
   - `Camera Settings` controls the camera (Camera, Pitch, Yaw, Roll, Distance, Orthographic Size). The camera follows the player and always uses these values, change them here not on the camera
 - `DayNight.cs` - goes on GameController
   - Rotates the Directional Light (sun) for a day/night cycle and fades it out at night
-  - `Sun` is the light, `Day Length` is seconds per day, `Time Of Day` is where the day starts (0 midnight, 0.25 sunrise, 0.5 noon, 0.75 sunset), `Max Intensity` is noon brightness
+  - `Sun` is the light, `Day Length` is seconds per day, `Time Of Day` is where the day starts (0 midnight, 0.25 sunrise, 0.5 noon, 0.75 sunset), `Max Intensity` is noon brightness. At night the same light becomes a dim blue moon (`Moon Intensity` 0.3, `Moon Colour`) so it never goes fully black
 - `EscapeMenu.cs` - goes on an always-on object (EscMenu)
   - Pressing Esc toggles the `Menu` object on/off
   - Put `InactiveOnStart` on the menu if it should start hidden

@@ -1,8 +1,10 @@
 // ============================================================
 // Title:       DayNight
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ashar
-// Description: Day/night cycle: rotates and fades the sun.
+// Description: Day/night cycle: rotates and fades the sun. At night
+//              the same light becomes a dim blue moon so it never
+//              goes fully black.
 // ============================================================
 
 using System.Collections;
@@ -21,18 +23,33 @@ public class DayNight : MonoBehaviour
 
     public float maxIntensity = 1f;
 
+    //moon details
+    public float moonIntensity = 0.3f;                          //brightness at midnight
+    public Color sunColour = Color.white;
+    public Color moonColour = new Color(0.6f, 0.7f, 1f);
+
     void Update()
     {
         timeOfDay += Time.deltaTime / dayLength;
         if (timeOfDay >= 1f)
             timeOfDay -= 1f;
 
-        //ROTATE SUN
         float angle = timeOfDay * 360f - 90f;
-        sun.transform.rotation = Quaternion.Euler(angle, -30f, 0f);
+        float height = Mathf.Sin(timeOfDay * Mathf.PI * 2f - Mathf.PI / 2f);   //1 noon, -1 midnight
 
-        //SUN INTENSITY
-        float height = Mathf.Sin(timeOfDay * Mathf.PI * 2f - Mathf.PI / 2f);
-        sun.intensity = maxIntensity * Mathf.Clamp01(height);
+        if (height >= 0f)
+        {
+            //SUN
+            sun.transform.rotation = Quaternion.Euler(angle, -30f, 0f);
+            sun.intensity = maxIntensity * height;
+            sun.color = sunColour;
+        }
+        else
+        {
+            //MOON - opposite side of the sky, fades in after sunset so it doesn't pop
+            sun.transform.rotation = Quaternion.Euler(angle + 180f, -30f, 0f);
+            sun.intensity = moonIntensity * Mathf.Clamp01(-height * 3f);
+            sun.color = moonColour;
+        }
     }
 }
