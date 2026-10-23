@@ -9,18 +9,20 @@
 //              Create > Game > Weapons > Special
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-// One level of a special weapon
+//SPECIAL LEVEL
 [System.Serializable]
 public class SpecialLevel
 {
-    public GameObject model;         // the projectile
+    public GameObject model;         //the projectile
     public float damage = 50f;
-    public float fireRate = 0.5f;    // shots per second
+    public float fireRate = 0.5f;    //shots per second
     public float speed = 10f;
-    public float radius = 3f;        // explosion radius
-    public float distance = 50f;     // how far it travels before it disappears
+    public float radius = 3f;        //explosion radius
+    public float distance = 50f;     //travel distance before it disappears
     public float size = 1f;
     public Vector3 rotationOffset = new Vector3(90f, 0f, 0f);
 }

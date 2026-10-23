@@ -5,20 +5,23 @@
 // Description: Button: turns off every object in the list.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Put on a Button. Turns OFF every object in the list when clicked.
 [RequireComponent(typeof(Button))]
 public class CloseElemOnClick : MonoBehaviour
 {
     public GameObject[] elements;
 
+    //LISTENERS
     void Awake()
     {
         GetComponent<Button>().onClick.AddListener(Close);
     }
 
+    //INTERFACE
     void Close()
     {
         foreach (GameObject element in elements)
@@ -26,5 +29,6 @@ public class CloseElemOnClick : MonoBehaviour
             if (element != null)
                 element.SetActive(false);
         }
+        Debug.Log("Closed an interface.");
     }
 }

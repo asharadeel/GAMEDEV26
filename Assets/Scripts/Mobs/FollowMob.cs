@@ -7,19 +7,23 @@
 //              close. Uses a Rigidbody so walls block it.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FollowMob : Mob
 {
     [Header("Wander")]
-    public float wanderSpeedMultiplier = 0.4f;   // wanders slower than it chases
-    public float wanderChangeEvery = 3f;         // seconds before picking a new direction
+    public float wanderSpeedMultiplier = 0.4f;
+    public float wanderChangeEvery = 3f; //seconds
 
+    //movement details
     private Rigidbody rb;
     private Vector3 wanderDirection;
     private float nextWanderChange;
     private float nextAttackTime;
 
+    //STARTING PROCEDURES
     public override void Init(MobData mobData, GameObject healthBarPrefab)
     {
         base.Init(mobData, healthBarPrefab);
@@ -27,10 +31,11 @@ public class FollowMob : Mob
         rb = GetComponent<Rigidbody>();
         if (rb == null)
             rb = gameObject.AddComponent<Rigidbody>();
-        rb.freezeRotation = true;                // we turn it ourselves
+        rb.freezeRotation = true; //Face() handles turning
         rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
+    //MOVEMENT
     void FixedUpdate()
     {
         if (data == null || rb == null)
@@ -45,7 +50,7 @@ public class FollowMob : Mob
             move = DirectionToPlayer();
             Face(move);
 
-            // Close enough to hit: stop and attack
+            //in range, stop and attack
             if (distance <= myRadius + playerRadius + data.attackRange)
             {
                 move = Vector3.zero;
@@ -61,7 +66,7 @@ public class FollowMob : Mob
         rb.velocity = new Vector3(move.x * speed, rb.velocity.y, move.z * speed);
     }
 
-    // Random direction (or standing still) that changes every few seconds
+    //WANDER
     Vector3 Wander()
     {
         if (Time.time >= nextWanderChange)
@@ -74,6 +79,7 @@ public class FollowMob : Mob
         return wanderDirection;
     }
 
+    //ATTACK
     void TryAttack()
     {
         if (Time.time < nextAttackTime)

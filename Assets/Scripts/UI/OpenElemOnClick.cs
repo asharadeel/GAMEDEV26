@@ -5,20 +5,23 @@
 // Description: Button: turns on every object in the list.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Put on a Button. Turns ON every object in the list when clicked.
 [RequireComponent(typeof(Button))]
 public class OpenElemOnClick : MonoBehaviour
 {
     public GameObject[] elements;
 
+    //LISTENERS
     void Awake()
     {
         GetComponent<Button>().onClick.AddListener(Open);
     }
 
+    //INTERFACE
     void Open()
     {
         foreach (GameObject element in elements)
@@ -26,5 +29,6 @@ public class OpenElemOnClick : MonoBehaviour
             if (element != null)
                 element.SetActive(true);
         }
+        Debug.Log("Opened an interface.");
     }
 }

@@ -6,10 +6,10 @@
 //              Refunds for half its price.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-// Food or drink. Goes in an inventory slot and is used up when eaten.
-// Make new ones with: Right-click in Project > Create > Game > Consumable
 [CreateAssetMenu(fileName = "NewConsumable", menuName = "Game/Consumable")]
 public class ConsumableData : ItemData
 {
@@ -19,7 +19,7 @@ public class ConsumableData : ItemData
     public float stamina = 0f;
     public float health = 0f;
 
-    // Half the price, rounded up
+    //half price, rounded up
     public int RefundValue
     {
         get { return Mathf.CeilToInt(coinCost / 2f); }

@@ -9,11 +9,11 @@
 //              H hides/shows the whole player UI.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Goes on PlayerUI. Keeps the bottom bars in sync with the player profile
-// and fills in the objectives list.
 public class PlayerHUD : MonoBehaviour
 {
     [Header("Bars")]
@@ -37,9 +37,10 @@ public class PlayerHUD : MonoBehaviour
 
     private CanvasGroup group;
 
+    //STARTING PROCEDURES
     void Start()
     {
-        // Fade the UI instead of turning it off, so this script keeps listening for H
+        //fade instead of disabling, so H still works
         group = GetComponent<CanvasGroup>();
         if (group == null)
             group = gameObject.AddComponent<CanvasGroup>();
@@ -65,6 +66,7 @@ public class PlayerHUD : MonoBehaviour
             abilityText.text = abilities.SlotLabel(0) + "\n" + abilities.SlotLabel(1);
     }
 
+    //INTERFACE
     public void SetVisible(bool visible)
     {
         group.alpha = visible ? 1f : 0f;
@@ -78,7 +80,7 @@ public class PlayerHUD : MonoBehaviour
             slider.value = value / max;
     }
 
-    // Call this after changing the objectives array from code
+    //OBJECTIVES
     public void RefreshObjectives()
     {
         if (objectivesText == null)

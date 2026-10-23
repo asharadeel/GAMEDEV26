@@ -11,6 +11,7 @@
 //              New item? Add it to the right list here.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ public class ItemDatabase : ScriptableObject
     public List<ShooterData> shooters = new List<ShooterData>();
     public List<LazerData> lazers = new List<LazerData>();
     public List<MeleeData> melee = new List<MeleeData>();
-    public List<SpecialData> specials = new List<SpecialData>();   // empty since abilities replaced specials
+    public List<SpecialData> specials = new List<SpecialData>(); //empty, abilities replaced specials
 
     [Header("Abilities")]
     public List<AbilityData> abilities = new List<AbilityData>();
@@ -30,6 +31,7 @@ public class ItemDatabase : ScriptableObject
     public List<ConsumableData> food = new List<ConsumableData>();
     public List<ConsumableData> drinks = new List<ConsumableData>();
 
+    //INSTANCE
     private static ItemDatabase instance;
 
     public static ItemDatabase Instance
@@ -42,7 +44,7 @@ public class ItemDatabase : ScriptableObject
         }
     }
 
-    // Every item from every list
+    //LOOKUPS
     public List<ItemData> AllItems()
     {
         List<ItemData> all = new List<ItemData>();

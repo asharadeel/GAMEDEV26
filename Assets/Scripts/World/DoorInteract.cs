@@ -11,6 +11,7 @@
 //              moved to the destination.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,28 +22,28 @@ public class DoorInteract : MonoBehaviour
     public Transform destination;
 
     [Header("Range")]
-    public Transform interactPoint;      // centre of the radius (defaults to this object)
-    public float radius = 4f;            // close enough to use the door
-    public float showRingWithin = 10f;   // ring appears when this close
+    public Transform interactPoint;      //defaults to this object
+    public float radius = 4f;
+    public float showRingWithin = 10f;
 
     [Header("Visuals")]
-    public GameObject prompt;            // on-screen "E / Click" UI
-    public Button promptButton;          // clicking the prompt also uses the door
-    public GameObject radiusRing;        // circle on the floor showing the radius
-    public float promptHeight = 3f;      // how high above the interact point the prompt sits
+    public GameObject prompt;            //on-screen "E / Click" UI
+    public Button promptButton;
+    public GameObject radiusRing;
+    public float promptHeight = 3f;
 
     private Transform player;
     private Camera cam;
 
-    // Doors the player is close enough to use right now
     private static readonly HashSet<DoorInteract> inRangeDoors = new HashSet<DoorInteract>();
 
-    // True while E would open a door (PlayerAbilities doesn't use the E ability then)
+    //PlayerAbilities skips the E ability while this is true
     public static bool PlayerNearDoor
     {
         get { return inRangeDoors.Count > 0; }
     }
 
+    //STARTING PROCEDURES
     void Start()
     {
         GameObject p = GameObject.FindWithTag("Player");
@@ -56,7 +57,7 @@ public class DoorInteract : MonoBehaviour
         if (promptButton != null)
             promptButton.onClick.AddListener(Enter);
 
-        // Ring sprite is 1 unit wide, so scale it to the radius
+        //ring sprite is 1 unit wide
         if (radiusRing != null)
             radiusRing.transform.localScale = new Vector3(radius * 2f, radius * 2f, 1f);
 
@@ -82,7 +83,7 @@ public class DoorInteract : MonoBehaviour
         if (!inRange)
             return;
 
-        // Keep the prompt on screen above the door
+        //keep prompt above the door
         if (prompt != null && cam != null)
             prompt.transform.position = cam.WorldToScreenPoint(interactPoint.position + Vector3.up * promptHeight);
 
@@ -90,6 +91,7 @@ public class DoorInteract : MonoBehaviour
             Enter();
     }
 
+    //TELEPORT
     public void Enter()
     {
         if (destination == null || player == null)
@@ -105,8 +107,10 @@ public class DoorInteract : MonoBehaviour
 
         SetPrompt(false);
         SetRing(false);
+        Debug.Log("Entered door to " + destination.name);
     }
 
+    //HELPERS
     float FlatDistance(Vector3 a, Vector3 b)
     {
         a.y = 0f;

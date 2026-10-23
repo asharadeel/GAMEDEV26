@@ -8,15 +8,17 @@
 //              Create > Game > Weapons > Melee
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-// One level of a melee weapon
+//MELEE LEVEL
 [System.Serializable]
 public class MeleeLevel
 {
-    public GameObject model;         // flashed briefly on a hit (can be empty)
+    public GameObject model;         //flashed on a hit (can be empty)
     public float damage = 5f;
-    public float fireRate = 2f;      // hits per second
+    public float fireRate = 2f;      //hits per second
     public float radius = 1.5f;
 }
 

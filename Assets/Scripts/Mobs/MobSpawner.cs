@@ -29,23 +29,25 @@ public class MobSpawner : MonoBehaviour
     public SpawnEntry[] spawns;
 
     [Header("UI")]
-    public GameObject healthBarPrefab;   // floats above each mob (UI/MobHealthBar)
+    public GameObject healthBarPrefab;   //UI/MobHealthBar
 
     [Header("Timing")]
-    public float firstInterval = 5f;     // row 0 spawns this often
-    public float delayPerRow = 30f;      // each row starts this much later than the one before
-    public float intervalPerRow = 4f;    // each row spawns this much slower than the one before
+    public float firstInterval = 5f;
+    public float delayPerRow = 30f;
+    public float intervalPerRow = 4f;
 
     [Header("Area")]
-    public float spawnRadius = 1.5f;     // random spread around the spawner
-    public float activationRadius = 20f; // starts spawning when the player is this close
-    public int maxAlive = 4;             // waits to spawn more until one of these dies
+    public float spawnRadius = 1.5f;
+    public float activationRadius = 20f;
+    public int maxAlive = 4;
 
+    //spawner state
     private Transform player;
     private bool started;
-    private int[] remaining;             // per row: still to be killed (not spawned yet + alive)
-    private int alive;                   // mobs from this spawner alive right now
+    private int[] remaining;             //per row: not spawned yet + alive
+    private int alive;
 
+    //STARTING PROCEDURES
     void Awake()
     {
         remaining = new int[spawns.Length];
@@ -60,6 +62,7 @@ public class MobSpawner : MonoBehaviour
             player = p.transform;
     }
 
+    //ACTIVATION
     void Update()
     {
         if (started || player == null)
@@ -76,7 +79,7 @@ public class MobSpawner : MonoBehaviour
             StartCoroutine(SpawnRow(i));
     }
 
-    // How many of this mob type are still left to kill from this spawner
+    //QUERIES
     public int Remaining(MobData mob)
     {
         int total = 0;
@@ -88,7 +91,6 @@ public class MobSpawner : MonoBehaviour
         return total;
     }
 
-    // Every mob type this spawner uses, in row order
     public IEnumerable<MobData> MobTypes()
     {
         foreach (SpawnEntry entry in spawns)
@@ -98,6 +100,7 @@ public class MobSpawner : MonoBehaviour
         }
     }
 
+    //SPAWNING
     IEnumerator SpawnRow(int row)
     {
         SpawnEntry entry = spawns[row];
@@ -111,7 +114,7 @@ public class MobSpawner : MonoBehaviour
 
         for (int n = 0; n < entry.amount; n++)
         {
-            // too many already out, wait for one to die
+            //wait for one to die
             while (alive >= maxAlive)
                 yield return null;
 
@@ -129,14 +132,14 @@ public class MobSpawner : MonoBehaviour
         mob.name = mobData.displayName;
         StandOnGround(mob, transform.position.y);
 
-        // The profile's type decides which kind of mob it becomes
+        //mob type
         Mob m = mobData.type == MobType.Shooter ? mob.AddComponent<ShooterMob>() : (Mob)mob.AddComponent<FollowMob>();
         m.Init(mobData, healthBarPrefab);
         alive++;
         m.onDied = () => { remaining[row]--; alive--; };
     }
 
-    // Moves the mob up/down so the bottom of its model sits at groundY
+    //bottom of the model sits at groundY
     void StandOnGround(GameObject mob, float groundY)
     {
         Renderer[] renderers = mob.GetComponentsInChildren<Renderer>();
@@ -150,7 +153,7 @@ public class MobSpawner : MonoBehaviour
         mob.transform.position += Vector3.up * (groundY - bounds.min.y);
     }
 
-    // Shows the spawn area in the Scene view
+    //GIZMOS
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;

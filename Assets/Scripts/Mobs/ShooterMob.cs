@@ -6,12 +6,15 @@
 //              they're in range and shoots at them.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ShooterMob : Mob
 {
     private float nextShotTime;
 
+    //AIM AND FIRE
     void Update()
     {
         if (data == null || player == null)
@@ -30,9 +33,10 @@ public class ShooterMob : Mob
         }
     }
 
+    //SHOOTING
     void Shoot(Vector3 dir)
     {
-        // Start just outside the mob, at the player's height so it flies flat into them
+        //player's height so it flies flat into them
         Vector3 pos = transform.position + dir * (myRadius + 0.5f);
         pos.y = player.position.y;
 

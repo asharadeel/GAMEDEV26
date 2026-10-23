@@ -9,32 +9,28 @@
 //              upgrade/refund helpers, and the abilities' skill tree.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// The current player profile, usable from any script in any scene:
-//   ProfileManager.Profile.Coins += 50;
-//   ProfileManager.TryBuyWeapon(someWeapon);
-// There are 3 slots, saved as profile_1.json to profile_3.json. The Main Menu
-// picks one with LoadSlot. If a scene is played without picking one (testing
-// in the editor), the old single save profile.json is used instead.
-// Saves when the game closes.
+//PROFILE MANAGER - e.g. ProfileManager.Profile.Coins += 50;
+//no slot picked (testing in editor) uses the old profile.json. saves on quit
 public static class ProfileManager
 {
     public const int MaxProfiles = 3;
     public const int NoSlot = -1;
 
+    //current profile
     private static PlayerProfile profile;
     private static int currentSlot = NoSlot;
     private static bool hookedQuit;
 
-    // 0-2, or NoSlot if no profile was picked on the Main Menu
+    // 0-2, or NoSlot
     public static int CurrentSlot
     {
         get { return currentSlot; }
     }
 
-    // True once a profile has been picked on the Main Menu
     public static bool HasProfile
     {
         get { return currentSlot != NoSlot; }
@@ -57,7 +53,6 @@ public static class ProfileManager
         }
     }
 
-    // profile_1, profile_2, profile_3 (or profile with no slot)
     public static string FileName(int slot)
     {
         return slot == NoSlot ? "profile" : "profile_" + (slot + 1);
@@ -69,7 +64,7 @@ public static class ProfileManager
             SaveSystem.Save(FileName(currentSlot), profile);
     }
 
-    // Resets progress (stats, coins, items) but keeps the name, passkey and colour
+    // resets progress but keeps the name, passkey and colour
     public static void Delete()
     {
         PlayerProfile fresh = new PlayerProfile();
@@ -79,14 +74,14 @@ public static class ProfileManager
         Save();
     }
 
-    // ---- Slots ----
+    //SLOTS
 
     public static bool SlotExists(int slot)
     {
         return SaveSystem.Exists(FileName(slot));
     }
 
-    // Reads a slot without switching to it (for the profile cards). Null if empty.
+    // reads a slot without switching to it, null if empty
     public static PlayerProfile PeekSlot(int slot)
     {
         if (slot == currentSlot && profile != null)
@@ -96,7 +91,7 @@ public static class ProfileManager
         return SaveSystem.Load<PlayerProfile>(FileName(slot), null);
     }
 
-    // Switches to a slot: saves the old one, then the next use of Profile loads the new one
+    // saves the old slot, next use of Profile loads the new one
     public static void LoadSlot(int slot)
     {
         Save();
@@ -121,14 +116,13 @@ public static class ProfileManager
         WriteSlot(slot, p);
     }
 
-    // Deletes the slot's profile and its achievements
     public static void DeleteSlot(int slot)
     {
         SaveSystem.Delete(FileName(slot));
         AchievementManager.DeleteSave(slot);
         if (slot == currentSlot)
         {
-            // Stop using it, otherwise it'd be saved again when the game closes
+            // stop using it or it gets saved again on quit
             currentSlot = NoSlot;
             profile = null;
             AchievementManager.Reload();
@@ -142,7 +136,7 @@ public static class ProfileManager
             profile = p;
     }
 
-    // ---- Weapons ----
+    //WEAPONS
 
     public static bool Owns(WeaponData weapon)
     {
@@ -161,13 +155,13 @@ public static class ProfileManager
         return true;
     }
 
-    // Starting items can't be refunded, and neither can what's equipped
+    // starting items and equipped items can't be refunded
     public static bool CanRefund(WeaponData weapon)
     {
         return weapon != null && !weapon.unlocked && Profile.HasBought(weapon.id) && !IsEquipped(weapon);
     }
 
-    // Gives back a third of the price (not the upgrades) and resets the level
+    // a third of the price back (not the upgrades)
     public static bool TryRefund(WeaponData weapon)
     {
         if (!CanRefund(weapon))
@@ -206,9 +200,9 @@ public static class ProfileManager
         return true;
     }
 
-    // ---- Shooter upgrade bars ----
+    //SHOOTER UPGRADE BARS
 
-    // How many times a shooter's bar has been upgraded (0 to its max)
+    // 0 to its max
     public static int GetLevel(ShooterData shooter, ShooterStat stat)
     {
         if (shooter == null)
@@ -216,7 +210,6 @@ public static class ProfileManager
         return Mathf.Clamp(Profile.GetShooterLevel(shooter.id, stat), 0, shooter.MaxLevel(stat));
     }
 
-    // A stat with the bought upgrades, e.g. GetStat(raygun, ShooterStat.Damage)
     public static float GetStat(ShooterData shooter, ShooterStat stat)
     {
         return shooter.Value(stat, GetLevel(shooter, stat));
@@ -251,13 +244,13 @@ public static class ProfileManager
         return false;
     }
 
-    // Enough coins and a high enough level
+    // enough coins and a high enough level
     public static bool CanAfford(ItemData item)
     {
         return item != null && Profile.Level >= item.levelRequired && Profile.Coins >= item.coinCost;
     }
 
-    // Every owned item of a type, e.g. GetOwned<LazerData>() for a "pick your lazer" menu
+    // e.g. GetOwned<LazerData>()
     public static List<T> GetOwned<T>() where T : WeaponData
     {
         List<T> owned = new List<T>();
@@ -269,7 +262,6 @@ public static class ProfileManager
         return owned;
     }
 
-    // Puts an owned item into the current inventory
     public static bool Equip(WeaponData weapon)
     {
         if (!Owns(weapon))
@@ -282,7 +274,7 @@ public static class ProfileManager
         return true;
     }
 
-    // Empties the item's slot if it's the one equipped (that slot then has nothing)
+    // empties the slot if it's the one equipped
     public static bool Unequip(WeaponData weapon)
     {
         if (weapon == null || !IsEquipped(weapon))
@@ -295,15 +287,15 @@ public static class ProfileManager
         return true;
     }
 
-    // ---- Abilities and skill tree ----
+    //ABILITIES AND SKILL TREE
 
-    // Every ability is free at its base stats. A node is unlocked once it's bought
+    // abilities are free at base stats, nodes unlock once bought
     public static bool IsUnlocked(AbilityData ability, int node)
     {
         return Profile.HasSkillNode(ability.NodeId(node));
     }
 
-    // Can be bought: not yet unlocked and the node it grows from is (or it grows from the ability itself)
+    // not unlocked yet and its parent node is (or no parent)
     public static bool CanUnlock(AbilityData ability, int node)
     {
         int parent = ability.nodes[node].parent;
@@ -320,7 +312,6 @@ public static class ProfileManager
         return true;
     }
 
-    // A stat with every unlocked node added, e.g. GetStat(fire, AbilityStat.Damage)
     public static float GetStat(AbilityData ability, AbilityStat stat)
     {
         float value = ability.BaseValue(stat);
@@ -332,13 +323,13 @@ public static class ProfileManager
         return value;
     }
 
-    // The ability on Q (slot 0) or E (slot 1), or null
+    // 0 = Q, 1 = E, or null
     public static AbilityData GetAbility(int slot)
     {
         return ItemDatabase.Instance.Get<AbilityData>(Profile.GetAbility(slot));
     }
 
-    // -1 if it isn't on Q or E
+    // -1 if not on Q or E
     public static int AbilitySlot(AbilityData ability)
     {
         for (int slot = 0; slot < 2; slot++)
@@ -349,7 +340,7 @@ public static class ProfileManager
         return -1;
     }
 
-    // Puts it on Q or E (moving it if it was on the other key)
+    // moves it if it was on the other key
     public static void EquipAbility(AbilityData ability, int slot)
     {
         int other = 1 - slot;
@@ -363,7 +354,7 @@ public static class ProfileManager
         Profile.SetAbility(slot, "");
     }
 
-    // ---- Inventory ----
+    //INVENTORY
 
     public static bool TryBuyConsumable(ConsumableData item)
     {
@@ -376,7 +367,7 @@ public static class ProfileManager
         return true;
     }
 
-    // Sells one back for half its price
+    // sells one back for half price
     public static bool TryRefundConsumable(ConsumableData item)
     {
         if (item == null || !Profile.RemoveFromInventory(item.id))

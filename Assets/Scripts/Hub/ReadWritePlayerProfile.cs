@@ -14,6 +14,7 @@
 //              and drag the body Text (Content/Context) into Body Text.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -21,17 +22,20 @@ using UnityEngine.UI;
 
 public class ReadWritePlayerProfile : MonoBehaviour
 {
-    public Text titleText;               // player name goes here, e.g. Content/Title1
-    public Text bodyText;                // stats go here, e.g. Content/Context
+    //interface
+    public Text titleText; //player name
+    public Text bodyText; //stats
 
     [Header("Shown when no profile is found")]
     public string notLoadedTitle = "Profile not loaded";
     [TextArea]
     public string notLoadedBody = "Profile has not generated... something gone wrong :/";
 
+    //STARTING PROCEDURES
     void OnEnable()
     {
         Refresh();
+        Debug.Log("Opened player profile.");
     }
 
     public void Refresh()
@@ -45,7 +49,7 @@ public class ReadWritePlayerProfile : MonoBehaviour
             bodyText.text = loaded ? BuildText() : notLoadedBody;
     }
 
-    // Empty if no profile was picked on the Main Menu, so the "Profile not loaded" message shows
+    //empty name = shows not loaded message
     string GetPlayerName()
     {
         if (!ProfileManager.HasProfile)
@@ -59,10 +63,12 @@ public class ReadWritePlayerProfile : MonoBehaviour
         ItemDatabase db = ItemDatabase.Instance;
         StringBuilder sb = new StringBuilder();
 
+        //LEVEL & COINS
         sb.AppendLine("<b>Level</b> " + p.Level);
         sb.AppendLine("<b>Coins</b> " + p.Coins);
         sb.AppendLine();
 
+        //STATS
         sb.AppendLine("<b>Stats</b>");
         sb.AppendLine("- Health: " + Mathf.CeilToInt(p.Health) + " / " + PlayerProfile.MaxStat);
         sb.AppendLine("- Stamina: " + Mathf.CeilToInt(p.Stamina) + " / " + PlayerProfile.MaxStat);
@@ -70,6 +76,7 @@ public class ReadWritePlayerProfile : MonoBehaviour
         sb.AppendLine("- Thirst: " + Mathf.CeilToInt(p.Thirst) + " / " + PlayerProfile.MaxStat);
         sb.AppendLine();
 
+        //EQUIPPED
         sb.AppendLine("<b>Equipped</b>");
         ShooterData shooter = db != null ? db.Get<ShooterData>(p.EquippedShooter) : null;
         LazerData lazer = shooter != null ? PlayerCombat.GetLazer(shooter) : null;
@@ -78,11 +85,13 @@ public class ReadWritePlayerProfile : MonoBehaviour
         sb.AppendLine("- Special: " + NameOf(db, p.EquippedSpecial) + LevelOf(db != null ? db.Get<SpecialData>(p.EquippedSpecial) : null));
         sb.AppendLine();
 
+        //OWNED WEAPONS
         sb.AppendLine("<b>Owned Weapons</b>");
         List<string> owned = OwnedWeaponNames(db);
         sb.AppendLine(owned.Count > 0 ? "- " + string.Join("\n- ", owned) : "- None yet");
         sb.AppendLine();
 
+        //INVENTORY
         sb.AppendLine("<b>Inventory</b> (" + p.InventorySlots + " slots)");
         bool anyItem = false;
         for (int i = 0; i < p.InventorySlots; i++)
@@ -98,13 +107,14 @@ public class ReadWritePlayerProfile : MonoBehaviour
             sb.AppendLine("- Empty");
         sb.AppendLine();
 
+        //ACHIEVEMENTS
         AppendAchievements(sb);
         return sb.ToString().TrimEnd();
     }
 
     void AppendAchievements(StringBuilder sb)
     {
-        // Adding 0 makes the manager load the saved progress without changing anything
+        //adding 0 forces the saved progress to load
         AchievementManager.Add(AchievementStat.MobsKilled, 0);
 
         int unlocked = 0;
@@ -123,7 +133,7 @@ public class ReadWritePlayerProfile : MonoBehaviour
         }
     }
 
-    // Every weapon the player can use (bought or unlocked from the start)
+    //HELPERS
     List<string> OwnedWeaponNames(ItemDatabase db)
     {
         List<string> names = new List<string>();
@@ -138,7 +148,7 @@ public class ReadWritePlayerProfile : MonoBehaviour
         return names;
     }
 
-    // " - Level 2", or nothing if there's no weapon (shooters have upgrade bars instead of a level)
+    //shooters use upgrade bars, not levels
     string LevelOf(WeaponData weapon)
     {
         return weapon != null && !(weapon is ShooterData) ? " - Level " + ProfileManager.GetLevel(weapon) : "";

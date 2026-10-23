@@ -7,6 +7,8 @@
 //              upgrade and refund prices (3 levels per weapon).
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class WeaponData : ItemData
@@ -20,7 +22,8 @@ public abstract class WeaponData : ItemData
 
     public const int MaxLevel = 3;
 
-    // Level 1 comes with the item, level 2 costs half its price, level 3 costs 1.5x its price
+    //PRICES
+    //level 2 = half price, level 3 = 1.5x price
     public int UpgradeCost(int toLevel)
     {
         if (toLevel == 2)
@@ -30,7 +33,7 @@ public abstract class WeaponData : ItemData
         return 0;
     }
 
-    // A third of the price, rounded up. Always the same: upgrades (levels or shooter bars) never change it and aren't refunded
+    //a third of the price, upgrades are never refunded
     public int RefundValue
     {
         get { return Mathf.CeilToInt(coinCost / 3f); }

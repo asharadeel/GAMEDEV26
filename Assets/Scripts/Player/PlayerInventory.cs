@@ -8,28 +8,28 @@
 // Description: 10-slot inventory, I to open, 4-9/0 to eat/drink.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Goes on the Player. 10 slots:
-//   1 = shooter, 2 = melee (weapon keys are handled by PlayerCombat), 3rd label = abilities on Q / E
-//   4-9 and 0 = food/drink slots, pressing the key eats/drinks it
-// I opens/closes the inventory panel.
+//goes on the Player. weapon keys are handled by PlayerCombat
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : MonoBehaviour
 {
+    //interface
     public GameObject inventoryPanel;
-
-    // One label per slot, in order 1,2,3,4,5,6,7,8,9,0
-    public Text[] slotLabels = new Text[10];
+    public Text[] slotLabels = new Text[10];   //order 1,2,3,4,5,6,7,8,9,0
 
     private PlayerStats stats;
 
+    //STARTING PROCEDURES
     void Start()
     {
         stats = GetComponent<PlayerStats>();
     }
 
+    //LISTENERS
     void Update()
     {
         if (GameInput.Inventory.WasPressedThisFrame() && inventoryPanel != null)
@@ -45,6 +45,7 @@ public class PlayerInventory : MonoBehaviour
             RefreshLabels();
     }
 
+    //USE ITEMS
     public void UseSlot(int index)
     {
         string id = stats.Profile.GetSlot(index);
@@ -57,8 +58,10 @@ public class PlayerInventory : MonoBehaviour
 
         stats.Consume(item);
         stats.Profile.SetSlot(index, "");
+        Debug.Log("Used an item.");
     }
 
+    //INTERFACE
     void RefreshLabels()
     {
         PlayerProfile p = stats.Profile;

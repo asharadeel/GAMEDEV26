@@ -12,17 +12,19 @@
 //              Goes on the ProfileSelect container.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// One profile card in the list
+//PROFILE CARD
 [System.Serializable]
 public class ProfileCard
 {
-    public Button button;         // the card itself
+    public Button button;
     public Text label;
-    public Button editButton;     // only shown when the slot has a profile
+    public Button editButton;     //only shown when the slot has a profile
     public Button deleteButton;
 }
 
@@ -35,9 +37,9 @@ public class ProfileSelectUI : MonoBehaviour
     public GameObject newProfileWindow;
     public InputField nameInput;
     public Toggle passkeyToggle;
-    public GameObject[] passkeyFields;   // shown only while the toggle is on
+    public GameObject[] passkeyFields;   //shown only while the toggle is on
     public InputField passkeyInput;
-    public Button[] newColours;          // swatches, the colour is the swatch's own colour
+    public Button[] newColours;          //colour comes from the swatch image
     public Button createButton;
     public Text newError;
 
@@ -61,16 +63,18 @@ public class ProfileSelectUI : MonoBehaviour
     public Button editSaveButton;
     public Text editMessage;
 
-    private int selectedSlot;     // the card being created/played/edited/deleted
-    private bool deleting;        // passkey pop-up: true = deleting, false = logging in
+    //selection state
+    private int selectedSlot;
+    private bool deleting;        //passkey pop-up: true = deleting, false = logging in
     private Color newColour;
     private Color editColour;
 
+    //LISTENERS
     void Start()
     {
         for (int i = 0; i < cards.Length; i++)
         {
-            int slot = i;   // copy, so each button remembers its own slot
+            int slot = i;   //copy so each lambda keeps its own slot
             cards[i].button.onClick.AddListener(() => ClickCard(slot));
             cards[i].editButton.onClick.AddListener(() => OpenEdit(slot));
             cards[i].deleteButton.onClick.AddListener(() => OpenDelete(slot));
@@ -96,7 +100,7 @@ public class ProfileSelectUI : MonoBehaviour
         Refresh();
     }
 
-    // Updates every card from the save files
+    //CARDS
     void Refresh()
     {
         for (int i = 0; i < cards.Length; i++)
@@ -134,11 +138,11 @@ public class ProfileSelectUI : MonoBehaviour
     void Play(int slot)
     {
         ProfileManager.LoadSlot(slot);
+        Debug.Log("Playing profile slot " + slot);
         SceneManager.LoadScene(playScene);
     }
 
-    // ---- New profile ----
-
+    //NEW PROFILE
     void OpenNewProfile()
     {
         nameInput.text = "";
@@ -171,12 +175,12 @@ public class ProfileSelectUI : MonoBehaviour
         }
 
         ProfileManager.CreateProfile(selectedSlot, playerName, passkeyToggle.isOn, passkeyInput.text, newColour);
+        Debug.Log("Created profile " + playerName);
         newProfileWindow.SetActive(false);
         Refresh();
     }
 
-    // ---- Passkey ----
-
+    //PASSKEY
     void OpenPasskey(bool forDelete, PlayerProfile p)
     {
         deleting = forDelete;
@@ -206,8 +210,7 @@ public class ProfileSelectUI : MonoBehaviour
             Play(selectedSlot);
     }
 
-    // ---- Delete ----
-
+    //DELETE
     void OpenDelete(int slot)
     {
         selectedSlot = slot;
@@ -219,7 +222,7 @@ public class ProfileSelectUI : MonoBehaviour
         deletePopup.SetActive(true);
     }
 
-    // "Delete" on the confirm pop-up: asks for the passkey too if there is one
+    //asks for the passkey too if there is one
     void ConfirmDelete()
     {
         deletePopup.SetActive(false);
@@ -236,11 +239,11 @@ public class ProfileSelectUI : MonoBehaviour
     void DeleteSelected()
     {
         ProfileManager.DeleteSlot(selectedSlot);
+        Debug.Log("Deleted profile in slot " + selectedSlot);
         Refresh();
     }
 
-    // ---- Edit ----
-
+    //EDIT
     void OpenEdit(int slot)
     {
         selectedSlot = slot;
@@ -266,11 +269,12 @@ public class ProfileSelectUI : MonoBehaviour
         }
 
         ProfileManager.EditProfile(selectedSlot, playerName, editColour);
+        Debug.Log("Edited profile " + playerName);
         editPopup.SetActive(false);
         Refresh();
     }
 
-    // Makes the picked swatch bigger than the rest and returns its colour
+    //COLOURS
     Color PickColour(Button[] swatches, Button picked)
     {
         foreach (Button swatch in swatches)

@@ -15,32 +15,36 @@
 //              Goes on the shop's container (always active).
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// One pop-up's parts
+//POP-UP PARTS
 [System.Serializable]
 public class ShopPopup
 {
-    public GameObject window;   // the pop-up's Frame
+    public GameObject window;   //the pop-up's Frame
     public Text title;
     public Button action;
     public Text actionLabel;
-    public Text message;        // "You have 120 coins" / "Not enough coins"
+    public Text message;
 }
 
 public class ShopPopups : MonoBehaviour
 {
-    // Cards are prefabs and can't point at scene objects, so they use this
+    //cards are prefabs and can't reference scene objects, so they use this
     public static ShopPopups Instance { get; private set; }
 
     public ShopPopup buy;
     public ShopPopup refund;
 
-    private ShopItemCard card;           // the weapon card that opened the pop-up
-    private ConsumableCard consumable;   // or the food/drink card
-    private System.Func<bool> buyAction; // or anything else (an upgrade, a skill node): true if it was bought
+    //who opened the pop-up (only one is set)
+    private ShopItemCard card;
+    private ConsumableCard consumable;
+    private System.Func<bool> buyAction; //true if it was bought
 
+    //LISTENERS
     void Awake()
     {
         Instance = this;
@@ -48,8 +52,7 @@ public class ShopPopups : MonoBehaviour
         refund.action.onClick.AddListener(Refund);
     }
 
-    // ---- Opening ----
-
+    //OPENING
     public void OpenBuy(ShopItemCard from)
     {
         card = from;
@@ -66,8 +69,7 @@ public class ShopPopups : MonoBehaviour
         Open(buy, "Buy " + consumable.item.displayName, "Buy: " + consumable.item.coinCost);
     }
 
-    // Anything else that costs coins, e.g. "Buy Damage (10 → 13)" or "Buy Searing".
-    // tryBuy spends the coins and returns false if there weren't enough
+    //anything else (upgrades, skill nodes), tryBuy returns false if not enough coins
     public void OpenBuy(string name, int cost, System.Func<bool> tryBuy)
     {
         buyAction = tryBuy;
@@ -98,8 +100,7 @@ public class ShopPopups : MonoBehaviour
         popup.window.SetActive(true);
     }
 
-    // ---- Action buttons ----
-
+    //ACTION BUTTONS
     void Buy()
     {
         if (buyAction != null)
@@ -109,6 +110,7 @@ public class ShopPopups : MonoBehaviour
                 buy.message.text = "Not enough coins";
                 return;
             }
+            Debug.Log("Bought upgrade");
             Done(buy);
             return;
         }
@@ -133,8 +135,9 @@ public class ShopPopups : MonoBehaviour
             buy.message.text = consumable != null ? "Inventory full" : "Already owned";
             return;
         }
+        Debug.Log("Bought " + item.displayName);
 
-        // Food/drink: stay open to buy more, just update the count
+        //food/drink stays open to buy more
         if (consumable != null)
         {
             buy.message.text = "You have " + ProfileManager.Profile.Coins + " coins";
@@ -146,7 +149,7 @@ public class ShopPopups : MonoBehaviour
 
     void Refund()
     {
-        // Food/drink: sell one back, stay open until there's none left
+        //food/drink sells one back, stays open until there's none left
         if (consumable != null)
         {
             if (!ProfileManager.TryRefundConsumable(consumable.item))
@@ -154,6 +157,7 @@ public class ShopPopups : MonoBehaviour
                 refund.message.text = "You don't have any";
                 return;
             }
+            Debug.Log("Refunded " + consumable.item.displayName);
             ConsumableCard.RefreshAll();
             if (ProfileManager.Profile.CountInInventory(consumable.item.id) == 0)
                 Done(refund);
@@ -167,6 +171,7 @@ public class ShopPopups : MonoBehaviour
             refund.message.text = "Can't refund an equipped item";
             return;
         }
+        Debug.Log("Refunded " + card.item.displayName);
         Done(refund);
     }
 

@@ -6,16 +6,17 @@
 // Description: Base for everything the player can own or buy.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-// Base for everything the player can own or buy (weapons, food, drinks...).
 public abstract class ItemData : ScriptableObject
 {
     [Header("Item")]
-    public string id = "";           // unique, used in the save file
+    public string id = ""; //unique, used in save file
     public string displayName = "";
     [FormerlySerializedAs("tokenCost")]
-    public int coinCost = 100;       // price in coins (assets made before the rename still load their price)
-    public int levelRequired = 1;    // player level needed to buy it
+    public int coinCost = 100; //old tokenCost assets still load
+    public int levelRequired = 1;
 }

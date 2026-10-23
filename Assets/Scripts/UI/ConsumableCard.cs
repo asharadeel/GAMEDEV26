@@ -11,6 +11,7 @@
 //              out when the player has none.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,9 +26,10 @@ public class ConsumableCard : MonoBehaviour
     public Button refundButton;
     public Text quantityText;
 
-    // Every card that's showing, so a purchase can update them all
+    // every card showing, so a purchase can update them all
     private static readonly List<ConsumableCard> cards = new List<ConsumableCard>();
 
+    //LISTENERS
     void Awake()
     {
         buyButton.onClick.AddListener(() => ShopPopups.Instance.OpenBuy(this));
@@ -45,6 +47,7 @@ public class ConsumableCard : MonoBehaviour
         cards.Remove(this);
     }
 
+    //REFRESH
     public static void RefreshAll()
     {
         foreach (ConsumableCard card in cards)

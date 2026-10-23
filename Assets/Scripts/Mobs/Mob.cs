@@ -10,23 +10,28 @@
 //              build on this.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Mob : MonoBehaviour
 {
+    //key details
     public MobData data;
     public float health;
 
-    public System.Action onDied;        // the spawner uses this to count kills
+    public System.Action onDied; //spawner counts kills with this
 
+    //player details
     protected Transform player;
-    protected float myRadius;            // half the mob's width
+    protected float myRadius; //half the mob's width
     protected float playerRadius;
 
     private MobHealthBar healthBar;
     private float slowMultiplier = 1f;
     private float slowUntil;
 
+    //STARTING PROCEDURES
     public virtual void Init(MobData mobData, GameObject healthBarPrefab)
     {
         data = mobData;
@@ -45,7 +50,7 @@ public class Mob : MonoBehaviour
 
         if (healthBarPrefab != null)
         {
-            // Sit the bar just above the top of the model
+            //bar sits just above the model
             Vector3 pos = new Vector3(transform.position.x, bounds.max.y + 0.6f, transform.position.z);
             healthBar = Instantiate(healthBarPrefab, pos, Quaternion.identity, transform).GetComponent<MobHealthBar>();
         }
@@ -58,7 +63,7 @@ public class Mob : MonoBehaviour
         get { return data != null ? data.attackDamage : 0f; }
     }
 
-    // Called by projectiles and melee (via Damage.Hit)
+    //DAMAGE
     public virtual void TakeDamage(float amount)
     {
         health -= amount;
@@ -67,11 +72,11 @@ public class Mob : MonoBehaviour
         if (health <= 0f && onDied != null)
         {
             onDied();
-            onDied = null;                   // only count once
+            onDied = null; //only count once
         }
         if (health <= 0f)
         {
-            // Drop loot where the mob's feet were
+            //DROP LOOT
             Vector3 feet = transform.position;
             feet.y = ModelBounds().min.y;
             LootDropper.Drop(data, feet);
@@ -80,22 +85,20 @@ public class Mob : MonoBehaviour
         }
     }
 
-    // Moves at multiplier x speed (e.g. 0.5 = half) for a few seconds
+    //SLOW
     public void Slow(float multiplier, float seconds)
     {
         slowMultiplier = multiplier;
         slowUntil = Time.time + seconds;
     }
 
-    // ---- Helpers for FollowMob / ShooterMob ----
-
-    // 1 normally, less while slowed. Multiply movement speed by this
+    //HELPERS
     protected float SpeedMultiplier
     {
         get { return Time.time < slowUntil ? slowMultiplier : 1f; }
     }
 
-    // Flat distance (ignores height). Infinity if there's no player.
+    //ignores height
     protected float DistanceToPlayer()
     {
         if (player == null)
@@ -107,7 +110,6 @@ public class Mob : MonoBehaviour
         return Vector3.Distance(a, b);
     }
 
-    // Flat direction towards the player
     protected Vector3 DirectionToPlayer()
     {
         if (player == null)

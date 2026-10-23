@@ -14,6 +14,7 @@
 //              Shooters have no level, just upgrade bars.
 // ============================================================
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,9 +31,10 @@ public class ShopItemCard : MonoBehaviour
     public Button equipButton;
     public Text equipLabel;
 
-    // Every card that's showing, so one purchase can update them all
+    //every card showing, so one purchase can update them all
     private static readonly List<ShopItemCard> cards = new List<ShopItemCard>();
 
+    //LISTENERS
     void Awake()
     {
         buyButton.onClick.AddListener(() => ShopPopups.Instance.OpenBuy(this));
@@ -52,6 +54,7 @@ public class ShopItemCard : MonoBehaviour
         cards.Remove(this);
     }
 
+    //REFRESH
     public static void RefreshAll()
     {
         foreach (ShopItemCard card in cards)
@@ -76,13 +79,14 @@ public class ShopItemCard : MonoBehaviour
         buyButton.gameObject.SetActive(!owned);
         equipButton.gameObject.SetActive(owned);
         upgradeButton.gameObject.SetActive(owned);
-        refundButton.gameObject.SetActive(owned && !item.unlocked);   // starting items can't be refunded
+        refundButton.gameObject.SetActive(owned && !item.unlocked);   //starting items can't be refunded
 
         equipButton.interactable = !equipped;
         equipLabel.text = equipped ? "Equipped" : "Equip";
-        refundButton.interactable = !equipped;                        // unequip (equip something else) first
+        refundButton.interactable = !equipped;                        //unequip first
     }
 
+    //BUTTONS
     void Upgrade()
     {
         if (WeaponUpgradeUI.Instance != null)
@@ -94,6 +98,8 @@ public class ShopItemCard : MonoBehaviour
     void Equip()
     {
         ProfileManager.Equip(item);
-        RefreshAll();   // the item this replaced is no longer equipped
+        if (item != null)
+            Debug.Log("Equipped " + item.displayName);
+        RefreshAll();   //the replaced item needs updating too
     }
 }

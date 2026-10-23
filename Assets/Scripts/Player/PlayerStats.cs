@@ -6,22 +6,21 @@
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
 
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Goes on the Player. All stats go 0-100.
-// Hunger and thirst drop by 1 every few seconds. While either is at or below
-// the low level, health drops by 1 every few seconds. Sprinting drains stamina,
-// not sprinting refills it. Health 0 = death.
+//goes on the Player. all stats go 0-100
 public class PlayerStats : MonoBehaviour
 {
     [Header("Hunger / Thirst")]
-    public float hungerDropEvery = 5f;   // seconds per -1 hunger
-    public float thirstDropEvery = 5f;   // seconds per -1 thirst
-    public float lowLevel = 25f;         // at or below this, health starts dropping
+    public float hungerDropEvery = 5f;   //seconds per -1
+    public float thirstDropEvery = 5f;   //seconds per -1
+    public float lowLevel = 25f;         //at or below this, health drops
 
     [Header("Health")]
-    public float healthDropEvery = 8f;   // seconds per -1 health while hungry/thirsty
+    public float healthDropEvery = 8f;   //seconds per -1 while hungry/thirsty
 
     [Header("Stamina (per second)")]
     public float sprintCost = 20f;
@@ -37,16 +36,18 @@ public class PlayerStats : MonoBehaviour
 
     public bool IsSprinting { get; set; }
 
+    //timers
     private float hungerTimer;
     private float thirstTimer;
     private float healthTimer;
 
+    //STARTING PROCEDURES
     void Awake()
     {
-        // Same object as ProfileManager.Profile, shown here so you can watch it in the Inspector
-        profile = ProfileManager.Profile;
+        profile = ProfileManager.Profile;   //same object, shown for the Inspector
     }
 
+    //SURVIVAL
     void Update()
     {
         float dt = Time.deltaTime;
@@ -58,7 +59,7 @@ public class PlayerStats : MonoBehaviour
 
         bool low = profile.Hunger <= lowLevel || profile.Thirst <= lowLevel;
         if (!low)
-            healthTimer = 0f; // restart the countdown once fed/watered again
+            healthTimer = 0f; //restart once fed/watered
         else if (Tick(ref healthTimer, healthDropEvery))
             profile.Health -= 1f;
 
@@ -71,7 +72,7 @@ public class PlayerStats : MonoBehaviour
             Die();
     }
 
-    // Adds time to a timer. True (and resets) each time it passes the interval.
+    //true (and resets) each time it passes the interval
     bool Tick(ref float timer, float interval)
     {
         timer += Time.deltaTime;
@@ -82,7 +83,8 @@ public class PlayerStats : MonoBehaviour
         return true;
     }
 
-    // Called by mobs and enemy projectiles (via Damage.Hit / SendMessage)
+    //DAMAGE AND ITEMS
+    //called via Damage.Hit / SendMessage
     public void TakeDamage(float amount)
     {
         profile.Health -= amount;
@@ -95,7 +97,7 @@ public class PlayerStats : MonoBehaviour
         profile.Stamina += item.stamina;
         profile.Health += item.health;
 
-        // Count it for achievements
+        //achievements
         AchievementManager.Add(AchievementStat.ItemsConsumed, 1);
         if (item.thirst > 0)
             AchievementManager.Add(AchievementStat.DrinksConsumed, 1);
@@ -103,6 +105,7 @@ public class PlayerStats : MonoBehaviour
             AchievementManager.Add(AchievementStat.FoodEaten, 1);
     }
 
+    //DEATH AND SAVING
     void Die()
     {
         Debug.Log("Player died");
@@ -111,17 +114,18 @@ public class PlayerStats : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Save when leaving the scene too, not just when the game closes
+    //save when leaving the scene too
     void OnDestroy()
     {
         ProfileManager.Save();
     }
 
-    // Right-click the component header in the Inspector to use these
+    //TESTING
     [ContextMenu("Save Now")]
     void SaveNow()
     {
         ProfileManager.Save();
+        Debug.Log("Saved the profile.");
     }
 
     [ContextMenu("Delete Save")]
@@ -129,5 +133,6 @@ public class PlayerStats : MonoBehaviour
     {
         ProfileManager.Delete();
         profile = ProfileManager.Profile;
+        Debug.Log("Deleted the save.");
     }
 }
