@@ -2,6 +2,7 @@
 // Title:       SessionTracker
 // Version:     1.0
 // Written by:  Ashar
+//              ai use: a little help from claude (anthropic) when stuck, owner Ashar
 // Description: The level's own log for this run: time survived,
 //              mobs killed and everything picked up. Mob and Pickup
 //              report to it, the death screen reads it.

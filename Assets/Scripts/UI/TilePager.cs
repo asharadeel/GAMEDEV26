@@ -2,6 +2,7 @@
 // Title:       TilePager
 // Version:     1.0
 // Written by:  Ashar
+//              ai use: claude (anthropic) used for debugging and assistance, owner Ashar
 // Description: Shows one box (page) at a time instead of a scroll
 //              view. Each page has an order and a UI object (a box
 //              or a Frame with content). Left/Right buttons flip

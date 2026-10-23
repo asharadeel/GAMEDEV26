@@ -2,6 +2,7 @@
 // Title:       HubProgress
 // Version:     1.0
 // Written by:  Ashar
+//              ai use: a little help from claude (anthropic) when stuck, owner Ashar
 // Description: The welcome stall goes for good once its window is
 //              closed. After the first shard (the level 1 boss's
 //              portal piece) a shard portal stall takes its place,

@@ -2,6 +2,7 @@
 // Title:       OreDropper
 // Version:     1.0
 // Written by:  Ashar
+//              ai use: a little help from claude (anthropic) when stuck, owner Ashar
 // Description: One place for ore drops, so the chances aren't
 //              repeated in every mob's loot list. Every mob kill
 //              (not the boss) rolls each ore separately, and

@@ -2,6 +2,7 @@
 // Title:       PlayerArmor
 // Version:     1.0
 // Written by:  Ashar
+//              ai use: claude (anthropic) used for debugging and assistance, owner Ashar
 // Description: The worn armour's shield. Damage hits the shield
 //              first, whatever is left over goes to health. When
 //              the shield breaks one piece is used up, and if there

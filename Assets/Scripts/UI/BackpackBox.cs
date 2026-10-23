@@ -2,6 +2,7 @@
 // Title:       BackpackBox
 // Version:     1.0
 // Written by:  Ashar
+//              ai use: a little help from claude (anthropic) when stuck, owner Ashar
 // Description: The backpack in the Hub inventory: the 6 food/drink
 //              slots (keys 4-9) you take into a level. Each slot
 //              shows what's in it, pressing it puts that item back

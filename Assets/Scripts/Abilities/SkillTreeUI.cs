@@ -2,6 +2,7 @@
 // Title:       SkillTreeUI
 // Version:     1.0
 // Written by:  Ali
+//              ai use: claude (anthropic) used for debugging and assistance cloning the skill tree data, core logic by Ali, owner Ali
 // Description: The Hub's Skill Tree window. One branch per ability
 //              (Fire, Ice, Lightning): the ability at the bottom,
 //              its nodes above, joined by lines. A node can only be
