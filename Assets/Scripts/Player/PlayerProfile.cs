@@ -57,7 +57,7 @@ public class ItemCount
 public class ShooterLevels
 {
     public string id;
-    public int lazer;        // 0 = the gun's 1st lazer, 1 = 2nd...
+    public int lazer;       
     public int damage;
     public int fireRate;
     public int bulletSpeed;
@@ -89,12 +89,11 @@ public class ShooterLevels
 }
 
 //PLAYER PROFILE
-//new stats: private [SerializeField] field + public property. item stats live in the item assets
 [System.Serializable]
 public class PlayerProfile
 {
-    public const int MaxInventorySlots = 6; // keys 4-9 (0 is the armour slot)
-    public const float MaxStat = 100f;      // health, stamina, hunger, thirst all go 0-100
+    public const int MaxInventorySlots = 6;
+    public const float MaxStat = 100f;    
 
     //key details (set on the Main Menu's profile select)
     [SerializeField] private string playerName = "";
@@ -105,35 +104,35 @@ public class PlayerProfile
 
     //games stats
     [SerializeField] private int level = 1;
-    [SerializeField] private int tokens = 150;   // coins, still called tokens so old saves keep their balance
+    [SerializeField] private int tokens = 150;   
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 100f;
     [SerializeField] private float stamina = 100f;
-    [SerializeField] private float hunger = 100f;   // 100 = full, 0 = starving
-    [SerializeField] private float thirst = 100f;   // 100 = full, 0 = dehydrated
+    [SerializeField] private float hunger = 100f;   
+    [SerializeField] private float thirst = 100f;  
 
     //owned items (ones ticked "unlocked" in their asset aren't listed)
     [SerializeField] private List<string> ownedItems = new List<string>();
     [SerializeField] private List<ItemLevel> itemLevels = new List<ItemLevel>();
     [SerializeField] private List<ShooterLevels> shooterLevels = new List<ShooterLevels>();
-    [SerializeField] private List<string> skillNodes = new List<string>();   // unlocked skill tree nodes, e.g. "fire.2"
+    [SerializeField] private List<string> skillNodes = new List<string>();  
 
     //equipped / carried
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
-    [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee
-    [SerializeField] private int inventorySlots = MaxInventorySlots; // usable consumable slots
+    [SerializeField] private int selectedWeapon = 0;         
+    [SerializeField] private int inventorySlots = MaxInventorySlots;
 
     //ores and armour
     [SerializeField] private List<ItemCount> ores = new List<ItemCount>();
-    [SerializeField] private List<ItemCount> armor = new List<ItemCount>();   // pieces owned, including the one worn
+    [SerializeField] private List<ItemCount> armor = new List<ItemCount>();  
     [SerializeField] private string equippedArmor = "";
-    [SerializeField] private float armorShield = 0f;                          // what's left of the worn piece's bar
+    [SerializeField] private float armorShield = 0f;                        
 
     //portal progress
-    [SerializeField] private bool hasPortalPiece = false;   // picked up from the level 1 boss
-    [SerializeField] private bool portal2Open = false;      // placed the piece in the hub's portal 2
-    [SerializeField] private bool welcomeSeen = false;      // closed the hub's welcome window (its stall is gone)
+    [SerializeField] private bool hasPortalPiece = false;  
+    [SerializeField] private bool portal2Open = false;     
+    [SerializeField] private bool welcomeSeen = false;    
 
     //IDENTITY
 

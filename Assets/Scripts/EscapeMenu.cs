@@ -1,12 +1,3 @@
-// ============================================================
-// Title:       EscapeMenu
-// Version:     1.1
-// Written by:  Ashar
-// Updated by:  cthullu96 (v1.1: input system package)
-//              ai use: input system change written with claude (anthropic), owner cthullu96
-// Description: Esc toggles the menu on and off.
-// ============================================================
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
