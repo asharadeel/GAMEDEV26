@@ -88,3 +88,6 @@ crashlytics-build.properties
 *.DS_Store
 # visual studio settings for each person's own pc
 .vsconfig
+
+# WebGL build for GitHub Pages (served from /docs)
+!/docs/Build/
