@@ -13463,7 +13463,7 @@ MonoBehaviour:
     - R - Reload the shooter
 
     - 4-9 - Eat or drink from
-    that inventory slot (0 is your armour, it can't be used)
+    that inventory slot (0 is your armour, it can''t be used)
 
     - I - Open / close inventory
 

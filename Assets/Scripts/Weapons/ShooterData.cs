@@ -45,7 +45,7 @@ public class ShooterData : WeaponData
     public List<LazerData> lazers = new List<LazerData>();
 
     //BAR INFO
-    public int MaxLevel(ShooterStat stat)
+    public new int MaxLevel(ShooterStat stat)  
     {
         if (stat == ShooterStat.Lazer)
             return Mathf.Max(0, lazers.Count - 1);
