@@ -37,6 +37,7 @@ public static class GameInput
     public static readonly InputAction Achievements;
     public static readonly InputAction HideUI;
     public static readonly InputAction Menu;
+    public static readonly InputAction Flashlight;   // added by Ashar: F toggles the flashlight
 
     static GameInput()
     {
@@ -75,13 +76,14 @@ public static class GameInput
         Achievements = Button("Achievements", "<Keyboard>/j");
         HideUI = Button("HideUI", "<Keyboard>/h");
         Menu = Button("Menu", "<Keyboard>/escape", "<Gamepad>/start");
+        Flashlight = Button("Flashlight", "<Keyboard>/f", "<Gamepad>/dpad/up");
 
         // actions do nothing until theyre switched on
         Move.Enable();
         Look.Enable();
         Zoom.Enable();
         foreach (InputAction a in new[] { Sprint, Jump, Attack, RotateCamera, Weapon1, Weapon2, Reload, AbilityQ, AbilityE,
-                                          Interact, Inventory, Achievements, HideUI, Menu })
+                                          Interact, Inventory, Achievements, HideUI, Menu, Flashlight })
             a.Enable();
         foreach (InputAction a in UseSlot)
             a.Enable();

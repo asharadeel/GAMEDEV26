@@ -10395,6 +10395,7 @@ GameObject:
   - component: {fileID: 1860484108}
   - component: {fileID: 1860484107}
   - component: {fileID: 1860484106}
+  - component: {fileID: 106376077}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -13445,6 +13446,8 @@ MonoBehaviour:
 
     - Q / E - Use your abilities (E opens doors when
     next to one)
+
+    - F - Turn the flashlight on / off
 
     - R - Reload the shooter
 
@@ -25594,6 +25597,23 @@ MonoBehaviour:
   available: {r: 1, g: 1, b: 1, a: 1}
   locked: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   lineOff: {r: 0.35, g: 0.35, b: 0.35, a: 1}
+--- !u!114 &106376077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860484105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf89996de404ec1a53e2485a8abe8b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 25
+  spotAngle: 50
+  intensity: 3
+  colour: {r: 1, g: 0.95, b: 0.8, a: 1}
+  tilt: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

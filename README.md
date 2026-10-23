@@ -23,7 +23,7 @@ All project content lives in `Assets/`:
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
     - `Spawners/` - `MobSpawner` prefab
   - `Abilities/` - `Fireball`, `FrostNova`, `LightningBolt` (what the abilities look like)
-  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, on at night), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
+  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, on at night), `Lamp` (small glowing yellow cube with a yellow point light, intensity 2.5, range 20, always on), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes (`Hub`, `Main Menu`, `Scene 1 Plains`)
 - `Scripts/` - all C# code
@@ -112,6 +112,8 @@ Scene 1 Plains layout (200x200 grey floor):
   - Inside, the first 20x10 in front of the entrance is a wall-free landing (`LandingPad`), the maze starts behind it
   - The maze has extra openings (gaps in the long walls, fewer dead-end walls) so there are several routes, including a second way into the end room
   - The entrance is closed by a red `LockedDoor`: red doors are doors you can't go out of
+  - `InteriorRoof` covers the whole interior. Its renderer is set to **Shadows Only**, so the camera can't see it but it blocks the sun: day and night don't change the inside. Needs shadows on in the Quality level (Ultra is the default, shadow distance 150)
+  - `Lamps`: 8 copies of the `Models/Scene1/Lamp` prefab, glowing yellow cubes (`GlowYellow`) just under the roof, each with a yellow point light (intensity 2.5, range 20, no shadows)
 - `ReturnToCavePrompt`: walk up to the cave by the spawn (`CaveDoor`, approach ring) to get "Return to Cave?", **Return** loads the Hub
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
 - `HexRoom` (`BossArea`, east of the map past the walls, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
@@ -151,6 +153,7 @@ All controls use the Input System package and are set up in one place, `Scripts/
 | J | Open / close achievements |
 | E / Click prompt | Use a door when in range (E opens the door instead of the ability) |
 | H | Hide / show the player UI |
+| F | Flashlight on / off (points where you aim) |
 | Esc | Menu |
 
 # Scripts
@@ -177,6 +180,7 @@ All scripts are in `Assets/Scripts/`.
 
 ## Scripts/Player/
 - `PlayerArmor.cs` - the worn armour's shield (PlayerStats adds it to the player by itself). Damage hits the shield first, the rest goes to health. When it breaks one piece is used up and, if you own more, the next goes on after the armour's `Replace Delay` (health takes the hits until then). Starving/thirst still hits health directly
+- `Flashlight.cs` - on the Player (Hub and Scene 1). F turns a spot light on/off that points where you're aiming (`Range` 25, `Spot Angle` 50, `Intensity` 3). The F key is `GameInput.Flashlight`
 - `PlayerProfile.cs` - the player's saved data (not a component)
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
   - Level, Coins (new profiles start with 150; still called `tokens` in the save file so old saves keep their balance), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
