@@ -4,7 +4,7 @@ ECS657U Coursework 1, group Survival_1.
 
 A 3D top-down roleplaying game. You start in a cave, step through a portal into the first level, and fight your way through a maze full of mobs while keeping your hunger and thirst up. Beat the boss to win a portal piece that opens the next level. Between runs, you upgrade and gear up in the Hub.
 
-**Play in the browser:** [WebGL build](ADD-GITHUB-PAGES-LINK)
+**Play in the browser:** [WebGL build](https://asharadeel.github.io/GAMEDEV26/)
 
 ## Group Members
 
