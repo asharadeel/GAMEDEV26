@@ -85,6 +85,7 @@ Hub:
 - `IntroMenu`, `StoreUI`, `InventoryMenu`, `SkillTreeMenu` are under `Canvas`
 - `InventoryMenu`: a `GeneralSelectorUI` copy titled "Inventory" with 3 tabs like the shop: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Abilities (Fire, Ice, Lightning). Buttons 4 and 5 are switched off. Each tab's `Viewport/Content` has a heading, a line of text and an `Items` grid (`Grid Layout Group` 300 x 400 cells + `InventoryGrid`). The weapon tabs have `InventoryCard`s (only owned weapons show, Equip / Unequip), the Abilities tab has `AbilityCard`s (Equip Q / Equip E)
 - `Skill Tree` stall (east wall, x 14.8, with `SkillTreeLight`): same as the other stalls (sign + `ShowUIonApproach`), opens `SkillTreeMenu`: a full-screen `GeneralPopUpWindow` copy (`SkillTreeWindow`, action button off) with a coins line and 3 columns, `Branch (Fire)`, `Branch (Ice)`, `Branch (Lightning)`, each a `Header` and a `Tree` area. `SkillTreeUI` on the container draws the nodes and lines into the `Tree` areas
+- `ControlsUI`: the same Controls button as Scene 1 (top right). It opens `ControlsPanel` with the Hub's controls (move, sprint, jump, camera, zoom, flashlight, walk up to signs)
 - `Blacksmith` stall (west side, opposite Skill Tree) with `BlacksmithLight`: walk up to open `BlacksmithMenu` (a `GeneralSelectorUI` copy, one Armor tab) with an `ArmorCard` (Craft) for Stone, Iron and Steel Armor
 - `InventoryMenu` has an Armor tab (tab 4) with `ArmorCard`s (Equip): wear one armour at a time
 - `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). Tabs in order: Shooters (EM Raygun), Melee (Punch, Kick, Bat) as `ShopItemCard`s, Specials (button switched off, abilities replaced specials), Food (Beans), Drinks (Water Bottle, Soda) as `ConsumableCard`s, each in the section's `Items` grid. The Shooters tab's frame is still called `Weapons`
@@ -359,7 +360,7 @@ Loot (each rolled separately when the mob dies):
 - `PortalPiece.cs` - spins and bobs the portal piece the boss drops (its `ShowUIonApproach` opens the pop-up). Walking onto it sets `HasPortalPiece` on the profile and saves
 - `PortalSlot.cs` - on the Hub's `Level2Portal`. If the profile has the portal piece, walking up opens `PlacePiecePrompt` instead of the locked pop-up. Place turns the slot and the portal purple and saves `Portal2Open`. There's no Level 2 yet, so the open portal does nothing. Right-click the component for **Give Portal Piece (testing)**
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
-  - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. `Show Ring Within` - when the floor ring appears
+  - `UI` - what to show, normally a menu's `Frame`. `Radius` - how close to open it. The red floor ring always shows
   - The ring always lies flat and matches the radius, even under a rotated or scaled sign
   - Use it through the `Models/ShowUIonApproach` prefab (RadiusUI + a red floor ring + a flat blue marker disc half the ring's width showing where to stand). In the Hub, the Shop, IntroWall, ExitWall and Inventory signs each have one, and so do both portals (3.5 in front, opening `Scene1Prompt` / `Scene2Prompt`)
 - `HubPortal.cs` - goes on a portal with a trigger collider
