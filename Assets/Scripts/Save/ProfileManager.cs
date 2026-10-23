@@ -241,7 +241,6 @@ public static class ProfileManager
         if (weapon is ShooterData) return Profile.EquippedShooter == weapon.id;
         if (weapon is LazerData) return Profile.EquippedLazer == weapon.id;
         if (weapon is MeleeData) return Profile.EquippedMelee == weapon.id;
-        if (weapon is SpecialData) return Profile.EquippedSpecial == weapon.id;
         return false;
     }
 
@@ -271,7 +270,6 @@ public static class ProfileManager
         if (weapon is ShooterData) Profile.EquippedShooter = weapon.id;
         else if (weapon is LazerData) Profile.EquippedLazer = weapon.id;
         else if (weapon is MeleeData) Profile.EquippedMelee = weapon.id;
-        else if (weapon is SpecialData) Profile.EquippedSpecial = weapon.id;
         return true;
     }
 
@@ -284,7 +282,6 @@ public static class ProfileManager
         if (weapon is ShooterData) Profile.EquippedShooter = "";
         else if (weapon is LazerData) Profile.EquippedLazer = "";
         else if (weapon is MeleeData) Profile.EquippedMelee = "";
-        else if (weapon is SpecialData) Profile.EquippedSpecial = "";
         return true;
     }
 
@@ -471,6 +468,29 @@ public static class ProfileManager
 
         Profile.Coins -= armor.repairCost;
         Profile.ArmorShield = armor.healthBonus;
+        return true;
+    }
+
+    //BACKPACK (Hub inventory)
+    //one from stored food into the backpack (slots 4-9), false if none stored or the backpack is full
+    public static bool MoveFoodToBackpack(ConsumableData item)
+    {
+        if (item == null || Profile.GetStoredFood(item.id) <= 0)
+            return false;
+        if (!Profile.AddToInventory(item.id))
+            return false;
+        Profile.TakeStoredFood(item.id);
+        return true;
+    }
+
+    //a backpack slot back into stored food
+    public static bool MoveSlotToStorage(int index)
+    {
+        string id = Profile.GetSlot(index);
+        if (string.IsNullOrEmpty(id))
+            return false;
+        Profile.SetSlot(index, "");
+        Profile.AddStoredFood(id, 1);
         return true;
     }
 

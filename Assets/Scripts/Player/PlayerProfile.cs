@@ -1,12 +1,13 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     2.4
+// Version:     2.6
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 //              Ali (v2.0: coins, shooter upgrade bars,
 //              v2.1: abilities on Q/E and skill tree nodes, no special slot)
 //              Ashar (v2.2: ore pouch and armour, v2.3: food slots are 4-9, 0 is the armour slot,
-//              v2.4: welcome seen, shard count)
+//              v2.4: welcome seen, shard count, v2.5: stored food, specials removed,
+//              v2.6: new profiles start with 2 of each food/drink stored)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              coins, owned items, item levels, shooter upgrades,
@@ -27,7 +28,6 @@ public class CurrentInventory
     public string shooter = "em_raygun";
     public string lazer = "lazer";
     public string melee = "punch";
-    public string special = "";                                 // no longer used (abilities replaced specials)
     public string abilityQ = "fire";
     public string abilityE = "ice";
     public List<string> consumables = new List<string>();      // food/drink slots, "" = empty
@@ -125,6 +125,7 @@ public class PlayerProfile
 
     //ores and armour
     [SerializeField] private List<ItemCount> ores = new List<ItemCount>();
+    [SerializeField] private List<ItemCount> storedFood = new List<ItemCount>();   // food/drink kept out of the backpack (4-9 slots)
     [SerializeField] private List<ItemCount> armor = new List<ItemCount>();  
     [SerializeField] private string equippedArmor = "";
     [SerializeField] private float armorShield = 0f;                        
@@ -135,6 +136,9 @@ public class PlayerProfile
     [SerializeField] private bool welcomeSeen = false;    
 
     //IDENTITY
+    public static readonly string[] StarterFood = { "beans", "water_bottle", "soda" };
+    public const int StarterFoodAmount = 2;
+
 
     // A brand new profile, stamped with the date and time it was made
     public static PlayerProfile CreateNew(string name, bool usePasskey, string key, Color colour)
@@ -145,6 +149,10 @@ public class PlayerProfile
         p.passwordProtected = usePasskey;
         p.passkey = usePasskey ? key : "";
         p.createdAt = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+        //starter food, picked into the backpack in the Hub
+        foreach (string id in StarterFood)
+            p.AddStoredFood(id, StarterFoodAmount);
         return p;
     }
 
@@ -382,6 +390,25 @@ public class PlayerProfile
         return true;
     }
 
+    //STORED FOOD
+    public int GetStoredFood(string itemId)
+    {
+        return GetCount(storedFood, itemId);
+    }
+
+    public void AddStoredFood(string itemId, int amount)
+    {
+        AddCount(storedFood, itemId, amount);
+    }
+
+    public bool TakeStoredFood(string itemId)
+    {
+        if (GetStoredFood(itemId) <= 0)
+            return false;
+        AddCount(storedFood, itemId, -1);
+        return true;
+    }
+
     //ARMOUR
     public string EquippedArmor
     {
@@ -469,11 +496,6 @@ public class PlayerProfile
             currentInventory.abilityE = abilityId;
     }
 
-    public string EquippedSpecial
-    {
-        get { return currentInventory.special; }
-        set { currentInventory.special = value; }
-    }
 
     public int SelectedWeapon
     {

@@ -337,6 +337,13 @@ public class BossMob : Mob
         if (slamWarning != null)
             slamWarning.SetActive(false);
 
+        // every pillar breaks with the boss (added by Ashar)
+        foreach (BossPillar p in pillars)
+        {
+            if (p != null)
+                p.Shatter();
+        }
+
         if (portalPiece != null)
         {
             portalPiece.transform.position = arenaCentre.position;

@@ -86,6 +86,17 @@ public class BossPillar : MonoBehaviour
         }
     }
 
+    // the boss died: break for good (added by Ashar)
+    public void Shatter()
+    {
+        broken = true;
+        crystal.SetActive(false);
+        if (beam != null)
+            beam.enabled = false;
+        if (bar != null)
+            bar.gameObject.SetActive(false);
+    }
+
     public void Rebuild()
     {
         broken = false;

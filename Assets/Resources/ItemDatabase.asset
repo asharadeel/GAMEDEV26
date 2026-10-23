@@ -22,7 +22,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0c1581bfad8145ff96b101bd33d78f78, type: 2}
   - {fileID: 11400000, guid: 9367d96b515b43d5864fa247365a4632, type: 2}
   - {fileID: 11400000, guid: cea0b17a85fd4fef85d3b5dffcbe115e, type: 2}
-  specials: []
   food:
   - {fileID: 11400000, guid: c9e943e753964369907b977fe0b6a7ae, type: 2}
   drinks:

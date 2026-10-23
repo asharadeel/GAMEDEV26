@@ -1,9 +1,10 @@
 // ============================================================
 // Title:       PlayerStats
-// Version:     1.5
+// Version:     1.7
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.4: counts eating and drinking for achievements)
-//              Ashar (v1.5: armour takes damage before health)
+//              Ashar (v1.5: armour takes damage before health, v1.6: +1 health a second while hunger is above 90,
+//              v1.7: dying shows the death screen and keeps what was picked up)
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
 
@@ -22,6 +23,8 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Health")]
     public float healthDropEvery = 8f;   //seconds per -1 while hungry/thirsty
+    public float wellFedLevel = 90f;     //hunger above this regens health
+    public float regenEvery = 1f;        //seconds per +1 health while well fed
 
     [Header("Stamina (per second)")]
     public float sprintCost = 20f;
@@ -41,7 +44,9 @@ public class PlayerStats : MonoBehaviour
     private float hungerTimer;
     private float thirstTimer;
     private float healthTimer;
+    private float regenTimer;
     private PlayerArmor armor;
+    private bool dead;
 
     //STARTING PROCEDURES
     void Awake()
@@ -56,6 +61,9 @@ public class PlayerStats : MonoBehaviour
     //SURVIVAL
     void Update()
     {
+        if (dead)
+            return;
+
         float dt = Time.deltaTime;
 
         if (Tick(ref hungerTimer, hungerDropEvery))
@@ -68,6 +76,12 @@ public class PlayerStats : MonoBehaviour
             healthTimer = 0f; //restart once fed/watered
         else if (Tick(ref healthTimer, healthDropEvery))
             profile.Health -= 1f;
+
+        //well fed: +1 health a second
+        if (profile.Hunger <= wellFedLevel)
+            regenTimer = 0f;
+        else if (Tick(ref regenTimer, regenEvery))
+            profile.Health += 1f;
 
         if (IsSprinting)
             profile.Stamina -= sprintCost * dt;
@@ -116,9 +130,14 @@ public class PlayerStats : MonoBehaviour
     void Die()
     {
         Debug.Log("Player died");
-        profile.RefillAll();
+        dead = true;
+        profile.RefillAll();     //stats back to full, everything picked up stays
         ProfileManager.Save();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        if (DeathScreen.Instance != null)
+            DeathScreen.Instance.Show();
+        else
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     //save when leaving the scene too

@@ -83,7 +83,6 @@ public class ReadWritePlayerProfile : MonoBehaviour
         LazerData lazer = shooter != null ? PlayerCombat.GetLazer(shooter) : null;
         sb.AppendLine("- Shooter: " + NameOf(db, p.EquippedShooter) + LevelOf(shooter) + (lazer != null ? " (" + lazer.displayName + ")" : ""));
         sb.AppendLine("- Melee: " + NameOf(db, p.EquippedMelee) + LevelOf(db != null ? db.Get<MeleeData>(p.EquippedMelee) : null));
-        sb.AppendLine("- Special: " + NameOf(db, p.EquippedSpecial) + LevelOf(db != null ? db.Get<SpecialData>(p.EquippedSpecial) : null));
         sb.AppendLine();
 
         //OWNED WEAPONS

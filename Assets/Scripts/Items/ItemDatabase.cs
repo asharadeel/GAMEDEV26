@@ -23,7 +23,6 @@ public class ItemDatabase : ScriptableObject
     public List<ShooterData> shooters = new List<ShooterData>();
     public List<LazerData> lazers = new List<LazerData>();
     public List<MeleeData> melee = new List<MeleeData>();
-    public List<SpecialData> specials = new List<SpecialData>(); //empty, abilities replaced specials
 
     [Header("Abilities")]
     public List<AbilityData> abilities = new List<AbilityData>();
@@ -56,7 +55,6 @@ public class ItemDatabase : ScriptableObject
         all.AddRange(shooters);
         all.AddRange(lazers);
         all.AddRange(melee);
-        all.AddRange(specials);
         all.AddRange(food);
         all.AddRange(drinks);
         all.AddRange(abilities);

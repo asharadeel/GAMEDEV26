@@ -12,7 +12,6 @@ All project content lives in `Assets/`:
   - `Weapons/Shooters/` - `EM Raygun`
     - `Lazers/` - `Lazer`, `UV Lazer`, `Gamme Lazer` (the EM Raygun's lazer bar: starting lazer, then 2 upgrades)
   - `Weapons/Melee/` - `Punch`, `Kick`, `Bat`
-  - `Weapons/Specials/` - `Rocket`, `Grenade` (not in the game any more: abilities replaced specials, kept in case they come back)
   - `Abilities/` - `Fire`, `Ice`, `Lightning` (each holds its skill tree branch)
 - No font or image files: all UI text uses Unity's built-in font (LegacyRuntime, which is Arial), floor rings are drawn with a LineRenderer, the aim arrow and door prompt use Unity's built-in UI sprites (the brief allows Unity basic assets only)
 - `Materials/Palette/` - ready-to-use materials: `Colours` (23 flat colours), `Metals`, `Glow` (emissive), `Glass` (see-through), `Surfaces` (wood, stone, brick, ice, lava...)
@@ -21,11 +20,11 @@ All project content lives in `Assets/`:
   - `ShowUIonApproach` - drop next to anything (e.g. a sign) and set its `UI`: opens that UI when the player walks close, with a white ring (when near) and a blue marker disc on the floor
   - `RayGun/` - `Lazer`, `UV Lazer`, `Gamme Lazer`
   - `Mobs/` - mob models (`MobLvl1`, `MovLvl2`, `MobLvl3`)
-  - `Consumables/` - what dropped food/drink looks like: `Beans` (chrome can, orange label), `WaterBottle` (blue glass bottle, white cap), `Soda` (red can). Set as `model` on each consumable asset
+  - `Consumables/` - what dropped food/drink looks like, simple shapes: `Beans` (orange cylinder), `WaterBottle` (light blue capsule), `Soda` (red cylinder). Set as `model` on each consumable asset
   - `Ores/` - dropped ores as spheres: `StoneOre` (stone), `IronOre` (rusty metal), `SteelOre` (steel). Set as `model` on each ore asset
     - `Spawners/` - `MobSpawner` prefab
   - `Abilities/` - `Fireball`, `FrostNova`, `LightningBolt` (what the abilities look like)
-  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, on at night), `Lamp` (small glowing yellow cube with a yellow point light, intensity 2.5, range 20, always on), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
+  - `Scene1/` - Scene 1 scenery: `Tree`, `Bush`, `StreetLight` (iron base 1.4 high, pole, glowing sphere bulb with a point light, always on, light set to Important so it's always drawn), `Lamp` (small glowing yellow cube with a yellow point light, intensity 2.5, range 20, always on), `WallBlocks` (a pair of 25x25 wall blocks side by side: `TallBlock` 50 high in `MapWalls` brown, `ShortBlock` 37.5 high in the darker `MapWallsDark`)
 - `Resources/` - `ItemDatabase.asset`, the list of every item in the game
 - `Scenes/` - all game scenes (`Hub`, `Main Menu`, `Scene 1 Plains`)
 - `Scripts/` - all C# code
@@ -86,23 +85,24 @@ Hub:
 - `ShardPortal`: after you kill the Level 1 boss and pick up its shard (the portal piece) a portal stall like Level 1/2's takes the welcome stall's spot, with a 3x3 `ShardGrid`: dark slots, a white cube per shard collected (1 for now). No interaction yet
 - Left side: Shop, right side: Inventory (it used to be the Library), east wall: Skill Tree. Stand on the ring and it opens the thing you are standing on
 - `IntroMenu`, `StoreUI`, `InventoryMenu`, `SkillTreeMenu` are under `Canvas`
-- `InventoryMenu`: a `GeneralSelectorUI` copy titled "Inventory" with 3 tabs like the shop: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Abilities (Fire, Ice, Lightning). Buttons 4 and 5 are switched off. Each tab's `Viewport/Content` has a heading, a line of text and an `Items` grid (`Grid Layout Group` 300 x 400 cells + `InventoryGrid`). The weapon tabs have `InventoryCard`s (only owned weapons show, Equip / Unequip), the Abilities tab has `AbilityCard`s (Equip Q / Equip E)
+- `InventoryMenu`: a `GeneralSelectorUI` copy titled "Inventory" with 5 tabs: Shooters (EM Raygun), Melee (Punch, Kick, Bat), Abilities (Fire, Ice, Lightning), Armor and Backpack. Each tab's `Viewport/Content` has a heading, a line of text and an `Items` grid (`Grid Layout Group` 300 x 400 cells + `InventoryGrid`). The weapon tabs have `InventoryCard`s (only owned weapons show, Equip / Unequip), the Abilities tab has `AbilityCard`s (Equip Q / Equip E)
 - `Skill Tree` stall (east wall, x 14.8, with `SkillTreeLight`): same as the other stalls (sign + `ShowUIonApproach`), opens `SkillTreeMenu`: a full-screen `GeneralPopUpWindow` copy (`SkillTreeWindow`, action button off) with a coins line and 3 columns, `Branch (Fire)`, `Branch (Ice)`, `Branch (Lightning)`, each a `Header` and a `Tree` area. `SkillTreeUI` on the container draws the nodes and lines into the `Tree` areas
 - `ControlsUI`: the same Controls button as Scene 1 (top right). It opens `ControlsPanel` with the Hub's controls (move, sprint, jump, camera, zoom, flashlight, walk up to signs)
 - `Blacksmith` stall (west side, opposite Skill Tree) with `BlacksmithLight`: walk up to open `BlacksmithMenu` (a `GeneralSelectorUI` copy, one Armor tab) with an `ArmorCard` (Craft) for Stone, Iron and Steel Armor
 - `InventoryMenu` has an Armor tab (tab 4) with `ArmorCard`s (Equip): wear one armour at a time
-- `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). Tabs in order: Shooters (EM Raygun), Melee (Punch, Kick, Bat) as `ShopItemCard`s, Specials (button switched off, abilities replaced specials), Food (Beans), Drinks (Water Bottle, Soda) as `ConsumableCard`s, each in the section's `Items` grid. The Shooters tab's frame is still called `Weapons`
+- `InventoryMenu` Backpack tab (tab 5): picks the food/drink you take into a level. `Backpack` row: 6 slot buttons (keys 4-9, `BackpackBox`), pressing a filled slot puts it back into stored food. `Items` grid: a `FoodCard` for Beans, Water Bottle and Soda showing how many are stored and what each restores (hunger, thirst...), pressing one packs it into the first free slot
+- Esc menu: an `EscMenu` prefab copy under `Canvas` (same as Scene 1)
+- `StoreUI > GeneralSelectorUI`: the shop window, 5 section buttons that each show their own frame (`TabSelector`). Tabs in order: Shooters (EM Raygun), Melee (Punch, Kick, Bat) as `ShopItemCard`s, an empty third tab (button switched off), Food (Beans), Drinks (Water Bottle, Soda) as `ConsumableCard`s, each in the section's `Items` grid. The Shooters tab's frame is still called `Weapons`
 - `BuyPopup`, `RefundPopup`: the shop's pop-ups (GeneralPopUpWindow), run by `ShopPopups` on `StoreUI`
-- `UpgradePopup`: the weapon upgrade window (a GeneralPopUpWindow stretched full screen, same size as the shop window), run by `WeaponUpgradeUI` on the container. Opened by Upgrade on any weapon's card. Shooters get one bar per upgrade (Lazer, Damage, Fire Rate, Bullet Speed, Reload Time), melee and specials just a Level bar (2 blocks: levels 2 and 3). Bars are under `Frame/Bars`: label, blocks that fill left to right, "now → next" value and a Buy button that opens `BuyPopup`. Sits right after `StoreUI` (over the shop, under `BuyPopup`). Opening it hides the shop, closing it brings the shop back on the same tab. Built by **Tools > Build Weapon Upgrades** (it replaced the old "Upgrade to level n" pop-up)
+- `UpgradePopup`: the weapon upgrade window (a GeneralPopUpWindow stretched full screen, same size as the shop window), run by `WeaponUpgradeUI` on the container. Opened by Upgrade on any weapon's card. Shooters get one bar per upgrade (Lazer, Damage, Fire Rate, Bullet Speed, Reload Time), melee just a Level bar (2 blocks: levels 2 and 3). Bars are under `Frame/Bars`: label, blocks that fill left to right, "now → next" value and a Buy button that opens `BuyPopup`. Sits right after `StoreUI` (over the shop, under `BuyPopup`). Opening it hides the shop, closing it brings the shop back on the same tab. Built by **Tools > Build Weapon Upgrades** (it replaced the old "Upgrade to level n" pop-up)
 - The shop window's title says "Shop"
 - `Scene1Prompt`: pop-up "Enter Scene 1?" (from `GeneralPopUpWindow`), Play loads Scene 1 Plains
 - `IntroMenu` uses the `GeneralTextWindow` prefab as its Frame: welcome title, how to play, controls, mobs and health
 - `IntroMenu`, `InventoryMenu` and `LockedMessage` follow the UI POLICY (container > `Frame` > `Panel`, see `AUTOMATIONS.md`). `ShopMenu` doesn't yet, it's being worked on separately
-- The Plains Esc menu `ReturnToMenu` button now loads the Hub
 
 Main Menu:
 - Play, Tutorial and Exit
-- Tutorial opens `Tutorial` (a `GeneralTileWindow`): 8 short steps flipped with Prev/Next - movement, camera, shooting, objective, boss, inventory, eating/drinking, the Hub. Steps 5-8 are added on the scene copy only, the prefab keeps 4
+- Tutorial opens `Tutorial` (a `GeneralTileWindow`): 8 short steps flipped with Prev/Next - movement, camera, shooting, objective, boss, inventory, eating/drinking (keys 4-9), the Hub - then a "Tutorial Complete!" page last. Steps 5-9 are added on the scene copy only, the prefab keeps 4
 - Play opens `ProfileSelect` (a `GeneralTextWindow`): 3 profile cards on the left, `NewProfile` window on the right
   - Empty card: opens New Profile - name, optional passkey (toggle, 3-30 characters), ball colour
   - Filled card (name + creation date): plays and loads the Hub. If it has a passkey, `PasskeyPopup` asks for it first ("Username: ...")
@@ -116,7 +116,7 @@ Scene 1 Plains layout (200x200 grey floor):
 - `Map-Walls`: 18 `WallBlocks` pairs around the edge (tall/short alternating, inner face on the map edge, 25 deep). `WallHider` hides the ones on the camera's side so they don't block the view (they still collide and cast shadows)
 - `Garden` (front/south): grass, `SpawnPad` with `PlayerSpawn`, path to the building with 4 `StreetLights` along it. `Trees` and `Bushes` are all copies of the `Models/Scene1` prefabs, in the garden and scattered all around the building
 - `HelperArea` (west of the spawn pad): 16x16 square with 4 low wooden walls and a doorway facing the spawn, `HelperSpot` in the middle. Empty for now, for helper stuff later
-- `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door (`DoorPlaceholder` + `DoorInteract`), press E or click the prompt to go to the HexRoom
+- `Building`: 75x75 maze entered from the front, `EndRoom` at the back with the next-floor door. Walk up to it (`BossDoorApproach`, a `ShowUIonApproach` on `NextFloorDoorSpot`) to get the `BossDoorPopUp` pop-up "Enter Boss Room?", **Enter** moves you to `HexRoom/DoorSpawn` (`OnClickMoveToPos`), same as entering the building. The old `DoorInteract` on `DoorPlaceholder` is switched off (its prompt and ring too)
 - Entering: walk up to the building's `Door` (approach ring) and press **Enter** on the pop-up, which moves the player to `BuildingInterior/Building/LandingSpot` (`OnClickMoveToPos`)
   - Inside, the first 20x10 in front of the entrance is a wall-free landing (`LandingPad`), the maze starts behind it
   - The maze has extra openings (gaps in the long walls, fewer dead-end walls) so there are several routes, including a second way into the end room
@@ -127,10 +127,10 @@ Scene 1 Plains layout (200x200 grey floor):
 - `MobSpawners`: 3 across the middle of the maze, 3 in the end room
 - `HexRoom` (`BossArea`, east of the map past the walls, not walkable to): dark hexagonal room 75 across, `DoorSpawn` just inside its door, where the next-floor door will send the player
 - `HexRoom/BossArena`: the boss fight (added with **Tools > Build Boss Room**, running it again replaces it)
-  - `Boss` (Plains Guardian) in the middle, wakes up when the player walks into the room
+  - `Boss` (Plains Guardian, 1000 health) in the middle, wakes up when the player walks into the room
   - 6 purple `Pillar`s on the corners, joined to the boss by a beam. While any pillar stands the boss only takes 20% damage. Break all 6 (shoot or hit them) and the boss turns orange and takes full damage for 12 seconds, then the pillars grow back
   - Moves: jump slam (red ring shows where it lands, hurts everything inside), throws 3 boulders aimed ahead of the player (pillars block them), swings its club when the player is close
-  - When it dies a `PortalPiece` appears in the middle. Walking onto it picks it up (saved on the profile as `HasPortalPiece`) and opens `PortalPieceMenu` (a `GeneralPopUpWindow`), both buttons load the Hub
+  - When it dies all its pillars break for good and a `PortalPiece` appears in the middle. Walking onto it picks it up (saved on the profile as `HasPortalPiece`) and opens `PortalPieceMenu` (a `GeneralPopUpWindow`), both buttons load the Hub
 - `PrototypeSkip` (yellow circle beside the path, before the maze): testing shortcut, stand in it and press E to go straight to `HexRoom/DoorSpawn`. Uses `DoorInteract`. Made by **Tools > Build Boss Room**, delete it before the final build
 
 Scene 1 Plains UI (`Canvas > PlayerUI`):
@@ -139,7 +139,8 @@ Scene 1 Plains UI (`Canvas > PlayerUI`):
 - Left: Objectives list (edit it on `PlayerHUD`)
 - Bottom: Health, Stamina, Hunger, Thirst bars across the full width
 - Above the bars: Inventory panel (press I)
-- Esc menu (`Canvas > EscMenu`): `Frame` (dim overlay) > `Panel`, styled like the pop-up windows: dark box with a "PAUSED" title bar, a grey RETURN TO MENU button (loads the Hub) and a dark CLOSE bar along the bottom
+- Esc menu (`Canvas > EscMenu`, a copy of the `Assets/UI/EscMenu` prefab, also in the Hub): `Frame` (dim overlay) > `Panel`, styled like the pop-up windows: dark box with a "PAUSED" title bar, RETURN TO HUB, RETURN TO MAIN MENU and QUIT GAME buttons and a dark CLOSE bar along the bottom. Change the prefab and both scenes get it
+- Death screen (`Canvas > DeathScreen`, on top of everything): full-screen dark red `Frame` with "YOU DIED!", the run's log (time survived, mobs killed, what you picked up) and RETURN TO HUB / RESTART LEVEL. Everything picked up is kept. The container has `DeathScreen` and `SessionTracker`
 - Achievements (`Canvas > AchievementUI`): `AchievementsPanel` in the centre (press J), `AchievementBanner` at the top centre when one unlocks
 
 # Controls
@@ -183,7 +184,7 @@ All scripts are in `Assets/Scripts/`.
 - `DayNight.cs` - goes on GameController
   - Rotates the Directional Light (sun) for a day/night cycle and fades it out at night
   - `Sun` is the light, `Day Length` is seconds per day, `Time Of Day` is where the day starts (0 midnight, 0.25 sunrise, 0.5 noon, 0.75 sunset), `Max Intensity` is noon brightness. At night the same light becomes a dim blue moon (`Moon Intensity` 0.3, `Moon Colour`) so it never goes fully black
-- `EscapeMenu.cs` - goes on an always-on object (EscMenu)
+- `EscapeMenu.cs` - on the `EscMenu` prefab's container (always on)
   - Pressing Esc toggles the `Menu` object on/off
   - Put `InactiveOnStart` on the menu if it should start hidden
 
@@ -195,12 +196,13 @@ All scripts are in `Assets/Scripts/`.
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
   - Level, Coins (new profiles start with 150; still called `tokens` in the save file so old saves keep their balance), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
   - `Owned Items` - everything the player has bought
-  - `Current Inventory` - what they have on them right now: shooter, lazer, melee, the abilities on Q and E (`abilityQ` / `abilityE`, Fire and Ice to start) and the food/drink slots (`special` is no longer used).
+  - `Current Inventory` - what they have on them right now: shooter, lazer, melee, the abilities on Q and E (`abilityQ` / `abilityE`, Fire and Ice to start) and the food/drink slots (the backpack).
+  - `Stored Food` - food/drink kept back in the Hub (`GetStoredFood`, `AddStoredFood`, `TakeStoredFood`). New profiles start with 2 Beans, 2 Water Bottles and 2 Sodas (`StarterFood`). Pickups that don't fit in the backpack go here, and the Hub's Backpack tab moves them in and out
   - `Skill Nodes` - the skill tree nodes bought, e.g. `"fire.2"`.
   -  Only owned items can be equipped
   - Selected weapon
   - `Has Portal Piece` (picked up from the Level 1 boss) and `Portal 2 Open` (placed in the Hub)
-  - Inventory slots (7 food/drink slots, keys 4-9 and 0)
+  - Inventory slots (6 food/drink slots, keys 4-9. 0 shows your armour)
   - Values have getters/setters that keep them in range (e.g. stamina can't go below 0 or above max)
   - To add a new stat: add a private `[SerializeField]` field and a public property
 - `PlayerStats.cs` - goes on the Player
@@ -208,7 +210,8 @@ All scripts are in `Assets/Scripts/`.
   - Hunger and thirst each drop by 1 every 5 seconds (`Hunger Drop Every`, `Thirst Drop Every`)
   - While hunger or thirst is at 25 or below (`Low Level`), health drops by 1 every 8 seconds (`Health Drop Every`)
   - Stamina drains while sprinting and refills otherwise
-  - At 0 health: stats refill and the scene restarts
+  - While hunger is above 90 (`Well Fed Level`), health goes up by 1 every second (`Regen Every`)
+  - At 0 health: stats refill, the profile saves (everything picked up is kept) and the `DeathScreen` opens (the scene just restarts if there isn't one)
   - Eating/drinking counts towards achievements (items consumed, food eaten, drinks consumed)
   - Drain/regen rates are set in the Inspector, live profile values are shown under `Profile` while playing
   - Right-click the component for **Save Now** / **Delete Save**
@@ -229,23 +232,22 @@ All scripts are in `Assets/Scripts/`.
 ## Scripts/Weapons/
 All weapons are assets (see Weapons and Items below).
 - `WeaponData.cs` - shared by all weapon gear: `unlocked` (starts owned), `model`
-- `WeaponData.cs` - base for all weapons: `unlocked`, `model`, and the prices for melee/specials: upgrade to level 2 = half the `coinCost`, level 3 = 1.5x (rounded up), refund = a third of the `coinCost` (rounded up, upgrades aren't refunded). Max level 3
+- `WeaponData.cs` - base for all weapons: `unlocked`, `model`, and the prices for melee: upgrade to level 2 = half the `coinCost`, level 3 = 1.5x (rounded up), refund = a third of the `coinCost` (rounded up, upgrades aren't refunded). Max level 3
 - `ShooterData.cs` - slot 1 gun (EM Raygun). No levels: 5 upgrade bars (`ShooterStat`: Lazer, Damage, FireRate, BulletSpeed, ReloadTime), each bought on its own. `Damage`, `Fire Rate`, `Bullet Speed`, `Reload Time` each have `start` (value with 0 upgrades), `perLevel` (added per upgrade, negative for reload) and `firstCost` (upgrade n costs n x firstCost), 5 upgrades each. The `Lazers` list is the lazer bar: 1st = starting lazer, each next one costs its own `coinCost`. `magazineSize` = shots before reloading
 - `LazerData.cs` - what a gun fires: `model`, `distance` (50), `size` (bigger = easier to hit), `pierce` (how many enemies it goes through), `rotationOffset`. `PerkText` describes it for the shop ("Bigger shots, goes through 2 enemies")
 - `MeleeData.cs` - slot 2, hits everything within `radius` in front of the player. 3 `Levels`, each with `model`, `damage`, `fireRate`, `radius`
-- `SpecialData.cs` - not used any more (abilities replaced specials). Was slot 3, fires a projectile that explodes. 3 `Levels`, each with `model`, `damage`, `fireRate`, `speed`, `radius`, `distance` (50), `size`, `rotationOffset`
 - `Damage.cs` - shared helpers: `Damage.Hit` (one target) and `Damage.HitArea` (everything in a radius, each mob once)
 - `Projectile.cs` - `Projectile.Spawn(...)` fires a model as a shot (used by the player and shooter mobs)
   - Player shots hit everything except the player. Enemy shots hit only the player and pass through mobs
   - Flies straight, disappears on hit or after travelling its `distance`
-  - Calls `TakeDamage(float)` on whatever it hits (mobs lose health), specials hit everything in their radius
+  - Calls `TakeDamage(float)` on whatever it hits (mobs lose health)
 
 ## Scripts/Items/
 - `ItemData.cs` - base for every item: `id` (used in the save), `displayName`, `coinCost` (100, assets with the old `tokenCost` still load), `levelRequired` (1)
 - `ConsumableData.cs` - food/drink: restores `hunger`, `thirst`, `stamina`, `health`
 - `OreData.cs` - a crafting ore (`colour` = its pickup colour). Stone, Iron, Steel in `Data/Ores/`. Dropped by mobs and sold in the shop, kept in the profile's ore pouch (not the food/drink slots). Create > Game > Ore
 - `ArmorData.cs` - one full armour piece: `healthBonus` (the shield bar size), `replaceDelay` (seconds before the next piece goes on after one breaks, shorter = better armour), `repairCost` (coins to fill the shield). Stone / Iron / Steel Armor in `Data/Armor/`. Create > Game > Armor
-- `ItemDatabase.cs` - every item in the game, split into lists: shooters, lazers, melee, specials (empty now), food, drinks, abilities
+- `ItemDatabase.cs` - every item in the game, split into lists: shooters, lazers, melee, food, drinks, abilities, ores, armor
   - The save only stores ids (e.g. `"lazer"`), the game uses this to turn an id back into the item asset
   - The asset must be at `Assets/Resources/ItemDatabase.asset`
 
@@ -273,13 +275,16 @@ Button scripts go on a Button and hook into its click automatically (no need to 
 - `OverlayUI.cs` - goes on a menu's `Frame`. While it's showing, `PlayerController.uiEnabled` is true: no moving, jumping, attacking, weapon switching, eating, or camera rotate/zoom. Counts open overlays, so several can be open. On `GeneralTextWindow` (so the Hub intro) and the Hub's `LockedMessage/Frame`
 - `ProfileSelectUI.cs` - on the Main Menu's `ProfileSelect` container. Runs the profile cards, New Profile window and the Passkey/Delete/Edit pop-ups (see Main Menu above). `Play Scene` is where a picked profile goes (Hub)
 - `AbilityCard.cs` - on the `AbilityCard` prefab. Drag an ability into `Item`. Shows its name, "On Q" / "On E" (fixed height like `InventoryCard`) and Equip Q / Equip E buttons. Equipping moves it if it was on the other key, pressing its own key's button again unequips it
-- `InventoryCard.cs` - on the `InventoryCard` prefab. Drag a weapon asset into `Item`. Shows its name, type (Shooter / Melee / Special) and a green "Equipped" label (`Equipped Tag`, at a fixed height so it lines up across cards), with one Equip / Unequip button. Equipping replaces whatever was in that slot, Unequip leaves the slot empty
+- `InventoryCard.cs` - on the `InventoryCard` prefab. Drag a weapon asset into `Item`. Shows its name, type (Shooter / Melee) and a green "Equipped" label (`Equipped Tag`, at a fixed height so it lines up across cards), with one Equip / Unequip button. Equipping replaces whatever was in that slot, Unequip leaves the slot empty
 - `InventoryGrid.cs` - on the grid holding the `InventoryCard`s. Each time the window opens it hides the cards for weapons the player doesn't own (so bought weapons appear, refunded ones disappear)
 - `ShopItemCard.cs` - on the `ShopItemCard` prefab. Drag a weapon asset into `Item`. Shows "<name>" and "Level <n>" (shooters just the name), plus Buy (not owned) or Equip + Upgrade + Refund (owned). Upgrade opens `WeaponUpgradeUI`, Refund is hidden for starting items and greyed out while equipped
 - `ConsumableCard.cs` - on the `ConsumableCard` prefab. Drag a food/drink asset into `Item`. Shows its name, Buy, Refund and "Amount owned: <n>" (how many are in the inventory slots). Buying puts one in the first free slot. Refund sells one back for half its price (rounded up), greyed out when you have none
+- `FoodCard.cs` - on the `FoodCard` prefab (Hub inventory, Backpack tab). Drag a food/drink into `Item`. Shows how many are stored, how many are in the backpack and what it restores. The button says "Add 1 (n to add)", or "0 to add" (greyed out) when none are stored, and moves one into the backpack. Keeps every card and the `BackpackBox` in sync
+- `BackpackBox.cs` - the Backpack row in the Hub inventory: 6 `Slots` buttons and their `Labels` (keys 4-9). Shows what's in each slot ("4 Beans" / "Empty"), pressing a filled one puts it back into stored food
+- `DeathScreen.cs` - on Scene 1's `DeathScreen` container. `Show()` (called by `PlayerStats` at 0 health) shows "YOU DIED!" and the `SessionTracker` log in the `Window` (Frame) and pauses the game. RETURN TO HUB loads `Hub Scene`, RESTART LEVEL reloads the level
 - `ArmorCard.cs` - on the `ArmorCard` prefab. Drag an armour asset into `Item` and pick `Mode`: **Craft** (Blacksmith: shows the ore recipe in green/red, Craft button), **Buy** (Store: Buy pop-up for coins), **Equip** (Inventory: wear this one, only one at a time)
 - `ShopPopups.cs` - on the Hub's `StoreUI` container. Runs the shared `BuyPopup` ("Buy <item>", button "Buy: <cost>", also used for every upgrade: "Buy Damage (10 → 13)" / "Buy UV Lazer" / "Buy Punch Level 2") and `RefundPopup` ("Refund <item>: <refund>"). Shows the player's coins, or why it didn't work. Buying food/drink keeps the pop-up open so you can buy several
-- `WeaponUpgradeUI.cs` - on the Hub's `UpgradePopup` container. `Open(weapon)` shows "Upgrade <weapon>", the player's coins and its bars: shooters one `UpgradeBar` per `ShooterStat`, melee/specials only the 1st bar as "Level" with what the next level changes (e.g. "Level 1 → 2: Damage 5 → 7.5"), the other rows hide. Buy opens `BuyPopup` for that bar's next upgrade, MAX when full. `Shop` (the shop window) is hidden with a CanvasGroup while it's open, not switched off, so it comes back on the same tab however the window is closed. Blocks past a bar's max hide. `Filled` / `Empty` set the block colours
+- `WeaponUpgradeUI.cs` - on the Hub's `UpgradePopup` container. `Open(weapon)` shows "Upgrade <weapon>", the player's coins and its bars: shooters one `UpgradeBar` per `ShooterStat`, melee only the 1st bar as "Level" with what the next level changes (e.g. "Level 1 → 2: Damage 5 → 7.5"), the other rows hide. Buy opens `BuyPopup` for that bar's next upgrade, MAX when full. `Shop` (the shop window) is hidden with a CanvasGroup while it's open, not switched off, so it comes back on the same tab however the window is closed. Blocks past a bar's max hide. `Filled` / `Empty` set the block colours
 - `CurrencyChangeButton.cs` - on a Button: `Mode` Add / Subtract and `Amount` of coins. Subtract doesn't go through without enough coins
 - `TabSelector.cs` - a row of buttons that each open their own frame. `Tabs` = list of `Button` + `Frame`. Clicking a button shows its frame and hides the rest, the open tab's button is greyed out. Opens on the first tab each time the window opens. On the Hub's `StoreUI/GeneralSelectorUI` (5 buttons under `SectionSelector`, 5 frames under `Sections`)
 - `TilePager.cs` - shows one box (page) at a time instead of a scroll view. `Pages` = list of `Order` + `Content` (the box/Frame), shown lowest order first. `Left Button` / `Right Button` flip pages and are greyed out when there's no page that way. Optional `Page Label` shows e.g. "2 / 5". Goes back to page 1 each time the window opens. Already set up on the `Assets/UI/GeneralTileWindow` prefab (4 steps)
@@ -330,9 +335,9 @@ Loot (each rolled separately when the mob dies):
 - `LootDropper.cs` - `LootDropper.Drop(mobData, position)` rolls the mob's `drops` and spawns a Pickup for each success. Called by `Mob` when it dies
 - `Pickup.cs` - a dropped consumable on the ground
   - `Pickup.Spawn(position, item)` makes one from the item's `model` (Models/Consumables, Models/Ores). Items with no model fall back to a small cube: blue for drinks, orange for food, the ore's colour for ores, white otherwise
-  - Spins and bobs, walk over it to pick it up. If the inventory is full it stays on the ground
+  - Sits still on the ground, walk over it to pick it up. Food/drink that doesn't fit in the backpack goes into the profile's stored food (pick it in the Hub). Ores always go in the ore pouch
   - Disappears after `Lifetime` (30s)
-  - Counts towards achievements (picked up, or missed with a full inventory)
+  - Counts towards achievements and the level's `SessionTracker`. (Bag Full / Pack Mule can't unlock any more since food never stays on the ground)
 - `FloatingText.cs` - `FloatingText.Show(position, message)` shows a short message (e.g. "+ Beans") that floats up and fades
 
 ## Scripts/Achievements/
@@ -360,6 +365,7 @@ Loot (each rolled separately when the mob dies):
   - Title = player name, body = stats. If no profile was picked on the Main Menu (e.g. testing the Hub directly) it shows "Profile not loaded" / "Profile has not generated... something gone wrong :/"
 
 ## Scripts/World/
+- `SessionTracker.cs` - the level's own log for this run: time survived, mobs killed (`Mob` reports) and items picked up (`Pickup` reports). `Report()` is what the death screen shows. One per level, on the `DeathScreen` container
 - `PortalPiece.cs` - spins and bobs the portal piece the boss drops (its `ShowUIonApproach` opens the pop-up). Walking onto it sets `HasPortalPiece` on the profile and saves
 - `PortalSlot.cs` - on the Hub's `Level2Portal`. If the profile has the portal piece, walking up opens `PlacePiecePrompt` instead of the locked pop-up. Place turns the slot and the portal purple and saves `Portal2Open`. There's no Level 2 yet, so the open portal does nothing. Right-click the component for **Give Portal Piece (testing)**
 - `RadiusUI.cs` (was `MenuZone`) - shows a UI when the player walks close, hides it when they walk away
@@ -374,10 +380,10 @@ Loot (each rolled separately when the mob dies):
   - When the player is within `Radius` of `Interact Point`: shows the on-screen `Prompt` (circle with "E" / "Click") above the door
   - Press E (`GameInput.Interact`) or click the prompt to move the player to `Destination`
   - `Radius Ring` - circle on the floor showing the radius, visible within `Show Ring Within`
-  - The end-room door sends the player to `HexRoom/DoorSpawn`
+  - Still used by `PrototypeSkip`. The end-room door's one is switched off (it uses a pop-up now)
 
 ## Scripts/Models/
-- `StreetLight.cs` - on the `StreetLight` prefab. Turns the light on at night (before sunrise / after sunset in the scene's `DayNight`): the `Bulb` glows (emission, `Glow Colour` white) and its point light turns on (white, range 10, intensity 2). Off in the day, and always off if the scene has no `DayNight`
+- `StreetLight.cs` - on the `StreetLight` prefab. Keeps it on all the time: the `Bulb` glows (emission, `Glow Colour` white) and its point light is on (white, range 10, intensity 2)
 
 ## Scripts/Generic/
 - `OnClickMoveToPos.cs` - on a Button: moves the player (tagged `Player`) to `Target`'s position when clicked. Used by the Enter Building pop-up's Enter button
@@ -406,13 +412,13 @@ Loot (each rolled separately when the mob dies):
 - Every item is an asset in `Assets/Data/`
 - Full step-by-step guide: `AUTOMATIONS.md` > Adding Items
 - To make a new one:
-  - Right-click in Project > **Create > Game > Weapons > Shooter / Lazer / Melee / Special**, or **Create > Game > Consumable**
+  - Right-click in Project > **Create > Game > Weapons > Shooter / Lazer / Melee**, or **Create > Game > Consumable**
   - Give it a unique `id`, set its stats (and `model` for weapons)
   - Add it to the right list in `Assets/Resources/ItemDatabase.asset`, otherwise the game can't find it
   - New lazer? Also add it to the gun's `Lazers` list
 - EM Raygun, Lazer and Punch are `unlocked` (every player starts with them), everything else must be bought
 
-Upgrades (melee and specials): 3 levels, bought on the Level bar in the upgrade window. Level 1 comes with the item, level 2 costs half its price, level 3 costs 1.5x its price (100-coin item: 50, then 150). Refund = a third of the price (34), whatever the level, and the level goes back to 1.
+Upgrades (melee): 3 levels, bought on the Level bar in the upgrade window. Level 1 comes with the item, level 2 costs half its price, level 3 costs 1.5x its price (100-coin item: 50, then 150). Refund = a third of the price (34), whatever the level, and the level goes back to 1.
 
 Shooters have upgrade bars instead, each bought on its own in the shop (Upgrade on the card). Refunding a shooter resets its bars. The refund is always a third of the gun's price: upgrades never change it and aren't refunded. EM Raygun (magazine: 20 shots):
 
@@ -429,7 +435,7 @@ Shooters have upgrade bars instead, each bought on its own in the shop (Upgrade 
 | UV Lazer | 100 | Bigger shots (size 1.5) | `UV Lazer` |
 | Gamme Lazer | 200 | Bigger shots, goes through 2 enemies | `Gamme Lazer` |
 
-Melee and specials: level 2 = 1.5x damage, level 3 = 2x damage, everything else the same (change per level in the asset).
+Melee: level 2 = 1.5x damage, level 3 = 2x damage, everything else the same (change per level in the asset).
 
 | Melee | Damage (Lv 1 / 2 / 3) | Attacks/sec | Radius |
 |---|---|---|---|
@@ -437,7 +443,6 @@ Melee and specials: level 2 = 1.5x damage, level 3 = 2x damage, everything else 
 | Kick | 8 / 12 / 16 | 1.2 | 1.5 |
 | Bat | 15 / 22.5 / 30 | 1 | 2 |
 
-Rocket and Grenade (specials) are out of the game: abilities replaced them. Their assets are kept in `Data/Weapons/Specials/`.
 
 # Abilities and Skill Tree
 Every player has Fire, Ice and Lightning for free at their base stats. Put one on Q and one on E in the Hub's Inventory (Abilities tab). The Skill Tree stall upgrades them with coins.

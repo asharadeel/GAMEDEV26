@@ -39,7 +39,7 @@ Canvas
    - This is the object that gets shown/hidden. Every reference that opens/closes the menu points at the Frame: `RadiusUI.ui`, `HubPortal.lockedMessage`, `EscapeMenu.menu`, `OpenElemOnClick` / `CloseElemOnClick` `elements`, etc.
    - Leave it **switched on in the editor**. If it should start hidden, add `InactiveOnStart` to it. Don't untick it in the editor: `InactiveOnStart` only runs the first time it's enabled, so a frame that starts unticked hides itself again the first time it's opened
    - If the player shouldn't be controllable while it's open (menus, popups, text windows), add `OverlayUI` to the Frame. While any OverlayUI is showing, `PlayerController.uiEnabled` is true and movement, jumping, attacks, eating and camera rotate/zoom are off (so scrolling a menu doesn't zoom the camera). `GeneralTextWindow` already has it
-   - A full-screen background (dim overlay) can go on the Frame itself (e.g. Scene 1's `EscMenu/Frame` has a RawImage)
+   - A full-screen background (dim overlay) can go on the Frame itself (e.g. the `EscMenu` prefab's `Frame` has a RawImage)
    - Backgrounds on Frames and panels use **RawImage**, not Image (it can take any texture later). Only use Image where a sliced sprite is needed (scroll view, scrollbar, rounded buttons)
 3. **Content** inside the Frame can be laid out however the menu needs (centred panel, buttons anchored to edges...). Keep it switched on, the Frame handles visibility
 4. Always-visible HUD elements (health bars, Mobs Left tracker) don't need a Frame. They go inside `PlayerUI`, which is itself a stretched container
@@ -61,9 +61,11 @@ Canvas
    - Fill in the boxes on the scene copy, not in the prefab
 8. Before making a new window or pop-up layout, check `Assets/UI/` for a prefab that already does it
 8b. **Prefab copies:** change a window's text/boxes on its scene copy (overrides). Don't **Unpack** a General window (an unpacked copy never gets prefab fixes) and don't **Apply** a scene copy's overrides to the prefab (that would put e.g. the tutorial's 8 steps into every tile window). Only edit the prefab itself for changes every window should get
-8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Refund pop-ups are shared (`ShopPopups` on the shop's container) and Upgrade opens the shared `UpgradePopup` window (`WeaponUpgradeUI`: bars for shooters, a Level bar for melee/specials, whose Buy buttons reuse `BuyPopup`), don't add pop-ups per card. Refunds never change with upgrades (always a third of the price)
-8d. **Inventory cards:** each weapon in the Hub's Inventory is a copy of `Assets/UI/InventoryCard` in the matching tab of `InventoryMenu` (`Frame (n)/Viewport/Content/Items`), placed by hand with the weapon in `Item`, same as shop cards. `InventoryGrid` hides the ones the player doesn't own. New weapon? Add a card there too
-9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it). It shows a white floor ring when the player is near (`Show Ring Within`) and a blue marker disc. Don't write a new trigger script or a one-off ring for this
+8c. **Shop items:** each weapon in the shop is a copy of `Assets/UI/ShopItemCard` and each food/drink a copy of `Assets/UI/ConsumableCard`, placed by hand, with the item asset in its `Item` field. Don't build cards from code. Buy/Refund pop-ups are shared (`ShopPopups` on the shop's container) and Upgrade opens the shared `UpgradePopup` window (`WeaponUpgradeUI`: bars for shooters, a Level bar for melee, whose Buy buttons reuse `BuyPopup`), don't add pop-ups per card. Refunds never change with upgrades (always a third of the price)
+8d. **Inventory cards:** each weapon in the Hub's Inventory is a copy of `Assets/UI/InventoryCard` in the matching tab of `InventoryMenu` (`Frame (n)/Viewport/Content/Items`), placed by hand with the weapon in `Item`, same as shop cards. `InventoryGrid` hides the ones the player doesn't own. New weapon? Add a card there too. New food/drink? Add a `Assets/UI/FoodCard` copy to the Backpack tab's `Items` grid (tab 5) as well as a `ConsumableCard` in the shop
+8e. **Menus every scene needs** are prefabs, so a change reaches every scene: the Esc menu is `Assets/UI/EscMenu` (Return to Hub, Return to Main Menu, Quit Game, Close). A new scene gets a copy under its `Canvas`. Change the prefab, not a scene copy, unless only that scene should differ
+8f. **Level scenes** (Scene 1 and any later level) need a `DeathScreen` container under `Canvas` with `DeathScreen` + `SessionTracker`, last in the Canvas so it draws on top. Copy Scene 1's. Without it, dying just restarts the scene and nothing is logged
+9. **Opening a UI when the player walks up to something** (sign, NPC, portal, stall, door): place the `Assets/Models/ShowUIonApproach` prefab there (as a child of the sign so it moves with it) and drag the UI's Frame into its `UI` field. Set `Radius` (how close to open it). It shows a white floor ring when the player is near (`Show Ring Within`) and a blue marker disc. Don't write a new trigger script or a one-off ring for this
 
 ## Adding a new menu (in the Editor)
 1. Right-click `Canvas` > **Create Empty**, name it after the menu, set its RectTransform to stretch (Alt + click the bottom-right anchor preset) and zero all offsets
@@ -99,7 +101,6 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 | Shooter (gun) | `ShooterData` | `Data/Weapons/Shooters/` | `shooters` | Game > Weapons > Shooter |
 | Lazer (what a gun fires, its lazer bar) | `LazerData` | `Data/Weapons/Shooters/Lazers/` | `lazers` | Game > Weapons > Lazer |
 | Melee | `MeleeData` | `Data/Weapons/Melee/` | `melee` | Game > Weapons > Melee |
-| Special (not used any more, abilities replaced specials: ask before adding one) | `SpecialData` | `Data/Weapons/Specials/` | `specials` | Game > Weapons > Special |
 | Ability (see Abilities and Skill Tree below) | `AbilityData` | `Data/Abilities/` | `abilities` | Game > Ability |
 | Food | `ConsumableData` | `Data/Consumables/Food/` | `food` | Game > Consumable |
 | Drink | `ConsumableData` | `Data/Consumables/Drinks/` | `drinks` | Game > Consumable |
@@ -116,7 +117,7 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
   - `model` default `{fileID: 0}` unless a prefab is named
 - **Shooters:** no levels. Each bar (`damage`, `fireRate`, `bulletSpeed`, `reloadTime`) has `start`, `perLevel`, `firstCost` (5 upgrades, upgrade n costs n x firstCost). If not given, copy the EM Raygun's values. `magazineSize` default `20`
 - **Lazers:** `pierce` default `0`. A lazer's `coinCost` is its price on the gun's lazer bar
-- **Lazers and specials:** `distance` default `50`, `size` default `1`, `rotationOffset` default `{x: 90, y: 0, z: 0}` (the project's capsule models stand upright, this lays them along the shot)
+- **Lazers:** `distance` default `50`, `size` default `1`, `rotationOffset` default `{x: 90, y: 0, z: 0}` (the project's capsule models stand upright, this lays them along the shot)
 - If a stat isn't given, use the defaults in the type's script and say which ones were assumed
 - Don't edit scenes or scripts to add an item. Items are data only
 
@@ -170,7 +171,6 @@ MonoBehaviour:
 | `ShooterData` | `aadd36119fd74d12ba77681fdd11371b` |
 | `LazerData` | `5f28944de6bf424395872a89e061d793` |
 | `MeleeData` | `fbc67f158e46455f9fa34b84b68f4157` |
-| `SpecialData` | `5095c45212fe4b23842e7543c3e0ac5f` |
 | `ConsumableData` | `2234bb3b31a9474a9e1634094a9dc2b9` |
 
 If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix this table.
@@ -242,28 +242,7 @@ If a guid here doesn't match the script's `.cs.meta`, trust the `.meta` and fix 
     fireRate: 1.2
     radius: 1.5
 ```
-Melee and specials have 3 `levels` (1 = as bought, 2 and 3 = upgrades). If only level 1 stats are given, use them for all 3 and multiply `damage` by 1.5 for level 2 and 2 for level 3
-
-**Special**
-```yaml
-  id: rocket
-  displayName: Rocket
-  coinCost: 100
-  levelRequired: 1
-  unlocked: 0
-  model: <MODEL_REF>
-  levels:
-  - model: <MODEL_REF>
-    damage: 50
-    fireRate: 0.5
-    speed: 15
-    radius: 3
-    distance: 50
-    size: 1
-    rotationOffset: {x: 90, y: 0, z: 0}
-  - (same fields, level 2)
-  - (same fields, level 3)
-```
+Melee has 3 `levels` (1 = as bought, 2 and 3 = upgrades). If only level 1 stats are given, use them for all 3 and multiply `damage` by 1.5 for level 2 and 2 for level 3
 
 **Food / Drink**
 ```yaml
@@ -294,7 +273,7 @@ Current models (`Models/RayGun/`):
 | `Gamme Lazer` | `{fileID: 2223022628636679097, guid: 6f3a0d6a963c6c04ebc1fa244145ee9b, type: 3}` |
 
 ### Registering the item
-1. **ItemDatabase:** in `Assets/Resources/ItemDatabase.asset`, add a line under the matching list (`shooters`, `lazers`, `melee`, `specials`, `food`, `drinks`):
+1. **ItemDatabase:** in `Assets/Resources/ItemDatabase.asset`, add a line under the matching list (`shooters`, `lazers`, `melee`, `food`, `drinks`):
    ```yaml
    - {fileID: 11400000, guid: <NEW_ITEM_GUID>, type: 2}
    ```

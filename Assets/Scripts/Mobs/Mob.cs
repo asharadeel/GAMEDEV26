@@ -84,6 +84,7 @@ public class Mob : MonoBehaviour
             if (!(this is BossMob))
                 OreDropper.Drop(feet, data.tier);   //ores, more from harder mobs
             AchievementManager.Add(AchievementStat.MobsKilled, 1);
+            SessionTracker.AddKill(data.displayName);
             Destroy(gameObject);
         }
     }
