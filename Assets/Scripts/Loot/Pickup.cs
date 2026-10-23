@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       Pickup
-// Version:     1.3
+// Version:     1.4
 // Written by:  Davud Jabiyev
 // Updated by:  Davud Jabiyev (v1.3: counts pickups for achievements)
+//              Ashar (v1.4: ores, they go in the ore pouch so are never left behind)
 // Description: A consumable lying in the world. The player picks it
 //              up by walking over it. If the inventory is full it
 //              stays on the ground. Coloured by type, spins and bobs
@@ -14,7 +15,7 @@ using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
-    public ConsumableData item;
+    public ItemData item;
     public float lifetime = 30f;         // seconds until it despawns
     public float spinSpeed = 90f;        // degrees per second
     public float bobHeight = 0.15f;      // how far it moves up and down
@@ -23,7 +24,7 @@ public class Pickup : MonoBehaviour
     private Vector3 startPos;            // where it was spawned (for bobbing)
 
     // Small cube with a trigger collider
-    public static void Spawn(Vector3 position, ConsumableData item)
+    public static void Spawn(Vector3 position, ItemData item)
     {
         // Create cube
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -36,9 +37,12 @@ public class Pickup : MonoBehaviour
         // Set a colour
         // blue for drinks, orange for food, white for else
         Renderer rend = cube.GetComponent<Renderer>();
-        if (item.thirst > 0) {
+        ConsumableData food = item as ConsumableData;
+        if (item is OreData ore) {
+            rend.material.color = ore.colour;
+        } else if (food != null && food.thirst > 0) {
             rend.material.color = Color.blue;
-        } else if (item.hunger > 0) {
+        } else if (food != null && food.hunger > 0) {
             rend.material.color = new Color(1f, 0.5f, 0f);
         } else {
             rend.material.color = Color.white;
@@ -80,8 +84,14 @@ public class Pickup : MonoBehaviour
             return;
         }
 
-        // If inventory is full, don't pick up
-        bool added = ProfileManager.Profile.AddToInventory(item.id);
+        // Ores go in the ore pouch (never full), food/drink needs a free slot
+        bool added;
+        if (item is OreData) {
+            ProfileManager.Profile.AddOre(item.id, 1);
+            added = true;
+        } else {
+            added = ProfileManager.Profile.AddToInventory(item.id);
+        }
         if (added) {
             // Show message
             FloatingText.Show(transform.position, "+ " + item.displayName);

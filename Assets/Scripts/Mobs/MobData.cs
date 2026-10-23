@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       MobData
-// Version:     1.3
+// Version:     1.4
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.3: added loot drops)
+//              Ashar (v1.4: loot can be ores too)
 // Description: Profile for a mob type: its stats, its model and how
 //              it behaves (Follow = chases the player, Shooter =
 //              stays still and shoots). Also lists what it can drop
@@ -23,7 +24,7 @@ public enum MobType
 [Serializable]
 public class LootEntry
 {
-    public ConsumableData item;
+    public ItemData item;   //a consumable or an ore
     [Range(0f, 1f)]
     public float chance = 0.25f; //0 never, 1 always
 }

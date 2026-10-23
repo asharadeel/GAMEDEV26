@@ -1,9 +1,10 @@
 // ============================================================
 // Title:       ProfileManager
-// Version:     1.7
+// Version:     1.8
 // Written by:  Ashar
 // Updated by:  Ali (v1.6: coins, shooter upgrade bars, v1.7: abilities
 //              and skill tree)
+//              Ashar (v1.8: ores and armour)
 // Description: The current player profile (one of 3 save slots),
 //              plus create/edit/delete for the slots and buy/equip/
 //              upgrade/refund helpers, and the abilities' skill tree.
@@ -374,6 +375,63 @@ public static class ProfileManager
             return false;
 
         Profile.Coins += item.RefundValue;
+        return true;
+    }
+
+    //ORES
+    public static bool TryBuyOre(OreData ore)
+    {
+        if (!CanAfford(ore))
+            return false;
+
+        Profile.Coins -= ore.coinCost;
+        Profile.AddOre(ore.id, 1);
+        return true;
+    }
+
+    //ARMOUR
+    //buys one more piece, and wears it if nothing is worn yet
+    public static bool TryBuyArmor(ArmorData armor)
+    {
+        if (!CanAfford(armor))
+            return false;
+
+        Profile.Coins -= armor.coinCost;
+        Profile.AddArmor(armor.id, 1);
+        if (GetEquippedArmor() == null)
+            EquipArmor(armor);
+        return true;
+    }
+
+    //puts on a fresh piece of an owned armour
+    public static bool EquipArmor(ArmorData armor)
+    {
+        if (armor == null || Profile.GetArmorCount(armor.id) <= 0)
+            return false;
+
+        Profile.EquippedArmor = armor.id;
+        Profile.ArmorShield = armor.healthBonus;
+        return true;
+    }
+
+    public static ArmorData GetEquippedArmor()
+    {
+        if (string.IsNullOrEmpty(Profile.EquippedArmor))
+            return null;
+        return ItemDatabase.Instance.Get<ArmorData>(Profile.EquippedArmor);
+    }
+
+    //fills the worn piece's shield back up for its repair cost
+    public static bool TryRepairArmor()
+    {
+        ArmorData armor = GetEquippedArmor();
+        if (armor == null || Profile.GetArmorCount(armor.id) <= 0)
+            return false;
+        if (Profile.ArmorShield >= armor.healthBonus || Profile.Coins < armor.repairCost)
+            return false;
+
+        Profile.Coins -= armor.repairCost;
+        Profile.ArmorShield = armor.healthBonus;
         return true;
     }
 

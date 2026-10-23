@@ -176,6 +176,7 @@ All scripts are in `Assets/Scripts/`.
   - Put `InactiveOnStart` on the menu if it should start hidden
 
 ## Scripts/Player/
+- `PlayerArmor.cs` - the worn armour's shield (PlayerStats adds it to the player by itself). Damage hits the shield first, the rest goes to health. When it breaks one piece is used up and, if you own more, the next goes on after the armour's `Replace Delay` (health takes the hits until then). Starving/thirst still hits health directly
 - `PlayerProfile.cs` - the player's saved data (not a component)
   - Name, `Password Protected` + passkey (3-30 characters, `PlayerProfile.IsValidPasskey`), ball colour, creation date/time
   - Level, Coins (new profiles start with 150; still called `tokens` in the save file so old saves keep their balance), Speed, and Health, Stamina, Hunger, Thirst (all 0-100)
@@ -228,6 +229,8 @@ All weapons are assets (see Weapons and Items below).
 ## Scripts/Items/
 - `ItemData.cs` - base for every item: `id` (used in the save), `displayName`, `coinCost` (100, assets with the old `tokenCost` still load), `levelRequired` (1)
 - `ConsumableData.cs` - food/drink: restores `hunger`, `thirst`, `stamina`, `health`
+- `OreData.cs` - a crafting ore (`colour` = its pickup colour). Stone, Iron, Steel in `Data/Ores/`. Dropped by mobs and sold in the shop, kept in the profile's ore pouch (not the food/drink slots). Create > Game > Ore
+- `ArmorData.cs` - one full armour piece: `healthBonus` (the shield bar size), `replaceDelay` (seconds before the next piece goes on after one breaks, shorter = better armour), `repairCost` (coins to fill the shield). Stone / Iron / Steel Armor in `Data/Armor/`. Create > Game > Armor
 - `ItemDatabase.cs` - every item in the game, split into lists: shooters, lazers, melee, specials (empty now), food, drinks, abilities
   - The save only stores ids (e.g. `"lazer"`), the game uses this to turn an id back into the item asset
   - The asset must be at `Assets/Resources/ItemDatabase.asset`
@@ -439,6 +442,20 @@ Skill tree: each ability's branch starts at the ability (free) and splits into t
 | Lightning | Charged +8 Damage, High Voltage +8 Damage, Overcharge +14 Damage | Arc +1 Chain, Quick Strike -1s Cooldown, Storm +2 Chains |
 
 New node? Add it to the ability asset's `Nodes` list (`title`, `stat`, `amount`, `cost`, `parent` = index of the node below it or -1 for the ability, `column` -1/0/1, `row` 1-3). The tree draws itself from that list.
+
+| Ore | Coins | Dropped by |
+|---|---|---|
+| Stone | 5 | Mob Level 1 (50%), Mob Level 2 (40%) |
+| Iron | 15 | Mob Level 2 (25%), Mob Level 3 (40%) |
+| Steel | 40 | Mob Level 3 (15%) |
+
+| Armor | Coins | Shield | Next piece after | Repair |
+|---|---|---|---|---|
+| Stone Armor | 60 | 25 | 10s | 15 coins |
+| Iron Armor | 150 | 50 | 7s | 30 coins |
+| Steel Armor | 300 | 75 | 4s | 50 coins |
+
+The armour bar sits above Health in the HUD (`ArmorBar`), hidden when no armour is worn, and shows "New armor in Xs" while the next piece goes on.
 
 | Consumable | Restores | Coin Cost |
 |---|---|---|

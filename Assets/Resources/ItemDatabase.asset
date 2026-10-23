@@ -32,3 +32,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 73465a408c5ee086182163037f058744, type: 2}
   - {fileID: 11400000, guid: 41a81490706ca8fc02cb40cd2b05600a, type: 2}
   - {fileID: 11400000, guid: 621e1360907f6085a8f5fe2337ddb564, type: 2}
+  ores:
+  - {fileID: 11400000, guid: e99e2783731d45b19ad6429538e3a60c, type: 2}
+  - {fileID: 11400000, guid: 702d6fd906d84e54a8e97ff1020a742f, type: 2}
+  - {fileID: 11400000, guid: ffbaade438be4e6492826e870307b67e, type: 2}
+  armor:
+  - {fileID: 11400000, guid: 94eab3768663455a95a8a19e4d63d1ae, type: 2}
+  - {fileID: 11400000, guid: cc46faf29709409eb2bdee9d6fb9653e, type: 2}
+  - {fileID: 11400000, guid: 8b0fb5166c444d7a81e7eca448d6fad9, type: 2}

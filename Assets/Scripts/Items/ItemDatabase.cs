@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       ItemDatabase
-// Version:     2.1
+// Version:     2.2
 // Written by:  Ashar
 // Updated by:  Ali (v2.1: abilities)
+//              Ashar (v2.2: ores and armour)
 // Description: The list of every item in the game, split by type.
 //              The save file only stores item ids ("lazer",
 //              "beans"...), so the game uses this to turn an id
@@ -31,6 +32,10 @@ public class ItemDatabase : ScriptableObject
     public List<ConsumableData> food = new List<ConsumableData>();
     public List<ConsumableData> drinks = new List<ConsumableData>();
 
+    [Header("Crafting and Armor")]
+    public List<OreData> ores = new List<OreData>();
+    public List<ArmorData> armor = new List<ArmorData>();
+
     //INSTANCE
     private static ItemDatabase instance;
 
@@ -55,6 +60,8 @@ public class ItemDatabase : ScriptableObject
         all.AddRange(food);
         all.AddRange(drinks);
         all.AddRange(abilities);
+        all.AddRange(ores);
+        all.AddRange(armor);
         return all;
     }
 

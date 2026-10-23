@@ -1,8 +1,9 @@
 // ============================================================
 // Title:       PlayerStats
-// Version:     1.4
+// Version:     1.5
 // Written by:  Ashar
 // Updated by:  Davud Jabiyev (v1.4: counts eating and drinking for achievements)
+//              Ashar (v1.5: armour takes damage before health)
 // Description: Survival: hunger, thirst, stamina, health and death.
 // ============================================================
 
@@ -40,11 +41,16 @@ public class PlayerStats : MonoBehaviour
     private float hungerTimer;
     private float thirstTimer;
     private float healthTimer;
+    private PlayerArmor armor;
 
     //STARTING PROCEDURES
     void Awake()
     {
         profile = ProfileManager.Profile;   //same object, shown for the Inspector
+
+        armor = GetComponent<PlayerArmor>();
+        if (armor == null)
+            armor = gameObject.AddComponent<PlayerArmor>();
     }
 
     //SURVIVAL
@@ -87,6 +93,7 @@ public class PlayerStats : MonoBehaviour
     //called via Damage.Hit / SendMessage
     public void TakeDamage(float amount)
     {
+        amount = armor.Absorb(amount);   //shield first, the rest hits health
         profile.Health -= amount;
     }
 

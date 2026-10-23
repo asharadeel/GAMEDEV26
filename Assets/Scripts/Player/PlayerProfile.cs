@@ -1,14 +1,16 @@
 // ============================================================
 // Title:       PlayerProfile
-// Version:     2.1
+// Version:     2.2
 // Written by:  Ashar
 // Updated by:  cthullu96 (v1.6: portal piece and portal 2 progress)
 //              Ali (v2.0: coins, shooter upgrade bars,
 //              v2.1: abilities on Q/E and skill tree nodes, no special slot)
+//              Ashar (v2.2: ore pouch and armour)
 // Description: Everything about the player that gets saved:
 //              name, passkey, ball colour, creation date, stats,
 //              coins, owned items, item levels, shooter upgrades,
-//              skill tree, current inventory and portal progress.
+//              skill tree, current inventory, portal progress,
+//              ores and armour.
 // ============================================================
 
 using System.Collections;
@@ -37,6 +39,15 @@ public class ItemLevel
 {
     public string id;
     public int level = 1;
+}
+
+//ITEM COUNT
+//how many of something (ores, spare armour)
+[System.Serializable]
+public class ItemCount
+{
+    public string id;
+    public int count;
 }
 
 //SHOOTER LEVELS
@@ -111,6 +122,12 @@ public class PlayerProfile
     [SerializeField] private CurrentInventory currentInventory = new CurrentInventory();
     [SerializeField] private int selectedWeapon = 0;               // 0 shooter, 1 melee
     [SerializeField] private int inventorySlots = MaxInventorySlots; // usable consumable slots
+
+    //ores and armour
+    [SerializeField] private List<ItemCount> ores = new List<ItemCount>();
+    [SerializeField] private List<ItemCount> armor = new List<ItemCount>();   // pieces owned, including the one worn
+    [SerializeField] private string equippedArmor = "";
+    [SerializeField] private float armorShield = 0f;                          // what's left of the worn piece's bar
 
     //portal progress
     [SerializeField] private bool hasPortalPiece = false;   // picked up from the level 1 boss
@@ -330,6 +347,74 @@ public class PlayerProfile
         ShooterLevels added = new ShooterLevels { id = shooterId };
         added.Set(stat, level);
         shooterLevels.Add(added);
+    }
+
+    //ORES
+    public int GetOreCount(string oreId)
+    {
+        return GetCount(ores, oreId);
+    }
+
+    public void AddOre(string oreId, int amount)
+    {
+        AddCount(ores, oreId, amount);
+    }
+
+    //false if there aren't enough
+    public bool TakeOre(string oreId, int amount)
+    {
+        if (GetOreCount(oreId) < amount)
+            return false;
+        AddCount(ores, oreId, -amount);
+        return true;
+    }
+
+    //ARMOUR
+    public string EquippedArmor
+    {
+        get { return equippedArmor; }
+        set { equippedArmor = value == null ? "" : value; }
+    }
+
+    public float ArmorShield
+    {
+        get { return armorShield; }
+        set { armorShield = Mathf.Max(0f, value); }
+    }
+
+    public int GetArmorCount(string armorId)
+    {
+        return GetCount(armor, armorId);
+    }
+
+    public void AddArmor(string armorId, int amount)
+    {
+        AddCount(armor, armorId, amount);
+    }
+
+    //COUNT HELPERS
+    int GetCount(List<ItemCount> list, string id)
+    {
+        foreach (ItemCount c in list)
+        {
+            if (c.id == id)
+                return c.count;
+        }
+        return 0;
+    }
+
+    void AddCount(List<ItemCount> list, string id, int amount)
+    {
+        foreach (ItemCount c in list)
+        {
+            if (c.id == id)
+            {
+                c.count = Mathf.Max(0, c.count + amount);
+                return;
+            }
+        }
+        if (amount > 0)
+            list.Add(new ItemCount { id = id, count = amount });
     }
 
     //CURRENT INVENTORY
