@@ -274,9 +274,12 @@ public static class ProfileManager
     }
 
     // empties the slot if it's the one equipped
+    // shooters and melee can't be unequipped (you always need one of each to play), only swapped
     public static bool Unequip(WeaponData weapon)
     {
         if (weapon == null || !IsEquipped(weapon))
+            return false;
+        if (weapon is ShooterData || weapon is MeleeData)
             return false;
 
         if (weapon is ShooterData) Profile.EquippedShooter = "";

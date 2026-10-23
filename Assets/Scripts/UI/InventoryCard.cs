@@ -1,11 +1,14 @@
 // ============================================================
 // Title:       InventoryCard
-// Version:     1.0
+// Version:     1.1
 // Written by:  Ali
+// Updated by:  Ashar (v1.1: equipped weapons can't be unequipped, only swapped)
 // Description: One weapon in the Hub's Inventory (the
 //              InventoryCard prefab). Drag the weapon asset into
 //              Item. Shows its name, type and whether it's
-//              equipped, with one Equip / Unequip button.
+//              equipped, with an Equip button. The equipped one
+//              says "Equipped" and is greyed out: equip another
+//              weapon to swap (you always need a shooter and melee).
 //              The InventoryGrid it sits in hides it when the
 //              weapon isn't owned.
 // ============================================================
@@ -33,15 +36,16 @@ public class InventoryCard : MonoBehaviour
         bool equipped = ProfileManager.IsEquipped(item);
         nameText.text = "<b>" + item.displayName + "</b>\n" + Kind();
         equippedTag.SetActive(equipped);
-        equipLabel.text = equipped ? "Unequip" : "Equip";
+        equipLabel.text = equipped ? "Equipped" : "Equip";
+        equipButton.interactable = !equipped;
     }
 
     void Toggle()
     {
         if (ProfileManager.IsEquipped(item))
-            ProfileManager.Unequip(item);
-        else
-            ProfileManager.Equip(item);
+            return;   //can't go without one, equip another to swap
+        ProfileManager.Equip(item);
+        Debug.Log("Equipped " + item.displayName);
 
         // equipping this one unequips whatever was in its slot, so update every card
         InventoryGrid grid = GetComponentInParent<InventoryGrid>();
