@@ -127,7 +127,7 @@ Every item is a ScriptableObject asset in `Assets/Data/`, listed in `Assets/Reso
 2. Name the asset, fill in `id`, `displayName` and stats in the Inspector
 3. Open `Assets/Resources/ItemDatabase.asset`, add the new asset to the matching list
 4. **Lazer only:** also add it to the gun's `Lazers` list (e.g. `EM Raygun`). The list is the gun's lazer bar: 1st = starting lazer, then each upgrade in order
-5. Update the item tables in `README.md`
+5. Update the item tables in `PROJECT_NOTES.md`
 
 ## Doing it as files
 
@@ -279,7 +279,7 @@ Current models (`Models/RayGun/`):
    ```
    `<NEW_ITEM_GUID>` is the guid from the item's new `.meta`
 2. **Lazer only:** add the same line under `lazers:` in the gun's asset (e.g. `Data/Weapons/Shooters/EM Raygun.asset`)
-3. **README:** add the item to the matching table under "Weapons and Items"
+3. **PROJECT_NOTES:** add the item to the matching table under "Weapons and Items"
 4. **Food/drink only, optional:** to make mobs drop it, add it to a mob's `drops` (see Adding Mobs)
 
 ### Checklist before finishing
@@ -288,7 +288,7 @@ Current models (`Models/RayGun/`):
 - [ ] Every `guid` referenced (script, model, lazer) exists in a `.meta` file
 - [ ] Added to the right list in `ItemDatabase.asset`
 - [ ] Lazer: added to the gun's `Lazers` list
-- [ ] README table updated
+- [ ] PROJECT_NOTES table updated
 - [ ] Weapon: tell the user to add a shop card (`ShopItemCard`) and an Inventory card (`InventoryCard`, Hub `InventoryMenu/.../Content/Items`) for it, or add them in the Hub scene
 - [ ] Tell the user: no scene changes needed, and new items don't need the save deleted. Changing an existing item's `id` does break saves
 
@@ -332,7 +332,7 @@ A mob is a profile asset (`MobData`) in `Assets/Data/Mobs/` pointing at a model 
 1. Right-click `Assets/Data/Mobs` > **Create > Game > Mob**, fill in the fields (including `Drops` if it should drop loot)
 2. To spawn it: select a spawner (prefab `Models/Mobs/Spawners/MobSpawner` changes every spawner, or a single one in the scene), add a row to `Spawns` with the mob and amount
 3. Keep `Spawns` in order weakest to strongest (row order decides when they start)
-4. Update the mob table and loot table in `README.md`
+4. Update the mob table and loot table in `PROJECT_NOTES.md`
 
 ## As files
 `.meta`: same as items (NativeFormatImporter, mainObjectFileID 11400000). `.asset` header: same as items with `<SCRIPT_GUID>` = `MobData` guid (`5546605e9e7b4fcaa7c5323071295c28`, check `Assets/Scripts/Mobs/MobData.cs.meta`). Fields:
@@ -379,4 +379,4 @@ Current mob models:
 - [ ] Added to the spawner(s) in weakest-to-strongest order if it should spawn
 - [ ] Root Box Collider on the mob prefab
 - [ ] Every `drops` item guid exists in a consumable `.meta`
-- [ ] README mob table and loot table updated
+- [ ] PROJECT_NOTES mob table and loot table updated
